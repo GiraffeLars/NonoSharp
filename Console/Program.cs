@@ -16,7 +16,7 @@ class Program
             y = Console.ReadKey().KeyChar;
             Console.WriteLine();
 
-            grid.setCell((int) Char.GetNumericValue(x), (int) Char.GetNumericValue(y), true);
+            grid.setCell((int) Char.GetNumericValue(x), (int) Char.GetNumericValue(y), SquareType.FILLED);
             Console.Write(grid);
         }
 

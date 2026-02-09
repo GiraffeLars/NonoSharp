@@ -6,8 +6,8 @@ namespace Picross
 {
     public class Grid
     {
-        private bool[,] grid;
-        private bool[,] solution;
+        private SquareType[,] grid;
+        private SquareType[,] solution;
 
         public int width { get; }
         public int height { get; }
@@ -22,12 +22,12 @@ namespace Picross
             this.width = width;
             this.height = height;
 
-            grid = new bool[width, height];
-            solution = new bool[width, height];
+            grid = new SquareType[width, height];
+            solution = new SquareType[width, height];
             fillRandomly(solution);
         }
 
-        public void setCell(int x, int y, bool value)
+        public void setCell(int x, int y, SquareType value)
         {
             if (x < 0 || x >= width || y < 0 || y >= height)
             {
@@ -37,7 +37,7 @@ namespace Picross
             grid[x, y] = value;
         }
 
-        public bool getCell(int x, int y)
+        public SquareType getCell(int x, int y)
         {
             if (x < 0 || x >= width || y < 0 || y >= height)
             {
@@ -47,14 +47,14 @@ namespace Picross
             return grid[x, y];
         }
 
-        private void fillRandomly(bool[,] g)
+        private void fillRandomly(SquareType[,] g)
         {
             var random = new Random();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    g[x, y] = random.NextInt64() % 2 == 0;
+                    g[x, y] = random.NextInt64() % 2 == 0 ? SquareType.FILLED : SquareType.BLANK;
                 }
             }
 
@@ -67,7 +67,7 @@ namespace Picross
             {
                 for (int x = 0; x < width; x++)
                 {
-                    sb.Append(grid[x, y] ? "[O]" : "[ ]");
+                    sb.Append(grid[x, y] == SquareType.FILLED ? "[O]" : "[ ]");
                 }
                 sb.Append('\n');
             }
