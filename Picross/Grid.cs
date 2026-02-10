@@ -103,8 +103,7 @@ namespace Picross
         {
             if (count > 0)
             {
-                verticalHints[pos].Add(count);
-                Console.WriteLine(verticalHints[pos][0]);
+                hints[pos].Add(count);
             }
         }
 
@@ -148,7 +147,8 @@ namespace Picross
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (random.NextInt64() % 14 == 0) {
+                    if (random.NextInt64() % 14 == 0)
+                    {
                         Point p = new Point(x, y);
                         g.Add(p);
                     }
@@ -214,41 +214,31 @@ namespace Picross
         private String createVerticalHintsString()
         {
             StringBuilder sb = new StringBuilder();
-            bool newRowString = false;
 
-            // TODO revisit
+            bool newStringRow;
+            int lastFilled;
             for (int y = 0; y < height; y++)
             {
-                List<int> row = verticalHints[y];
+                newStringRow = false;
+                lastFilled = 0;
                 for (int x = 0; x < width; x++)
                 {
-                    sb.Append(" ");
-
-                    try
+                    List<int> hints = verticalHints[x];
+                    if (hints.Count > y)
                     {
-                        sb.Append(row[x]);
-                        newRowString = true;
+                        sb.Append(new string(' ', (x - lastFilled) * 3));
+                        sb.Append($" {hints[y]} ");
+                        newStringRow = true;
+                        lastFilled = x + 1;
                     }
-                    catch (Exception e)
-                    {
-                        if (e is NullReferenceException || e is IndexOutOfRangeException || e is ArgumentOutOfRangeException)
-                        {
-                            sb.Append(" ");
-                            continue;
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                    sb.Append(" ");
                 }
 
-                if (newRowString)
+                if (newStringRow)
                 {
                     sb.Append("\n");
-                    newRowString = false;
+                    newStringRow = false;
                 }
+                lastFilled = 0;
             }
             return sb.ToString();
         }
