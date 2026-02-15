@@ -5,18 +5,31 @@ class Program
 {
     static void Main()
     {
-        Grid grid = new Grid(10, 10);
+        Grid grid = new Grid(5, 5);
         Console.Write(grid);
-        char x;
-        char y;
+        int x;
+        int y;
+        SquareType fillType = SquareType.FILLED;
         while (true)
         {
-            x = Console.ReadKey().KeyChar;
+            char read = Console.ReadKey().KeyChar;
+            if (read == 'x')
+            {
+                fillType = fillType == SquareType.FILLED ? SquareType.CROSS : SquareType.FILLED;
+                continue;
+            }
+            x = (int) Char.GetNumericValue(read);
             Console.WriteLine();
-            y = Console.ReadKey().KeyChar;
+            y = (int) Char.GetNumericValue(Console.ReadKey().KeyChar);
             Console.WriteLine();
 
-            grid.setCell((int) Char.GetNumericValue(x), (int) Char.GetNumericValue(y), SquareType.FILLED);
+            try
+            {
+                grid.setCell(x, y, grid.getCell(x, y) == SquareType.BLANK ? fillType : SquareType.BLANK);
+            } catch (ArgumentOutOfRangeException)
+            {
+                continue;
+            }
             Console.Write(grid);
         }
 

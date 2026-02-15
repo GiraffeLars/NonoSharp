@@ -14,6 +14,7 @@ namespace Picross
         private List<int>[] verticalHints;
         private List<int>[] horizontalHints;
         private int filled = 0;
+        private int paddingString = 0;
 
         public int width { get; }
         public int height { get; }
@@ -64,7 +65,7 @@ namespace Picross
                 horizontalHints[i] = new List<int>();
             }
             setHints(verticalHints, true);
-            setHints(horizontalHints, true);
+            setHints(horizontalHints, false);
             
         }
 
@@ -80,10 +81,10 @@ namespace Picross
                 int count = 0;
                 for (int y = 0; y < yLimit; y++)
                 {
-                    SquareType cell = vertical ? getCell(x, y) : getCell(y, x);
+                    SquareType cell = vertical ? gridSol[x, y] : gridSol[y, x];
 
                     // If this is not a filled square
-                    if (gridSol[x,y] != SquareType.FILLED)
+                    if (cell != SquareType.FILLED)
                     {
                         // Add the new hint to the list
                         addHint(hints, x, count); // TODO if squares are split (i.e. empty between two patches), separate them with a 0
@@ -95,7 +96,14 @@ namespace Picross
                 }
 
                 // Do final hint adding in case the last square is filled
-                addHint(hints, x, count);
+                // Count minus 1 as it is increased by one even if unfilled
+                SquareType lastCell = vertical ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
+                if (count > 0 && lastCell == SquareType.FILLED)
+                {
+                    addHint(hints, x, count);
+                }
+
+                doHorizontalPaddingCount(hints[x].Count, vertical);
             }
         }
 
@@ -105,6 +113,19 @@ namespace Picross
             {
                 hints[pos].Add(count);
             }
+        }
+
+        private void doHorizontalPaddingCount(int count, bool vertical)
+        {
+            if (!vertical && count > paddingString)
+            {
+                paddingString = count; 
+            }
+        }
+
+        private String getPadding()
+        {
+            return new string(' ', paddingString * 2);
         }
 
         public void setCell(int x, int y, SquareType value)
@@ -147,7 +168,7 @@ namespace Picross
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (random.NextInt64() % 14 == 0)
+                    if (random.NextInt64() % 2 == 0)
                     {
                         Point p = new Point(x, y);
                         g.Add(p);
@@ -185,9 +206,15 @@ namespace Picross
             Console.WriteLine();
 
             StringBuilder sb = new StringBuilder();
+            String[] horizontalHintsStr = createHorizontalHintsString();
+
             sb.Append(createVerticalHintsString());
+            //sb.AppendLine();
+
             for (int y = 0; y < height; y++)
             {
+                sb.Append('\n');
+                sb.Append(horizontalHintsStr[y]);
                 for (int x = 0; x < width; x++)
                 {
                     char c = ' ';
@@ -206,7 +233,7 @@ namespace Picross
                     }
                     sb.Append($"[{c}]");
                 }
-                sb.Append('\n');
+                
             }
             return sb.ToString();
         }
@@ -214,11 +241,15 @@ namespace Picross
         private String createVerticalHintsString()
         {
             StringBuilder sb = new StringBuilder();
+            
+            //Console.WriteLine(getPadding());
+            //Console.WriteLine(paddingString);
 
             bool newStringRow;
             int lastFilled;
             for (int y = 0; y < height; y++)
             {
+                sb.Append(getPadding());
                 newStringRow = false;
                 lastFilled = 0;
                 for (int x = 0; x < width; x++)
@@ -226,8 +257,10 @@ namespace Picross
                     List<int> hints = verticalHints[x];
                     if (hints.Count > y)
                     {
+                        // Add spaces for all columns with no hints until this column
                         sb.Append(new string(' ', (x - lastFilled) * 3));
                         sb.Append($" {hints[y]} ");
+                        
                         newStringRow = true;
                         lastFilled = x + 1;
                     }
@@ -235,12 +268,34 @@ namespace Picross
 
                 if (newStringRow)
                 {
-                    sb.Append("\n");
+                    sb.AppendLine();
                     newStringRow = false;
                 }
                 lastFilled = 0;
             }
             return sb.ToString();
+        }
+
+        private String[] createHorizontalHintsString()
+        {
+            String[] hintsStr = new String[height];
+
+            for (int i = 0; i < height; i++)
+            {
+                int x;
+                StringBuilder sb = new StringBuilder();
+                List<int> hints = horizontalHints[i];
+
+                for (x = 0; x < hints.Count; x++)
+                {
+                    sb.Append($"{hints[x]} ");
+                }
+
+                sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));
+                hintsStr[i] = sb.ToString();
+            }
+
+            return hintsStr;
         }
     }
 
