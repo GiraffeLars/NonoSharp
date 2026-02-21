@@ -11,13 +11,16 @@ namespace Picross
     {
         private SquareType[,] grid;
         private List<Point> solution;
-        private List<int>[] verticalHints;
-        private List<int>[] horizontalHints;
+        private List<int>[] _verticalHints;
+        private List<int>[] _horizontalHints;
         private int filled = 0;
         private int paddingString = 0;
 
         public int width { get; }
         public int height { get; }
+
+        public List<int>[] verticalHints { get { return _verticalHints; } }
+        public List<int>[] horizontalHints { get { return _horizontalHints; } }
 
         public Grid(int width, int height)
         {
@@ -35,8 +38,8 @@ namespace Picross
             fillRandomly(solution);
 
 
-            verticalHints = new List<int>[width];
-            horizontalHints = new List<int>[height];
+            _verticalHints = new List<int>[width];
+            _horizontalHints = new List<int>[height];
             initializeHints();
             
         }
@@ -58,14 +61,14 @@ namespace Picross
         {
             for (int i = 0; i < width; i++)
             {
-                verticalHints[i] = new List<int>();
+                _verticalHints[i] = new List<int>();
             }
             for (int i = 0; i < height; i++)
             {
-                horizontalHints[i] = new List<int>();
+                _horizontalHints[i] = new List<int>();
             }
-            setHints(verticalHints, true);
-            setHints(horizontalHints, false);
+            setHints(_verticalHints, true);
+            setHints(_horizontalHints, false);
             
         }
 
@@ -254,7 +257,7 @@ namespace Picross
                 lastFilled = 0;
                 for (int x = 0; x < width; x++)
                 {
-                    List<int> hints = verticalHints[x];
+                    List<int> hints = _verticalHints[x];
                     if (hints.Count > y)
                     {
                         // Add spaces for all columns with no hints until this column
@@ -284,7 +287,7 @@ namespace Picross
             {
                 int x;
                 StringBuilder sb = new StringBuilder();
-                List<int> hints = horizontalHints[i];
+                List<int> hints = _horizontalHints[i];
 
                 for (x = 0; x < hints.Count; x++)
                 {
