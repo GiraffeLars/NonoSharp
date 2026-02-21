@@ -105,6 +105,10 @@ namespace Picross
                 {
                     addHint(hints, x, count);
                 }
+                else if (hints[x].Count == 0)
+                {
+                    hints[x].Add(0);
+                }
 
                 doHorizontalPaddingCount(hints[x].Count, vertical);
             }

@@ -65,10 +65,10 @@ namespace GUI
             {
                 List<int> hints = grid.verticalHints[x];
 
-                for (int y = 0; y < hints.Count; y++)
+                for (int y = hints.Count - 1; y >= 0; y--)
                 {
                     g.DrawString(hints[y].ToString(), font, Brushes.Black,
-                        colWidth * x + colWidth / 2, y * 20, stringFormat);
+                        colWidth * x + colWidth / 2, panelVerHints.Height - (hints.Count - y) * 20, stringFormat);
                 }
             }
         }
@@ -83,10 +83,10 @@ namespace GUI
             {
                 List<int> hints = grid.horizontalHints[y];
 
-                for (int x = 0; x < hints.Count; x++)
+                for (int x = hints.Count - 1; x >= 0; x--)
                 {
                     g.DrawString(hints[x].ToString(), font, Brushes.Black,
-                        x * 20, y * colHeight + colHeight / 2, stringFormat);
+                        panelHorHints.Width - (hints.Count - x) * 20, y * colHeight + colHeight / 2, stringFormat);
                 }
             }
         }
