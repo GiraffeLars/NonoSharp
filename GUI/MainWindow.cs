@@ -17,7 +17,7 @@ namespace GUI
         private void panelBoard_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            Brush b = new SolidBrush(Color.Black);
+            Brush b = grid.isCorrect() ? new SolidBrush(Color.Green) : new SolidBrush(Color.Black);
             Pen pCross = new Pen(Color.Black, 4);
             Pen pBox = new Pen(Color.Gray, 2);
 
@@ -57,12 +57,38 @@ namespace GUI
 
         private void panelVerHints_Paint(object sender, PaintEventArgs e)
         {
+            Graphics g = e.Graphics;
+            Font font = new Font("Arial", 12);
+            StringFormat stringFormat = new StringFormat();
 
+            for (int x = 0; x < grid.width; x++)
+            {
+                List<int> hints = grid.verticalHints[x];
+
+                for (int y = 0; y < hints.Count; y++)
+                {
+                    g.DrawString(hints[y].ToString(), font, Brushes.Black,
+                        colWidth * x + colWidth / 2, y * 20, stringFormat);
+                }
+            }
         }
 
         private void panelHorHints_Paint(object sender, PaintEventArgs e)
         {
+            Graphics g = e.Graphics;
+            Font font = new Font("Arial", 12);
+            StringFormat stringFormat = new StringFormat();
 
+            for (int y = 0; y < grid.height; y++)
+            {
+                List<int> hints = grid.horizontalHints[y];
+
+                for (int x = 0; x < hints.Count; x++)
+                {
+                    g.DrawString(hints[x].ToString(), font, Brushes.Black,
+                        x * 20, y * colHeight + colHeight / 2, stringFormat);
+                }
+            }
         }
 
         private void panelBoard_MouseClick(object sender, MouseEventArgs e)
@@ -91,6 +117,7 @@ namespace GUI
             }
 
             Debug.WriteLine(grid);
+            Debug.WriteLine($"Correct? {grid.isCorrect()}");
 
             // Repaint necessary
             panelBoard.Invalidate();

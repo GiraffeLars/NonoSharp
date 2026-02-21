@@ -150,8 +150,8 @@ namespace Picross
             grid[x, y] = value;
 
             // Check if this is a correct solution
-            Console.Write("Is Correct? ");
-            Console.WriteLine(isCorrect());
+            //Console.Write("Is Correct? ");
+            //Console.WriteLine(isCorrect());
         }
 
         public SquareType getCell(int x, int y)
@@ -180,7 +180,7 @@ namespace Picross
             }
         }
 
-        private bool isCorrect()
+        public bool isCorrect()
         {
             if (filled != solution.Count())
             {
@@ -201,12 +201,12 @@ namespace Picross
 
         public override string ToString()
         {
-            foreach (Point p in solution)
-            {
-                Console.Write(p);
-                Console.Write(" ");
-            }
-            Console.WriteLine();
+            //foreach (Point p in solution)
+            //{
+            //    Console.Write(p);
+            //    Console.Write(" ");
+            //}
+            //Console.WriteLine();
 
             StringBuilder sb = new StringBuilder();
             String[] horizontalHintsStr = createHorizontalHintsString();

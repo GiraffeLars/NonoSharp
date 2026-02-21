@@ -8,6 +8,6 @@ namespace GUI
 {
     internal class Game
     {
-        public static Grid grid = new Grid(5, 5);
+        public static Grid grid = new Grid(10, 10);
     }
 }
