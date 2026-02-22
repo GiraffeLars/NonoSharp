@@ -7,7 +7,7 @@ using System.Runtime.ConstrainedExecution;
 
 namespace Picross
 {
-    public class Grid
+    internal class Grid
     {
         private SquareType[,] grid;
         private List<Point> solution;

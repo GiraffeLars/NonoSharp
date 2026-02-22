@@ -5,25 +5,24 @@ namespace GUI
 {
     public partial class MainWindow : Form
     {
-        private Grid grid = Game.grid;
+        private GameAPI game = new GameAPI(10, 10);
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private int colWidth { get { return panelBoard.Width / grid.width; } }
-        private int colHeight { get { return  panelBoard.Height / grid.height; }  }
+        private int colWidth { get { return panelBoard.Width / game.Width; } }
+        private int colHeight { get { return panelBoard.Height / game.Height; } }
 
         private void panelBoard_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            Brush b = grid.isCorrect() ? new SolidBrush(Color.Green) : new SolidBrush(Color.Black);
+            Brush b = game.IsPuzzleSolved() ? new SolidBrush(Color.Green) : new SolidBrush(Color.Black);
             Pen pCross = new Pen(Color.Black, 4);
-            Pen pBox = new Pen(Color.Gray, 2);
 
-            for (int x = 0; x < grid.width; x++)
+            for (int x = 0; x < game.Width; x++)
             {
-                for (int y = 0; y < grid.height; y++)
+                for (int y = 0; y < game.Height; y++)
                 {
                     // Coordinates of the top-left and bottom-right of square
                     int x0 = x * colWidth;
@@ -31,27 +30,55 @@ namespace GUI
                     int x1 = x0 + colWidth;
                     int y1 = y0 + colHeight;
 
-                    switch (grid.getCell(x, y))
+                    if (game.IsSquareEmpty(x, y))
                     {
-                        case SquareType.BLANK:
-                            break;
-                        case SquareType.FILLED:
-                            // Fill Square
-                            g.FillRectangle(b, x0, y0, colWidth, colHeight);
-                            break;
-                        case SquareType.CROSS:
-                            // Draw a cross
-                            g.DrawLine(pCross,
-                                x0, y0, x1, y1);
-                            g.DrawLine(pCross,
-                                x0, y1, x1, y0);
-
-                            break;
+                        continue;
                     }
 
-                    g.DrawRectangle(pBox,
-                            x0, y0, x1, y1);
+                    if (game.IsSquareFilled(x, y))
+                    {
+                        g.FillRectangle(b, x0, y0, colWidth, colHeight);
+                        continue;
+                    }
+
+                    g.DrawLine(pCross, x0, y0, x1, y1);
+                    g.DrawLine(pCross, x0, y1, x1, y0);
                 }
+            }
+
+            DrawLines(g);
+        }
+
+        private void DrawLines(Graphics g)
+        {
+            Pen p = new Pen(Brushes.Gray, 2);
+
+            for (int x = 0; x <= game.Width; x++)
+            {
+                if (x % 5 == 0)
+                {
+                    p.Width = 4;
+                }
+                else
+                {
+                    p.Width = 2;
+                }
+
+                g.DrawLine(p, x * colWidth, 0, x * colWidth, game.Height * colHeight);
+            }
+
+            for (int y = 0; y <= game.Height; y++)
+            {
+                if (y % 5 == 0)
+                {
+                    p.Width = 4;
+                }
+                else
+                {
+                    p.Width = 2;
+                }
+
+                g.DrawLine(p, 0, y * colHeight, game.Width * colWidth, y * colHeight);
             }
         }
 
@@ -61,9 +88,9 @@ namespace GUI
             Font font = new Font("Arial", 12);
             StringFormat stringFormat = new StringFormat();
 
-            for (int x = 0; x < grid.width; x++)
+            for (int x = 0; x < game.Width; x++)
             {
-                List<int> hints = grid.verticalHints[x];
+                List<int> hints = game.VerticalHints[x];
 
                 for (int y = hints.Count - 1; y >= 0; y--)
                 {
@@ -79,9 +106,9 @@ namespace GUI
             Font font = new Font("Arial", 12);
             StringFormat stringFormat = new StringFormat();
 
-            for (int y = 0; y < grid.height; y++)
+            for (int y = 0; y < game.Height; y++)
             {
-                List<int> hints = grid.horizontalHints[y];
+                List<int> hints = game.HorizontalHints[y];
 
                 for (int x = hints.Count - 1; x >= 0; x--)
                 {
@@ -91,36 +118,101 @@ namespace GUI
             }
         }
 
-        private void panelBoard_MouseClick(object sender, MouseEventArgs e)
+        private void panelBoard_MouseDown(object sender, MouseEventArgs e)
         {
             int x = e.X / colWidth;
             int y = e.Y / colHeight;
-
-            SquareType sType;
-            if (e.Button == MouseButtons.Left) {
-                sType = grid.getCell(x, y) == SquareType.FILLED ? SquareType.BLANK : SquareType.FILLED;
-            } else if (e.Button == MouseButtons.Right)
-            {
-                sType = grid.getCell(x, y) == SquareType.CROSS ? SquareType.BLANK : SquareType.CROSS;
-            } else
-            {
-                sType = SquareType.BLANK;
-            }
+            MouseButtons mouseButton = e.Button;
 
             try
             {
-                grid.setCell(x, y, sType);
+                if (game.IsSquareFilled(x, y))
+                {
+                    HandleClickFilledSquare(x, y, mouseButton);
+                }
+                else if (game.IsSquareCrossed(x, y))
+                {
+                    HandleClickCrossedSquare(x, y, mouseButton);
+                }
+                else
+                {
+                    HandleClickEmptySquare(x, y, mouseButton);
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
-                return; // Silently fail, it is not important to let users know this click is out of bounds
+                // Silently fail, unimport for user as they missclicked
+                return;
             }
 
-            Debug.WriteLine(grid);
-            Debug.WriteLine($"Correct? {grid.isCorrect()}");
+            // Repaint necessary for the clicked square
+            panelBoard.Invalidate(new Rectangle(x * colWidth, y * colHeight, colWidth, colHeight));
+        }
 
-            // Repaint necessary
-            panelBoard.Invalidate();
+        private void HandleClickFilledSquare(int x, int y, MouseButtons but)
+        {
+            if (but == MouseButtons.Right)
+            {
+                game.CrossCell(x, y);
+                return;
+            }
+
+            if (but == MouseButtons.Left && game.IsSquareEmpty(x, y))
+            {
+                game.FillCell(x, y);
+                return;
+            }
+
+            // For all other mouse clicks we empty the cell
+            game.EmptyCell(x, y);
+        }
+
+        private void HandleClickCrossedSquare(int x, int y, MouseButtons but)
+        {
+            if (but == MouseButtons.Left)
+            {
+                game.FillCell(x, y);
+                return;
+            }
+
+            if (but == MouseButtons.Right && game.IsSquareEmpty(x, y))
+            {
+                game.CrossCell(x, y);
+                return;
+            }
+
+            // For all other mouse clicks we empty the cell
+            game.EmptyCell(x, y);
+        }
+
+        private void HandleClickEmptySquare(int x, int y, MouseButtons but)
+        {
+            if (but == MouseButtons.Left)
+            {
+                game.FillCell(x, y);
+                return;
+            }
+
+            if (but == MouseButtons.Right)
+            {
+                game.CrossCell(x, y);
+                return;
+            }
+
+            // Ignore other mouse buttons
+        }
+
+        private void MainWindow_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 'z')
+            {
+                game.Undo();
+                panelBoard.Invalidate();
+            } else if (e.KeyChar == 'y')
+            {
+                game.Redo();
+                panelBoard.Invalidate();
+            }
         }
     }
 }

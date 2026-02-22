@@ -35,41 +35,46 @@
             // 
             // panelBoard
             // 
-            panelBoard.Location = new Point(166, 118);
+            panelBoard.Location = new Point(190, 157);
+            panelBoard.Margin = new Padding(3, 4, 3, 4);
             panelBoard.Name = "panelBoard";
             panelBoard.Size = new Size(700, 700);
             panelBoard.TabIndex = 0;
             panelBoard.Paint += panelBoard_Paint;
-            panelBoard.MouseClick += panelBoard_MouseClick;
+            panelBoard.MouseDown += panelBoard_MouseDown;
             // 
             // panelVerHints
             // 
-            panelVerHints.Location = new Point(166, 12);
+            panelVerHints.Location = new Point(190, 16);
+            panelVerHints.Margin = new Padding(3, 4, 3, 4);
             panelVerHints.Name = "panelVerHints";
-            panelVerHints.Size = new Size(700, 100);
+            panelVerHints.Size = new Size(700, 133);
             panelVerHints.TabIndex = 0;
             panelVerHints.Paint += panelVerHints_Paint;
             // 
             // panelHorHints
             // 
-            panelHorHints.Location = new Point(12, 118);
+            panelHorHints.Location = new Point(14, 157);
+            panelHorHints.Margin = new Padding(3, 4, 3, 4);
             panelHorHints.Name = "panelHorHints";
-            panelHorHints.Size = new Size(148, 700);
+            panelHorHints.Size = new Size(169, 700);
             panelHorHints.TabIndex = 0;
             panelHorHints.Paint += panelHorHints_Paint;
             // 
             // MainWindow
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1904, 1041);
+            ClientSize = new Size(1924, 1055);
             Controls.Add(panelBoard);
             Controls.Add(panelHorHints);
             Controls.Add(panelVerHints);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "MainWindow";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Picross";
             WindowState = FormWindowState.Maximized;
+            KeyPress += MainWindow_KeyPress;
             ResumeLayout(false);
         }
 

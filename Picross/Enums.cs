@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Picross
 {
-    public enum SquareType
+    internal enum SquareType
     {
         BLANK,
         FILLED,
