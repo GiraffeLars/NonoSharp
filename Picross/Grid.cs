@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Data.Common;
 using System.Drawing;
-using System.Collections;
-using System.Runtime.ConstrainedExecution;
+using System.Text;
 
 namespace Picross
 {
@@ -153,9 +150,7 @@ namespace Picross
 
             grid[x, y] = value;
 
-            // Check if this is a correct solution
-            //Console.Write("Is Correct? ");
-            //Console.WriteLine(isCorrect());
+            // TODO change hints from ints to using Hints and Hint classes then change completion here
         }
 
         public SquareType getCell(int x, int y)
@@ -166,6 +161,30 @@ namespace Picross
             }
 
             return grid[x, y];
+        }
+
+        internal LinkedList<SquareType> GetColumn(int column)
+        {
+            LinkedList<SquareType> list = new LinkedList<SquareType>();
+
+            for (int i = 0; i < height; i++)
+            {
+                SquareType type = grid[column, i];
+                list.AddLast(type);
+            }
+            return list;
+        }
+
+        internal LinkedList<SquareType> GetRow(int row)
+        {
+            LinkedList<SquareType> list = new LinkedList<SquareType>();
+
+            for (int i = 0; i < width; i++)
+            {
+                SquareType type = grid[i, row];
+                list.AddLast(type);
+            }
+            return list;
         }
 
         private void fillRandomly(List<Point> g)

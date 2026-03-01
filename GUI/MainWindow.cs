@@ -146,7 +146,14 @@ namespace GUI
             }
 
             // Repaint necessary for the clicked square
-            panelBoard.Invalidate(new Rectangle(x * colWidth, y * colHeight, colWidth, colHeight));
+            if (game.IsPuzzleSolved())
+            {
+                panelBoard.Invalidate();
+            } 
+            else
+            {
+                panelBoard.Invalidate(new Rectangle(x * colWidth, y * colHeight, colWidth, colHeight));
+            }
         }
 
         private void HandleClickFilledSquare(int x, int y, MouseButtons but)
