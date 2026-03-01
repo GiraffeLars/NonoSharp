@@ -8,16 +8,14 @@ namespace Picross
     {
         private SquareType[,] grid;
         private List<Point> solution;
-        private List<int>[] _verticalHints;
-        private List<int>[] _horizontalHints;
         private int filled = 0;
         private int paddingString = 0;
 
         public int width { get; }
         public int height { get; }
 
-        public List<int>[] verticalHints { get { return _verticalHints; } }
-        public List<int>[] horizontalHints { get { return _horizontalHints; } }
+        public Hints[] verticalHints { get; }
+        public Hints[] horizontalHints { get; }
 
         public Grid(int width, int height)
         {
@@ -35,8 +33,8 @@ namespace Picross
             fillRandomly(solution);
 
 
-            _verticalHints = new List<int>[width];
-            _horizontalHints = new List<int>[height];
+            verticalHints = new Hints[width];
+            horizontalHints = new Hints[height];
             initializeHints();
             
         }
@@ -58,18 +56,18 @@ namespace Picross
         {
             for (int i = 0; i < width; i++)
             {
-                _verticalHints[i] = new List<int>();
+                verticalHints[i] = new Hints(true, i);
             }
             for (int i = 0; i < height; i++)
             {
-                _horizontalHints[i] = new List<int>();
+                horizontalHints[i] = new Hints(false, i);
             }
-            setHints(_verticalHints, true);
-            setHints(_horizontalHints, false);
+            setHints(verticalHints, true);
+            setHints(horizontalHints, false);
             
         }
 
-        private void setHints(List<int>[] hints, bool vertical)
+        private void setHints(Hints[] hints, bool vertical)
         {
             // Sets the hint limits based on whether we process the vertical hints
             int xLimit = vertical ? width : height;
@@ -104,18 +102,18 @@ namespace Picross
                 }
                 else if (hints[x].Count == 0)
                 {
-                    hints[x].Add(0);
+                    hints[x].Add(new Hint(0));
                 }
 
                 doHorizontalPaddingCount(hints[x].Count, vertical);
             }
         }
 
-        private void addHint(List<int>[] hints, int pos, int count)
+        private void addHint(Hints[] hints, int pos, int count)
         {
             if (count > 0)
             {
-                hints[pos].Add(count);
+                hints[pos].Add(new Hint(count));
             }
         }
 
@@ -151,6 +149,8 @@ namespace Picross
             grid[x, y] = value;
 
             // TODO change hints from ints to using Hints and Hint classes then change completion here
+            horizontalHints[y].DoCompletion(this);
+            verticalHints[x].DoCompletion(this);
         }
 
         public SquareType getCell(int x, int y)
@@ -280,12 +280,12 @@ namespace Picross
                 lastFilled = 0;
                 for (int x = 0; x < width; x++)
                 {
-                    List<int> hints = _verticalHints[x];
+                    Hints hints = verticalHints[x];
                     if (hints.Count > y)
                     {
                         // Add spaces for all columns with no hints until this column
                         sb.Append(new string(' ', (x - lastFilled) * 3));
-                        sb.Append($" {hints[y]} ");
+                        sb.Append($" {hints.GetHint(y)} ");
                         
                         newStringRow = true;
                         lastFilled = x + 1;
@@ -310,11 +310,11 @@ namespace Picross
             {
                 int x;
                 StringBuilder sb = new StringBuilder();
-                List<int> hints = _horizontalHints[i];
+                Hints hints = horizontalHints[i];
 
                 for (x = 0; x < hints.Count; x++)
                 {
-                    sb.Append($"{hints[x]} ");
+                    sb.Append($"{hints.GetHint(x)} ");
                 }
 
                 sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));

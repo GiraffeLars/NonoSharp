@@ -1,10 +1,12 @@
 ﻿namespace Picross
 {
-    internal class Hints
+    public class Hints
     {
         private List<Hint> hints;
         private bool vertical;
         private int position;
+
+        public int Count { get { return hints.Count; } }
 
         internal Hints(bool vertical, int position)
         {
@@ -17,6 +19,8 @@
         {
             hints.Add(hint);
         }
+
+        public Hint GetHint(int position) { return hints[position]; }
 
         internal void Reset()
         {
@@ -64,6 +68,11 @@
                     }
 
                     hintIndex++;
+
+                    if (hintIndex >= hints.Count)
+                    {
+                        break;
+                    }
                     expectedValue = hints[hintIndex].number;
                     startedHandling = false;
                     node = node.Next;
@@ -72,7 +81,7 @@
 
                 // Else, this square is filled in. We adjust the remaining expected square count
                 // and move to the next node
-                expectedValue++;
+                expectedValue--;
                 startedHandling = true;
                 node = node.Next;
             }
@@ -109,11 +118,23 @@
                     }
 
                     hintIndex--;
+
+                    if (hintIndex < 0)
+                    {
+                        break;
+                    }
                     expectedValue = hints[hintIndex].number;
                     startedHandling = false;
-                    node = node.Next;
+                    node = node.Previous;
                     continue;
                 }
+
+
+                // Else, this square is filled in. We adjust the remaining expected square count
+                // and move to the next node
+                expectedValue--;
+                startedHandling = true;
+                node = node.Previous;
             }
 
             DoSanityCheck(node, hintIndex, false);

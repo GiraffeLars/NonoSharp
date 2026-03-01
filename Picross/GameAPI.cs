@@ -6,8 +6,8 @@
 
         public int Width { get { return grid.width; } }
         public int Height { get { return grid.height; } }
-        public List<int>[] VerticalHints { get { return grid.verticalHints; } }
-        public List<int>[] HorizontalHints { get { return grid.horizontalHints; } }
+        public Hints[] VerticalHints { get { return grid.verticalHints; } }
+        public Hints[] HorizontalHints { get { return grid.horizontalHints; } }
 
         private LinkedList<Command> undoStack;
         private LinkedList<Command> redoStack;

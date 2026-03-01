@@ -90,11 +90,13 @@ namespace GUI
 
             for (int x = 0; x < game.Width; x++)
             {
-                List<int> hints = game.VerticalHints[x];
+                Hints hints = game.VerticalHints[x];
 
                 for (int y = hints.Count - 1; y >= 0; y--)
                 {
-                    g.DrawString(hints[y].ToString(), font, Brushes.Black,
+                    Hint hint = hints.GetHint(y);
+                    Brush colour = hint.completed ? Brushes.Gray : Brushes.Black;
+                    g.DrawString(hint.number.ToString(), font, colour,
                         colWidth * x + colWidth / 2, panelVerHints.Height - (hints.Count - y) * 20, stringFormat);
                 }
             }
@@ -108,11 +110,14 @@ namespace GUI
 
             for (int y = 0; y < game.Height; y++)
             {
-                List<int> hints = game.HorizontalHints[y];
+                Hints hints = game.HorizontalHints[y];
 
                 for (int x = hints.Count - 1; x >= 0; x--)
                 {
-                    g.DrawString(hints[x].ToString(), font, Brushes.Black,
+                    Hint hint = hints.GetHint(x);
+                    Brush colour = hint.completed ? Brushes.Gray : Brushes.Black;
+
+                    g.DrawString(hint.number.ToString(), font, colour,
                         panelHorHints.Width - (hints.Count - x) * 20, y * colHeight + colHeight / 2, stringFormat);
                 }
             }
@@ -154,6 +159,8 @@ namespace GUI
             {
                 panelBoard.Invalidate(new Rectangle(x * colWidth, y * colHeight, colWidth, colHeight));
             }
+            panelVerHints.Invalidate();
+            panelHorHints.Invalidate();
         }
 
         private void HandleClickFilledSquare(int x, int y, MouseButtons but)
