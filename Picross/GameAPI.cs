@@ -89,5 +89,7 @@
         {
             return grid.isCorrect();
         }
+
+        public override String ToString() { return grid.ToString(); }
     }
 }

@@ -5,17 +5,28 @@ class Program
 {
     static void Main()
     {
-        Grid grid = new Grid(5, 5);
-        Console.Write(grid);
+        GameAPI game = new GameAPI(5, 5);
+        Console.Write(game.ToString());
         int x;
         int y;
-        SquareType fillType = SquareType.FILLED;
+        
+        Action<int, int> changeCellAction = game.FillCell;
+        bool fillingSquares = true;
+
         while (true)
         {
             char read = Console.ReadKey().KeyChar;
             if (read == 'x')
             {
-                fillType = fillType == SquareType.FILLED ? SquareType.CROSS : SquareType.FILLED;
+                if (fillingSquares)
+                {
+                    fillingSquares = false;
+                    changeCellAction = game.CrossCell;
+                } else
+                {
+                    fillingSquares = true;
+                    changeCellAction = game.FillCell;
+                }
                 continue;
             }
             x = (int) Char.GetNumericValue(read);
@@ -25,12 +36,19 @@ class Program
 
             try
             {
-                grid.setCell(x, y, grid.getCell(x, y) == SquareType.BLANK ? fillType : SquareType.BLANK);
+                if (!game.IsSquareEmpty(x, y))
+                {
+                    changeCellAction(x, y);
+                }
+                else
+                {
+                    game.EmptyCell(x, y);
+                }
             } catch (ArgumentOutOfRangeException)
             {
                 continue;
             }
-            Console.Write(grid);
+            Console.Write(game);
         }
 
     }
