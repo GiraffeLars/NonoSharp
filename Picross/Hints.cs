@@ -1,10 +1,13 @@
-﻿namespace Picross
+﻿namespace Core
 {
     public class Hints
     {
         private List<Hint> hints;
         private bool vertical;
         private int position;
+
+        // Filled squares that have not yet been considered in a (completed) hint
+        private int remainingUncheckedSquares;
 
         public int Count { get { return hints.Count; } }
 
@@ -24,6 +27,7 @@
 
         internal void Reset()
         {
+            remainingUncheckedSquares = 0;
             foreach (Hint hint in hints)
             {
                 hint._completed = false;
@@ -34,6 +38,17 @@
             if (hints.Count == 0) return;
             Reset();
             LinkedList<SquareType> line = vertical ? grid.GetColumn(position) : grid.GetRow(position);
+            LinkedListNode<SquareType>? node = line.First;
+
+            
+            while (node != null)
+            {
+                if (node.Value == SquareType.FILLED)
+                {
+                    remainingUncheckedSquares++;
+                }
+                node = node.Next;
+            }
 
             DoCompletionForward(line);
             DoCompletionBackward(line);
@@ -83,7 +98,13 @@
                 // and move to the next node
                 expectedValue--;
                 startedHandling = true;
+                remainingUncheckedSquares--;
                 node = node.Next;
+            }
+
+            if (node == null && hintIndex == hints.Count - 1 && expectedValue == 0)
+            {
+                hints[hintIndex]._completed = true;
             }
 
             DoSanityCheck(node, hintIndex, true);
@@ -96,7 +117,7 @@
             int expectedValue = hints[hintIndex].number;
             bool startedHandling = false;
 
-            while (node != null && hintIndex >= 0 && !hints[hintIndex].completed)
+            while (node != null && hintIndex >= 0 && !hints[hintIndex].completed && remainingUncheckedSquares > 0)
             {
                 if (node.Value == SquareType.BLANK)
                 {
@@ -126,6 +147,7 @@
                     expectedValue = hints[hintIndex].number;
                     startedHandling = false;
                     node = node.Previous;
+                    remainingUncheckedSquares--;
                     continue;
                 }
 

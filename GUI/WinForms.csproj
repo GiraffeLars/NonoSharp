@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Picross\Picross.csproj" />
+    <ProjectReference Include="..\Picross\Core.csproj" />
   </ItemGroup>
 
 </Project>

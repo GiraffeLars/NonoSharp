@@ -1,4 +1,4 @@
-using Picross;
+using Core;
 using System.Diagnostics;
 
 namespace GUI

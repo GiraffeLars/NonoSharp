@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross
+namespace Core
 {
     public class Hint
     {

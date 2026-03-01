@@ -1,4 +1,6 @@
-namespace GUI
+using GUI;
+
+namespace WinForms
 {
     internal static class Program
     {

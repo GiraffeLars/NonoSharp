@@ -1,5 +1,5 @@
 ﻿using System;
-using Picross;
+using Core;
 
 class Program
 {

@@ -1,4 +1,4 @@
-﻿namespace Picross
+﻿namespace Core
 {
     public class GameAPI
     {
