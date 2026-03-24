@@ -51,6 +51,12 @@ namespace Core
             return s;
         }
 
+        internal void setSolution(List<Point> solution)
+        { 
+            this.solution = solution;
+            initializeHints();
+        }
+
         private void initializeHints()
             
         {
