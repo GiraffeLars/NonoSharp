@@ -67,6 +67,7 @@
         /// </summary>
         /// <param name="line">The row/column to check</param>
         /// <returns>The final hint which was marked as completed</returns>
+        /// <seealso cref="DoCompletionBackward(LinkedList{SquareType}, int)"/>
         private int DoCompletionForward(LinkedList<SquareType> line)
         {
             LinkedListNode<SquareType>? node = line.First;
@@ -131,6 +132,12 @@
             return hintIndex;
         }
 
+        /// <summary>
+        /// Checks hint completion by starting from the back. Only checks upto (not including) <paramref name="forwardsFinalCheck"/>.
+        /// </summary>
+        /// <param name="line">The row/column to check</param>
+        /// <param name="forwardsFinalCheck">The last hint index which <c>DoCompletionForward</c> left off at</param>
+        /// <seealso cref="DoCompletionBackward(LinkedList{SquareType})"/>
         private void DoCompletionBackward(LinkedList<SquareType> line, int forwardsFinalCheck)
         {
             LinkedListNode<SquareType>? node = line.Last;
