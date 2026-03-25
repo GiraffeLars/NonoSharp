@@ -21,6 +21,15 @@ namespace Core.UnitTests
             grid.setSolution(sol);
         }
 
+        private void FillInGridSolution()
+        {
+            for (int i = 0; i < grid.width; i++)
+            {
+                if (i == 2) { continue; }
+                grid.setCell(i, 0, SquareType.FILLED);
+            }
+        }
+
         [Fact]
         public void TestIsSolved()
         {         
@@ -72,9 +81,74 @@ namespace Core.UnitTests
         }
 
         [Fact]
-        public void TestHintFilledIn()
+        public void TestHintsCompletedVertical()
         {
+            // Vertical hints using a grid of 5 x 1 with the current solution
+            // should only be correct at index 2 (i.e. where no square is expected)
+            for (int i = 0; i < grid.width; i++)
+            {
+                Assert.Equal(i == 2, grid.verticalHints[i].GetHint(0).completed);
+            }
 
+            // Fill in the expected squares
+            FillInGridSolution();
+
+            // Now all hints should be completed
+            for (int i = 0; i < grid.width; i++)
+            {
+                Assert.True(grid.verticalHints[i].GetHint(0).completed);
+            }
+
+            // Finally, if we place a square at the expected empty one, this should no longer be completed
+            grid.setCell(2, 0, SquareType.FILLED);
+            Assert.False(grid.verticalHints[2].GetHint(0).completed);
+        }
+
+        [Fact]
+        public void TestHintsCompletedHorizontal()
+        {
+            // The grid is not filled in, we expected these to not be completed
+            for (int i = 0; i < grid.height; i++)
+            {
+                Assert.False(grid.horizontalHints[i].GetHint(0).completed);
+                Assert.False(grid.horizontalHints[i].GetHint(1).completed);
+            }
+
+            FillInGridSolution();
+
+            // Now we expected all hints to be completed
+            for (int i = 0; i < grid.height; i++)
+            {
+                Assert.True(grid.horizontalHints[i].GetHint(0).completed);
+                Assert.True(grid.horizontalHints[i].GetHint(1).completed);
+            }
+        }
+
+        [Fact]
+        public void TestHintsCompletedWithCrosses()
+        {
+            FillInGridSolution();
+            grid.setCell(2, 0, SquareType.CROSS);
+
+            for (int i = 0; i < grid.height; i++)
+            {
+                Assert.True(grid.horizontalHints[i].GetHint(0).completed);
+                Assert.True(grid.horizontalHints[i].GetHint(1).completed);
+            }
+
+            grid.setCell(1, 0, SquareType.CROSS);
+            for (int i = 0; i < grid.height; i++)
+            {
+                Assert.False(grid.horizontalHints[i].GetHint(0).completed);
+                Assert.True(grid.horizontalHints[i].GetHint(1).completed);
+            }
+
+            grid.setCell(4, 0, SquareType.CROSS);
+            for (int i = 0; i < grid.height; i++)
+            {
+                Assert.False(grid.horizontalHints[i].GetHint(0).completed);
+                Assert.False(grid.horizontalHints[i].GetHint(1).completed);
+            }
         }
     }
 }
