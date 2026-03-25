@@ -58,145 +58,138 @@
                 node = node.Next;
             }
 
-            DoCompletionForward(line);
-            DoCompletionBackward(line);
+            int leftOffAt = DoCompletionForward(line);
+            DoCompletionBackward(line, leftOffAt);
         }
 
-        private void DoCompletionForward(LinkedList<SquareType> line)
+        /// <summary>
+        /// Checks hint completion by starting from the front
+        /// </summary>
+        /// <param name="line">The row/column to check</param>
+        /// <returns>The final hint which was marked as completed</returns>
+        private int DoCompletionForward(LinkedList<SquareType> line)
         {
             LinkedListNode<SquareType>? node = line.First;
+            bool startedFromFirst = true; // Whether we started from the first square in the current iteration of checking
             int hintIndex = 0;
-            int expectedValue = hints[hintIndex].Number;
-            bool startedHandling = false;
+            int squaresFound = 0; // The total squares we have found that are filled in for this hint
 
             while (node != null && hintIndex < hints.Count)
             {
-                if (node.Value == SquareType.BLANK)
+                if (node.Value == SquareType.CROSS && startedFromFirst && squaresFound == 0)
                 {
-                    // Do not give out information that the player might not know
-                    break;
-                }
-
-                if (node.Value == SquareType.CROSS && !startedHandling)
-                {
+                    // The player knows that all cells from the start should not be filled, then we treat this
+                    // as if the first square is placed at the first cell
                     node = node.Next;
                     continue;
                 }
-                else if (node.Value == SquareType.CROSS)
+
+                // Check if we are allowed to mark this hint as completed
+                // A hint is allowed to be completed if it started from the first possible square in the grid
+                // Or it has a cross
+                if (node.Value == SquareType.CROSS || (node.Value == SquareType.BLANK && startedFromFirst))
                 {
-                    // Check if this hint is filled in correctly
-                    if (expectedValue == 0)
+                    if (squaresFound == hints[hintIndex].Number)
                     {
                         hints[hintIndex]._completed = true;
                     }
-
-                    hintIndex++;
-
-                    if (hintIndex >= hints.Count)
+                    else
                     {
-                        break;
+                        // This hint is not completed, meaning all other hints are incorrect as well
+                        // We stop this loop
+                        return hintIndex - 1;
                     }
-                    expectedValue = hints[hintIndex].Number;
-                    startedHandling = false;
+
+                    // Reset variables for next iteration
+                    startedFromFirst = false;
                     node = node.Next;
+                    squaresFound = 0;
+                    hintIndex++;
                     continue;
                 }
 
-                // Else, this square is filled in. We adjust the remaining expected square count
-                // and move to the next node
-                expectedValue--;
-                startedHandling = true;
-                remainingUncheckedSquares--;
+                if (node.Value == SquareType.BLANK && !startedFromFirst)
+                {
+                    // Now, we do not know whether the player knows that these hints are correct or not,
+                    // as we require crosses between squares for squares not starting at the first index
+                    // We return as we have no other garauntees on other hints
+                    return hintIndex - 1;
+                }
+
+                // This square is filled in and should be correct, do the proper variable increments
                 node = node.Next;
+                squaresFound++;
             }
 
-            if (node == null && hintIndex == hints.Count - 1 && expectedValue == 0)
+
+            // We can reach a situation where the hint is completed at the end of the grid (i.e. all hints are correct)
+            // Then, we should do a final check whether this hint is completed
+            if (hintIndex <  hints.Count && hints[hintIndex].Number == squaresFound)
             {
                 hints[hintIndex]._completed = true;
             }
-
-            DoSanityCheck(node, hintIndex, true);
+            return hintIndex;
         }
 
-        private void DoCompletionBackward(LinkedList<SquareType> line)
+        private void DoCompletionBackward(LinkedList<SquareType> line, int forwardsFinalCheck)
         {
             LinkedListNode<SquareType>? node = line.Last;
+            bool startedFromFirst = true; // Whether we started from the first square in the current iteration of checking
             int hintIndex = hints.Count - 1;
-            int expectedValue = hints[hintIndex].Number;
-            bool startedHandling = false;
+            int squaresFound = 0; // The total squares we have found that are filled in for this hint   
 
-            while (node != null && hintIndex >= 0 && !hints[hintIndex].Completed && remainingUncheckedSquares > 0)
+            while (node != null && hintIndex >= 0 && hintIndex > forwardsFinalCheck)
             {
-                if (node.Value == SquareType.BLANK)
+                if (node.Value == SquareType.CROSS && startedFromFirst && squaresFound == 0)
                 {
-                    // Do not give out information that the player might not know
-                    break;
-                }
-
-                if (node.Value == SquareType.CROSS && !startedHandling)
-                {
+                    // The player knows that all cells from the start should not be filled, then we treat this
+                    // as if the first square is placed at the first cell
                     node = node.Previous;
                     continue;
                 }
-                else if (node.Value == SquareType.CROSS)
+
+                // Check if we are allowed to mark this hint as completed
+                // A hint is allowed to be completed if it started from the first possible square in the grid
+                // Or it has a cross
+                if (node.Value == SquareType.CROSS || (node.Value == SquareType.BLANK && startedFromFirst))
                 {
-                    // Check if this hint is filled in correctly
-                    if (expectedValue == 0)
+                    if (squaresFound == hints[hintIndex].Number)
                     {
                         hints[hintIndex]._completed = true;
                     }
-
-                    hintIndex--;
-
-                    if (hintIndex < 0)
+                    else
                     {
-                        break;
-                    }
-                    expectedValue = hints[hintIndex].Number;
-                    startedHandling = false;
-                    node = node.Previous;
-                    remainingUncheckedSquares--;
-                    continue;
-                }
-
-
-                // Else, this square is filled in. We adjust the remaining expected square count
-                // and move to the next node
-                expectedValue--;
-                startedHandling = true;
-                node = node.Previous;
-            }
-
-            DoSanityCheck(node, hintIndex, false);
-        }
-
-        private void DoSanityCheck(LinkedListNode<SquareType>? node, int idx, bool forwards)
-        {
-            // Final sanity check if all next line nodes are crosses
-            if ((forwards && idx == hints.Count) || (!forwards && idx == -1))
-            {
-                while (node != null)
-                {
-                    if (node.Value != SquareType.CROSS)
-                    {
-                        if (forwards)
-                        {
-                            hints[idx - 1]._completed = false;
-                        } else
-                        {
-                            hints[0]._completed = false;
-                        }
+                        // This hint is not completed, meaning all other hints are incorrect as well
+                        // We stop this loop
                         return;
                     }
 
-                    if (forwards)
-                    {
-                        node = node.Next;
-                    } else
-                    {
-                        node = node.Previous;
-                    }
+                    // Reset variables for next iteration
+                    startedFromFirst = false;
+                    node = node.Previous;
+                    squaresFound = 0;
+                    hintIndex--;
+                    continue;
                 }
+
+                if (node.Value == SquareType.BLANK && !startedFromFirst)
+                {
+                    // Now, we do not know whether the player knows that these hints are correct or not,
+                    // as we require crosses between squares for squares not starting at the first index
+                    // We return as we have no other garauntees on other hints
+                    return;
+                }
+
+                // This square is filled in and should be correct, do the proper variable increments
+                node = node.Previous;
+                squaresFound++;
+            }
+
+            // We can reach a situation where the hint is completed at the end of the grid (i.e. all hints are correct)
+            // Then, we should do a final check whether this hint is completed
+            if (hintIndex >= 0 && hintIndex > forwardsFinalCheck && hints[hintIndex].Number == squaresFound)
+            {
+                hints[hintIndex]._completed = true;
             }
         }
     }

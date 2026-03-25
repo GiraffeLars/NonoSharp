@@ -122,6 +122,11 @@ namespace Core.UnitTests
                 Assert.True(grid.HorizontalHints[i].GetHint(0).Completed);
                 Assert.True(grid.HorizontalHints[i].GetHint(1).Completed);
             }
+
+            // Test for completion if only the last hints are filled in
+            grid.SetCell(0, 0, SquareType.BLANK);
+            grid.SetCell(1, 0, SquareType.BLANK);
+            Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
         }
 
         [Fact]
