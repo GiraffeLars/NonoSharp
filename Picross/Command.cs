@@ -29,12 +29,12 @@ namespace Core
 
         public void Execute()
         {
-            grid.setCell(x, y, newType);
+            grid.SetCell(x, y, newType);
         }
 
         public void Undo()
         {
-            grid.setCell(x, y, oldType);
+            grid.SetCell(x, y, oldType);
         }
     }
 }

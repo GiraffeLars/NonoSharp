@@ -11,12 +11,18 @@ namespace Core
         private int filled = 0;
         private int paddingString = 0;
 
-        public int width { get; }
-        public int height { get; }
+        public int Width { get; }
+        public int Height { get; }
 
-        public Hints[] verticalHints { get; }
-        public Hints[] horizontalHints { get; }
+        public Hints[] VerticalHints { get; }
+        public Hints[] HorizontalHints { get; }
 
+        /// <summary>
+        /// Constructs a Grid.
+        /// </summary>
+        /// <param name="width">Width of the grid</param>
+        /// <param name="height">Height of the grid</param>
+        /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
         public Grid(int width, int height)
         {
             if (width <= 0 || height <= 0)
@@ -24,24 +30,28 @@ namespace Core
                 throw new ArgumentException("Width and height must be positive integers.");
             }
 
-            this.width = width;
-            this.height = height;
+            this.Width = width;
+            this.Height = height;
 
             grid = new SquareType[width, height];
             solution = new List<Point>();
 
-            fillRandomly(solution);
+            FillRandomly(solution);
 
 
-            verticalHints = new Hints[width];
-            horizontalHints = new Hints[height];
-            initializeHints();
+            VerticalHints = new Hints[width];
+            HorizontalHints = new Hints[height];
+            InitializeHints();
             
         }
 
-        private SquareType[,] gridifySolution()
+        /// <summary>
+        /// Makes the solution into a 2D array representation, just as <paramref name="this.grid"/>
+        /// </summary>
+        /// <returns>2D array of <c>SquareType</c> where each point in the solution is <c>SquareType.FILLED</c></returns>
+        private SquareType[,] GridifySolution()
         {
-            SquareType[,] s = new SquareType[width, height];
+            SquareType[,] s = new SquareType[Width, Height];
 
             foreach (Point p in solution)
             {
@@ -51,35 +61,44 @@ namespace Core
             return s;
         }
 
-        internal void setSolution(List<Point> solution)
+        /// <summary>
+        /// Sets the solution to a Grid and sets the hints.
+        /// </summary>
+        /// <param name="solution"></param>
+        internal void SetSolution(List<Point> solution)
         { 
             this.solution = solution;
-            initializeHints();
+            InitializeHints();
         }
 
-        private void initializeHints()
+        private void InitializeHints()
             
         {
-            for (int i = 0; i < width; i++)
+            for (int i = 0; i < Width; i++)
             {
-                verticalHints[i] = new Hints(true, i);
+                VerticalHints[i] = new Hints(true, i);
             }
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < Height; i++)
             {
-                horizontalHints[i] = new Hints(false, i);
+                HorizontalHints[i] = new Hints(false, i);
             }
-            setHints(verticalHints, true);
-            setHints(horizontalHints, false);
+            SetHints(VerticalHints, true);
+            SetHints(HorizontalHints, false);
             
         }
 
-        private void setHints(Hints[] hints, bool vertical)
+        /// <summary>
+        /// Creates the hints for the solution of this grid.
+        /// </summary>
+        /// <param name="hints">Which hints to set, either <c>verticalHints</c> or <c>horizontalHints</c></param>
+        /// <param name="vertical">Whether we are setting the verticalHints, corresponding to the <paramref name="hints"/> parameter</param>
+        private void SetHints(Hints[] hints, bool vertical)
         {
             // Sets the hint limits based on whether we process the vertical hints
-            int xLimit = vertical ? width : height;
-            int yLimit = vertical ? height : width;
+            int xLimit = vertical ? Width : Height;
+            int yLimit = vertical ? Height : Width;
 
-            SquareType[,] gridSol = gridifySolution();
+            SquareType[,] gridSol = GridifySolution();
             for (int x = 0; x < xLimit; x++)
             {
                 int count = 0;
@@ -91,7 +110,7 @@ namespace Core
                     if (cell != SquareType.FILLED)
                     {
                         // Add the new hint to the list
-                        addHint(hints, x, count); // TODO if squares are split (i.e. empty between two patches), separate them with a 0
+                        AddHint(hints, x, count); // TODO if squares are split (i.e. empty between two patches), separate them with a 0
                         count = 0;
                         continue;
                     }
@@ -104,18 +123,18 @@ namespace Core
                 SquareType lastCell = vertical ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
                 if (count > 0 && lastCell == SquareType.FILLED)
                 {
-                    addHint(hints, x, count);
+                    AddHint(hints, x, count);
                 }
                 else if (hints[x].Count == 0)
                 {
                     hints[x].Add(new Hint(0));
                 }
 
-                doHorizontalPaddingCount(hints[x].Count, vertical);
+                DoHorizontalPaddingCount(hints[x].Count, vertical);
             }
         }
 
-        private void addHint(Hints[] hints, int pos, int count)
+        private void AddHint(Hints[] hints, int pos, int count)
         {
             if (count > 0)
             {
@@ -123,7 +142,7 @@ namespace Core
             }
         }
 
-        private void doHorizontalPaddingCount(int count, bool vertical)
+        private void DoHorizontalPaddingCount(int count, bool vertical)
         {
             if (!vertical && count > paddingString)
             {
@@ -131,14 +150,21 @@ namespace Core
             }
         }
 
-        private String getPadding()
+        private String GetPadding()
         {
             return new string(' ', paddingString * 2);
         }
 
-        public void setCell(int x, int y, SquareType value)
+        /// <summary>
+        /// Sets the specified cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="value"/>
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to set</param>
+        /// <param name="y">y-coordinate of cell to set</param>
+        /// <param name="value">New value of cell</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
+        public void SetCell(int x, int y, SquareType value)
         {
-            if (x < 0 || x >= width || y < 0 || y >= height)
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
             {
                 throw new ArgumentOutOfRangeException("Cell coordinates are out of bounds.");
             }
@@ -155,13 +181,20 @@ namespace Core
             grid[x, y] = value;
 
             // TODO change hints from ints to using Hints and Hint classes then change completion here
-            horizontalHints[y].DoCompletion(this);
-            verticalHints[x].DoCompletion(this);
+            HorizontalHints[y].DoCompletion(this);
+            VerticalHints[x].DoCompletion(this);
         }
 
-        public SquareType getCell(int x, int y)
+        /// <summary>
+        /// Gets the specified cell of this grid
+        /// </summary>
+        /// <param name="x">x-coordinate of the cell</param>
+        /// <param name="y">y-coordinate of the cell</param>
+        /// <returns><c>SquareType</c> of the requested cell</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
+        public SquareType GetCell(int x, int y)
         {
-            if (x < 0 || x >= width || y < 0 || y >= height)
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
             {
                 throw new ArgumentOutOfRangeException("Cell coordinates are out of bounds.");
             }
@@ -173,7 +206,7 @@ namespace Core
         {
             LinkedList<SquareType> list = new LinkedList<SquareType>();
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < Height; i++)
             {
                 SquareType type = grid[column, i];
                 list.AddLast(type);
@@ -185,7 +218,7 @@ namespace Core
         {
             LinkedList<SquareType> list = new LinkedList<SquareType>();
 
-            for (int i = 0; i < width; i++)
+            for (int i = 0; i < Width; i++)
             {
                 SquareType type = grid[i, row];
                 list.AddLast(type);
@@ -193,12 +226,12 @@ namespace Core
             return list;
         }
 
-        private void fillRandomly(List<Point> g)
+        private void FillRandomly(List<Point> g)
         {
             var random = new Random();
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < Height; y++)
                 {
                     if (random.NextInt64() % 2 == 0)
                     {
@@ -209,7 +242,7 @@ namespace Core
             }
         }
 
-        public bool isCorrect()
+        public bool IsSolved()
         {
             if (filled != solution.Count())
             {
@@ -238,19 +271,19 @@ namespace Core
             //Console.WriteLine();
 
             StringBuilder sb = new StringBuilder();
-            String[] horizontalHintsStr = createHorizontalHintsString();
+            String[] horizontalHintsStr = CreateHorizontalHintsString();
 
-            sb.Append(createVerticalHintsString());
+            sb.Append(CreateVerticalHintsString());
             //sb.AppendLine();
 
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < Height; y++)
             {
                 sb.Append('\n');
                 sb.Append(horizontalHintsStr[y]);
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < Width; x++)
                 {
                     char c = ' ';
-                    switch (getCell(x, y))
+                    switch (GetCell(x, y))
                     {
                         case SquareType.FILLED:
                             c = 'O';
@@ -270,7 +303,7 @@ namespace Core
             return sb.ToString();
         }
 
-        private String createVerticalHintsString()
+        private String CreateVerticalHintsString()
         {
             StringBuilder sb = new StringBuilder();
             
@@ -279,14 +312,14 @@ namespace Core
 
             bool newStringRow;
             int lastFilled;
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < Height; y++)
             {
-                sb.Append(getPadding());
+                sb.Append(GetPadding());
                 newStringRow = false;
                 lastFilled = 0;
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < Width; x++)
                 {
-                    Hints hints = verticalHints[x];
+                    Hints hints = VerticalHints[x];
                     if (hints.Count > y)
                     {
                         // Add spaces for all columns with no hints until this column
@@ -308,15 +341,15 @@ namespace Core
             return sb.ToString();
         }
 
-        private String[] createHorizontalHintsString()
+        private String[] CreateHorizontalHintsString()
         {
-            String[] hintsStr = new String[height];
+            String[] hintsStr = new String[Height];
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < Height; i++)
             {
                 int x;
                 StringBuilder sb = new StringBuilder();
-                Hints hints = horizontalHints[i];
+                Hints hints = HorizontalHints[i];
 
                 for (x = 0; x < hints.Count; x++)
                 {

@@ -6,15 +6,15 @@ namespace Core
 {
     public class Hint
     {
-        public int number { get; }
-        public bool completed { get { return _completed; } }
+        public int Number { get; }
+        public bool Completed { get { return _completed; } }
         internal bool _completed;
 
         internal Hint(int num) {
             ArgumentOutOfRangeException.ThrowIfNegative(num);
 
-            number = num;
-            if (number == 0)
+            Number = num;
+            if (Number == 0)
             {
                 _completed = true;
             } else

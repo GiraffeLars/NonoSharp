@@ -4,10 +4,10 @@
     {
         Grid grid;
 
-        public int Width { get { return grid.width; } }
-        public int Height { get { return grid.height; } }
-        public Hints[] VerticalHints { get { return grid.verticalHints; } }
-        public Hints[] HorizontalHints { get { return grid.horizontalHints; } }
+        public int Width { get { return grid.Width; } }
+        public int Height { get { return grid.Height; } }
+        public Hints[] VerticalHints { get { return grid.VerticalHints; } }
+        public Hints[] HorizontalHints { get { return grid.HorizontalHints; } }
 
         private LinkedList<Command> undoStack;
         private LinkedList<Command> redoStack;
@@ -45,11 +45,14 @@
 
         private CellCommand CreateCellCommand(int x, int y, SquareType newType)
         {
-            SquareType oldType = grid.getCell(x, y);
+            SquareType oldType = grid.GetCell(x, y);
             CellCommand c = new CellCommand(x, y, grid, newType, oldType);
             return c;
         }
 
+        /// <summary>
+        /// Undoes the last move.
+        /// </summary>
         public void Undo()
         {
             if (undoStack.Count == 0) return;
@@ -60,6 +63,9 @@
             redoStack.AddLast(c);
         }
 
+        /// <summary>
+        /// Redo the last undone move (if any). Silently returns if there is no command to redo.
+        /// </summary>
         public void Redo()
         {
             if (redoStack.Count == 0) return;
@@ -72,22 +78,22 @@
 
         public bool IsSquareEmpty(int x, int y)
         {
-            return grid.getCell(x, y) == SquareType.BLANK;
+            return grid.GetCell(x, y) == SquareType.BLANK;
         }
 
         public bool IsSquareFilled(int x, int y)
         {
-            return grid.getCell(x, y) == SquareType.FILLED;
+            return grid.GetCell(x, y) == SquareType.FILLED;
         }
 
         public bool IsSquareCrossed(int x, int y)
         {
-            return grid.getCell(x, y) == SquareType.CROSS;
+            return grid.GetCell(x, y) == SquareType.CROSS;
         }
 
         public bool IsPuzzleSolved()
         {
-            return grid.isCorrect();
+            return grid.IsSolved();
         }
 
         public override String ToString() { return grid.ToString(); }

@@ -18,6 +18,10 @@
             this.position = position;
         }
 
+        /// <summary>
+        /// Adds a <c>Hint</c> to this Hints instance. It is appended to the end.
+        /// </summary>
+        /// <param name="hint">The hint to add</param>
         internal void Add(Hint hint)
         {
             hints.Add(hint);
@@ -25,6 +29,10 @@
 
         public Hint GetHint(int position) { return hints[position]; }
 
+        /// <summary>
+        /// Resets the all hints by setting their completed status to false.
+        /// Also resets how many squares we have not handled yet.
+        /// </summary>
         internal void Reset()
         {
             remainingUncheckedSquares = 0;
@@ -58,7 +66,7 @@
         {
             LinkedListNode<SquareType>? node = line.First;
             int hintIndex = 0;
-            int expectedValue = hints[hintIndex].number;
+            int expectedValue = hints[hintIndex].Number;
             bool startedHandling = false;
 
             while (node != null && hintIndex < hints.Count)
@@ -88,7 +96,7 @@
                     {
                         break;
                     }
-                    expectedValue = hints[hintIndex].number;
+                    expectedValue = hints[hintIndex].Number;
                     startedHandling = false;
                     node = node.Next;
                     continue;
@@ -114,10 +122,10 @@
         {
             LinkedListNode<SquareType>? node = line.Last;
             int hintIndex = hints.Count - 1;
-            int expectedValue = hints[hintIndex].number;
+            int expectedValue = hints[hintIndex].Number;
             bool startedHandling = false;
 
-            while (node != null && hintIndex >= 0 && !hints[hintIndex].completed && remainingUncheckedSquares > 0)
+            while (node != null && hintIndex >= 0 && !hints[hintIndex].Completed && remainingUncheckedSquares > 0)
             {
                 if (node.Value == SquareType.BLANK)
                 {
@@ -144,7 +152,7 @@
                     {
                         break;
                     }
-                    expectedValue = hints[hintIndex].number;
+                    expectedValue = hints[hintIndex].Number;
                     startedHandling = false;
                     node = node.Previous;
                     remainingUncheckedSquares--;

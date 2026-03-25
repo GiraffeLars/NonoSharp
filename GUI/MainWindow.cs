@@ -95,8 +95,8 @@ namespace GUI
                 for (int y = hints.Count - 1; y >= 0; y--)
                 {
                     Hint hint = hints.GetHint(y);
-                    Brush colour = hint.completed ? Brushes.Gray : Brushes.Black;
-                    g.DrawString(hint.number.ToString(), font, colour,
+                    Brush colour = hint.Completed ? Brushes.Gray : Brushes.Black;
+                    g.DrawString(hint.Number.ToString(), font, colour,
                         colWidth * x + colWidth / 2, panelVerHints.Height - (hints.Count - y) * 20, stringFormat);
                 }
             }
@@ -115,9 +115,9 @@ namespace GUI
                 for (int x = hints.Count - 1; x >= 0; x--)
                 {
                     Hint hint = hints.GetHint(x);
-                    Brush colour = hint.completed ? Brushes.Gray : Brushes.Black;
+                    Brush colour = hint.Completed ? Brushes.Gray : Brushes.Black;
 
-                    g.DrawString(hint.number.ToString(), font, colour,
+                    g.DrawString(hint.Number.ToString(), font, colour,
                         panelHorHints.Width - (hints.Count - x) * 20, y * colHeight + colHeight / 2, stringFormat);
                 }
             }
