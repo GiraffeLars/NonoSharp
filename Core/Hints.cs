@@ -6,9 +6,6 @@
         private bool vertical;
         private int position;
 
-        // Filled squares that have not yet been considered in a (completed) hint
-        private int remainingUncheckedSquares;
-
         public int Count { get { return hints.Count; } }
 
         internal Hints(bool vertical, int position)
@@ -27,6 +24,7 @@
             hints.Add(hint);
         }
 
+        // TODO rework this in some way such that GetHint is removed, it adds confusion and overhead
         public Hint GetHint(int position) { return hints[position]; }
 
         /// <summary>
@@ -35,7 +33,6 @@
         /// </summary>
         internal void Reset()
         {
-            remainingUncheckedSquares = 0;
             foreach (Hint hint in hints)
             {
                 hint._completed = false;
@@ -47,16 +44,6 @@
             Reset();
             LinkedList<SquareType> line = vertical ? grid.GetColumn(position) : grid.GetRow(position);
             LinkedListNode<SquareType>? node = line.First;
-
-            
-            while (node != null)
-            {
-                if (node.Value == SquareType.FILLED)
-                {
-                    remainingUncheckedSquares++;
-                }
-                node = node.Next;
-            }
 
             int leftOffAt = DoCompletionForward(line);
             DoCompletionBackward(line, leftOffAt);
