@@ -81,6 +81,13 @@
                     {
                         hints[hintIndex]._completed = true;
                     }
+                    else if (node.Value == SquareType.CROSS && squaresFound == 0)
+                    {
+                        // Check if this is a cross while we have not yet started processing a new hint, then this can still be completed,
+                        // As we have not invalidated any hint since crosses are like blank spaces
+                        node = node.Next;
+                        continue;
+                    }
                     else
                     {
                         // This hint is not completed, meaning all other hints are incorrect as well
@@ -150,6 +157,13 @@
                     if (squaresFound == hints[hintIndex].Number)
                     {
                         hints[hintIndex]._completed = true;
+                    }
+                    else if (node.Value == SquareType.CROSS && squaresFound == 0)
+                    {
+                        // Check if this is a cross while we have not yet started processing a new hint, then this can still be completed,
+                        // As we have not invalidated any hint since crosses are like blank spaces
+                        node = node.Previous;
+                        continue;
                     }
                     else
                     {
