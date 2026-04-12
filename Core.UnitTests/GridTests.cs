@@ -25,12 +25,12 @@ namespace Core.UnitTests
         {
             grid = new Grid(15, 15);
 
-            // Solution where [O][O][X][X][O][O][X]...
+            // Solution where [X][X][O][O][X][X][O][O][X]...
             //                  [X]....is correct
             List<Point> sol = new List<Point>();
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 8; i++)
             {
-                if (i == 2 || i == 3) { continue; }
+                if (i <= 1 || i == 4 || i ==5) { continue; }
                 sol.Add(new Point(i, 0));
             }
             grid.SetSolution(sol);
@@ -183,14 +183,16 @@ namespace Core.UnitTests
             Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
 
 
-            grid.SetCell(0, 0, SquareType.FILLED);
-            grid.SetCell(1, 0, SquareType.FILLED);
-            grid.SetCell(4, 0, SquareType.FILLED);
-            grid.SetCell(5, 0, SquareType.FILLED);
+            grid.SetCell(2, 0, SquareType.FILLED);
+            grid.SetCell(3, 0, SquareType.FILLED);
+            grid.SetCell(6, 0, SquareType.FILLED);
+            grid.SetCell(7, 0, SquareType.FILLED);
             Assert.True(grid.IsSolved());
 
-            grid.SetCell(3, 0, SquareType.CROSS);
-            grid.SetCell(2, 0, SquareType.CROSS);
+            grid.SetCell(0, 0, SquareType.CROSS);
+            grid.SetCell(1, 0, SquareType.CROSS);
+            grid.SetCell(4, 0, SquareType.CROSS);
+            grid.SetCell(5, 0, SquareType.CROSS);
             Assert.True(grid.IsSolved());
 
             Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
@@ -198,10 +200,10 @@ namespace Core.UnitTests
             // Our specifications for when a user knows this should be filled requires all hints after the first/last to be between crosses or other squares
             Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
 
-            grid.SetCell(6, 0, SquareType.CROSS);
+            grid.SetCell(8, 0, SquareType.CROSS);
             Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
 
-            for (int i = 6; i < grid.Width; i++)
+            for (int i = 9; i < grid.Width; i++)
             {
                 grid.SetCell(i, 0, SquareType.CROSS);
             }
@@ -209,7 +211,13 @@ namespace Core.UnitTests
             Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
             Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
 
-            grid.SetCell(5, 0, SquareType.BLANK);
+            // Check if hint completeness is still true if we know that it was handled from the back
+            grid.SetCell(0, 0, SquareType.BLANK);
+            Assert.True(grid.IsSolved());
+            Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
+            Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
+
+            grid.SetCell(7, 0, SquareType.BLANK);
             Assert.False(grid.IsSolved());
         }
     }
