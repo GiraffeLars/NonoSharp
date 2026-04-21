@@ -8,6 +8,7 @@
         public int Height { get { return grid.Height; } }
         public Hints[] VerticalHints { get { return grid.VerticalHints; } }
         public Hints[] HorizontalHints { get { return grid.HorizontalHints; } }
+        public bool CanUndo { get { return undoStack.Count != 0; } }
 
         private LinkedList<Command> undoStack;
         private LinkedList<Command> redoStack;
