@@ -3,11 +3,20 @@ using Picross.Game;
 
 namespace Picross.Maui.Drawables;
 
+internal enum FillType
+{
+    FILL,
+    CROSS,
+    EMPTY
+}
+
 internal class BoardDrawable : IDrawable
 {
     private GameAPI game;
     private float cellSize;
-    internal bool filling = true;
+    internal FillType fillType = FillType.FILL;
+    internal bool lockFillType = false;
+    internal FillType OldFillType { get; set; } = FillType.FILL;
 
     public BoardDrawable(GameAPI game)
     {
@@ -122,6 +131,10 @@ internal class BoardDrawable : IDrawable
     /// <param name="y">y coordinate of cell</param>
     public void HandleCell(int x, int y)
     {
+
+        // TODO Rework the whole square handling. This one is getting overly complicated
+        // since we now rely on fill type more than cell status.
+
         if (x < 0 || x >= game.Width || y < 0 || y >= game.Height)
         {
             return;
@@ -139,6 +152,8 @@ internal class BoardDrawable : IDrawable
         {
             HandleClickEmptySquare(x, y);
         }
+
+        lockFillType = true;
     }
 
     /// <summary>
@@ -152,56 +167,72 @@ internal class BoardDrawable : IDrawable
 
     private void HandleClickFilledSquare(int x, int y)
     {
-        if (!filling)
+        if (fillType == FillType.CROSS)
         {
             game.CrossCell(x, y);
             return;
         }
 
-        if (game.IsSquareEmpty(x, y))
+        // When filling, also check if the cell is empty to still allow cells to be emptied
+        // when this is the first click.
+        if (fillType == FillType.FILL && game.IsSquareEmpty(x, y))
         {
             game.FillCell(x, y);
             return;
         }
 
-        // For all other mouse clicks we empty the cell
-        game.EmptyCell(x, y);
+        // In this case, either this is the first click, which is on a empty cell while placing crosses, or we are already
+        // emptying. In both cases, we should empty the cell and lock the fill type (if it hasn't already).
+        // If we have already locked, then we should skip emptying.
+        if (fillType == FillType.EMPTY || !lockFillType)
+        {
+            
+            game.EmptyCell(x, y);
+            fillType = FillType.EMPTY;
+        }
     }
 
     private void HandleClickCrossedSquare(int x, int y)
     {
-        if (filling)
+        if (fillType == FillType.FILL)
         {
             game.FillCell(x, y);
             return;
         }
 
-        if (game.IsSquareEmpty(x, y))
+
+        // When crossing, also check if the cell is empty to still allow cells to be emptied
+        // when this is the first click.
+        if (fillType == FillType.CROSS && game.IsSquareEmpty(x, y))
         {
             game.CrossCell(x, y);
             return;
         }
 
-        // For all other mouse clicks we empty the cell
-        game.EmptyCell(x, y);
+        // In this case, either this is the first click, which is on a empty cell while placing crosses, or we are already
+        // emptying. In both cases, we should empty the cell and lock the fill type (if it hasn't already).
+        // If we have already locked, then we should skip emptying.
+        if (fillType == FillType.EMPTY || !lockFillType)
+        { 
+            game.EmptyCell(x, y);
+            fillType = FillType.EMPTY;
+        }
     }
 
     private void HandleClickEmptySquare(int x, int y)
     {
-        if (filling)
+        if (fillType == FillType.FILL)
         {
             game.FillCell(x, y);
             return;
         }
 
-        if (!filling)
+        if (fillType == FillType.CROSS)
         {
             game.CrossCell(x, y);
             return;
         }
 
-        game.FillCell(x, y);
-
-        // Ignore other mouse buttons
+        // Ignore other possibilities as filltype must be locked since in this case we must be emptying
     }
 }

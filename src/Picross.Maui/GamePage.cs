@@ -31,7 +31,7 @@ public class GamePage : ContentPage
 
     private Grid mainGrid;
 
-    // Used for dragging across the board. HashSet uses (int, int) as (x, y) in normal coordinates.
+    // Used for dragging across the board. HashSet uses (int, int) to represent cell (x, y)-coordinates.
     // Do not use Point, due to the representation of X and Y being in double.
     private HashSet<(int, int)> visitedCells = new();
     private bool isDragging;
@@ -151,7 +151,7 @@ public class GamePage : ContentPage
             Drawable = horizontalHintsDrawable
         };
 
-        boardView.StartInteraction += ÒnTouchStart;
+        boardView.StartInteraction += OnTouchStart;
         boardView.DragInteraction += OnTouchMove;
         boardView.EndInteraction += OnTouchEnd;
     }
@@ -193,7 +193,7 @@ public class GamePage : ContentPage
         // Controls button
         toggleButton = new Button
         {
-            Text = "Mode: Fill",
+            Text = "Mode: FILL",
             Margin = new Thickness(BUTTON_MARGIN),
             HeightRequest = BUTTON_HEIGHT,
             VerticalOptions = LayoutOptions.Start
@@ -202,15 +202,9 @@ public class GamePage : ContentPage
         // When clicked
         toggleButton.Clicked += (sender, e) =>
         {
-            boardDrawable.filling = !boardDrawable.filling;
-            if (boardDrawable.filling)
-            {
-                toggleButton.Text = "Mode: Fill";
-            }
-            else
-            {
-                toggleButton.Text = "Mode: Cross";
-            }
+            boardDrawable.fillType = boardDrawable.fillType == FillType.FILL ? FillType.CROSS : FillType.FILL;
+
+            toggleButton.Text = $"Mode: {boardDrawable.fillType}";
         };
     }
 
@@ -275,12 +269,14 @@ public class GamePage : ContentPage
         redoButton.IsEnabled = game.CanRedo;
     }
 
-    private void ÒnTouchStart(object sender, TouchEventArgs e)
+    private void OnTouchStart(object sender, TouchEventArgs e)
     {
         isDragging = true;
 
         var touch = e.Touches.First();
         Point cell = boardDrawable.ConvertTouchToCell(touch);
+
+        boardDrawable.OldFillType = boardDrawable.fillType;
         boardDrawable.HandleCell(cell);
         visitedCells.Add(((int) cell.X, (int) cell.Y));
 
@@ -308,6 +304,11 @@ public class GamePage : ContentPage
     {
         visitedCells.Clear();
         isDragging = false;
+
+        // Reset drawable's fill type
+        boardDrawable.lockFillType = false;
+        boardDrawable.fillType = boardDrawable.OldFillType;
+
         UpdateCommandButtons();
     }
 }
