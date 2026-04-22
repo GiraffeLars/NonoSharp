@@ -9,9 +9,10 @@
         public Hints[] VerticalHints { get { return grid.VerticalHints; } }
         public Hints[] HorizontalHints { get { return grid.HorizontalHints; } }
         public bool CanUndo { get { return undoStack.Count != 0; } }
+        public bool CanRedo { get { return redoStack.Count != 0; } }
 
-        private LinkedList<Command> undoStack;
-        private LinkedList<Command> redoStack;
+        private readonly LinkedList<Command> undoStack;
+        private readonly LinkedList<Command> redoStack;
 
         public GameAPI(int width, int height) {
             grid = new Grid(width, height);
@@ -47,18 +48,18 @@
         private CellCommand CreateCellCommand(int x, int y, SquareType newType)
         {
             SquareType oldType = grid.GetCell(x, y);
-            CellCommand c = new CellCommand(x, y, grid, newType, oldType);
+            CellCommand c = new(x, y, grid, newType, oldType);
             return c;
         }
 
         /// <summary>
-        /// Undoes the last move.
+        /// Undoes the last move (if any). Silently returns if there is no command to undo.
         /// </summary>
         public void Undo()
         {
-            if (undoStack.Count == 0) return;
+            if (!CanUndo) return;
 
-            Command c = undoStack.Last!.Value; // We know for sure that this isn't null
+            Command c = undoStack.Last!.Value; // We know for sure that this isn't null as non-empty
             undoStack.RemoveLast();
             c.Undo();
             redoStack.AddLast(c);
@@ -69,7 +70,7 @@
         /// </summary>
         public void Redo()
         {
-            if (redoStack.Count == 0) return;
+            if (!CanRedo) return;
 
             Command c = redoStack.Last!.Value;
             redoStack.RemoveLast();
