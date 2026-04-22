@@ -25,18 +25,25 @@ public class GamePage : ContentPage
     private int maxVerticalHints; // The greatest number of vertical hints in a column
 
     private Button toggleButton;
-
     private Grid commandButtonsGrid;
     private Button undoButton;
     private Button redoButton;
 
     private Grid mainGrid;
 
+    // Used for dragging across the board. HashSet uses (int, int) as (x, y) in normal coordinates.
+    // Do not use Point, due to the representation of X and Y being in double.
+    private HashSet<(int, int)> visitedCells = new();
+    private bool isDragging;
+
     public GamePage(int width, int height)
     {
         game = new GameAPI(width, height);
 
         FillHintData();
+
+        CreateToggleButton();
+        CreateCommandButtons();
         CreateViews();
         CreateMainGrid();
 
@@ -121,7 +128,8 @@ public class GamePage : ContentPage
         maxVerticalHints = GetMaxHints(game.VerticalHints);
     }
 
-    [MemberNotNull(nameof(boardView), nameof(verticalHintsView), nameof(horizontalHintsView), nameof(verticalHintsDrawable), nameof(horizontalHintsDrawable))]
+    [MemberNotNull(nameof(boardView), nameof(boardDrawable), nameof(verticalHintsView), 
+        nameof(horizontalHintsView), nameof(verticalHintsDrawable), nameof(horizontalHintsDrawable))]
     private void CreateViews()
     {
         boardDrawable = new BoardDrawable(game);
@@ -143,7 +151,9 @@ public class GamePage : ContentPage
             Drawable = horizontalHintsDrawable
         };
 
-        boardView.StartInteraction += OnBoardTouched;
+        boardView.StartInteraction += ÒnTouchStart;
+        boardView.DragInteraction += OnTouchMove;
+        boardView.EndInteraction += OnTouchEnd;
     }
 
     [MemberNotNull(nameof(mainGrid))]
@@ -167,9 +177,6 @@ public class GamePage : ContentPage
             new ColumnDefinition { Width = GridLength.Auto },                    // 1: Board
         }
         };
-
-        CreateToggleButton();
-        CreateCommandButtons();
 
         // Add children
         mainGrid.Add(boardView, 1, 1);          // bottom-right
@@ -268,12 +275,39 @@ public class GamePage : ContentPage
         redoButton.IsEnabled = game.CanRedo;
     }
 
-    private void OnBoardTouched(object sender, TouchEventArgs e)
+    private void ÒnTouchStart(object sender, TouchEventArgs e)
     {
-        var touch = e.Touches.First();
-        boardDrawable.HandleTouch(touch.X, touch.Y);
+        isDragging = true;
 
-        UpdateCommandButtons();
+        var touch = e.Touches.First();
+        Point cell = boardDrawable.ConvertTouchToCell(touch);
+        boardDrawable.HandleCell(cell);
+        visitedCells.Add(((int) cell.X, (int) cell.Y));
+
         InvalidateViews();
+    }
+
+    private void OnTouchMove(object sender, TouchEventArgs e)
+    {
+        if (!isDragging) { return; }
+
+        var touch = e.Touches.First();
+        var cell = boardDrawable.ConvertTouchToCell(touch);
+
+        if (visitedCells.Contains(((int)cell.X, (int)cell.Y)))
+        {
+            return;
+        }
+
+        boardDrawable.HandleCell(cell);
+        visitedCells.Add(((int) cell.X, (int) cell.Y));
+        InvalidateViews();
+    }
+
+    private void OnTouchEnd(object sender, TouchEventArgs e)
+    {
+        visitedCells.Clear();
+        isDragging = false;
+        UpdateCommandButtons();
     }
 }

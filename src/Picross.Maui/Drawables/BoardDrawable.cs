@@ -87,12 +87,41 @@ internal class BoardDrawable : IDrawable
         }
     }
 
+    /// <summary>
+    /// Converts touch coordinates to cell coordinates.
+    /// </summary>
+    /// <param name="touchX">x coordinate of touch</param>
+    /// <param name="touchY">y coordinate of touch</param>
+    /// <returns><c>Point</c> of cell touched.</returns>
+    public Point ConvertTouchToCell(double touchX, double touchY)
+    {
+        return new Point(touchX / cellSize, touchY / cellSize);
+    }
 
+    public Point ConvertTouchToCell(Point touchCoordinates)
+    {
+        return ConvertTouchToCell(touchCoordinates.X, touchCoordinates.Y);
+    }
+
+    /// <summary>
+    /// Converts touch coordinates to cell coordinates, then properly handles the cell. 
+    /// See <seealso cref="ConvertTouchToCell(double, double)"/> and <seealso cref="HandleCell(int, int)"/>
+    /// </summary>
+    /// <param name="touchX"></param>
+    /// <param name="touchY"></param>
     public void HandleTouch(float touchX, float touchY)
     {
-        int x = (int)(touchX / cellSize);
-        int y = (int)(touchY / cellSize);
+        Point cell = ConvertTouchToCell(touchX, touchY);
+        HandleCell((int) cell.X, (int) cell.Y);
+    }
 
+    /// <summary>
+    /// Handles a clicked square by updating its state according to selected mode.
+    /// </summary>
+    /// <param name="x">x coordinate of cell</param>
+    /// <param name="y">y coordinate of cell</param>
+    public void HandleCell(int x, int y)
+    {
         if (x < 0 || x >= game.Width || y < 0 || y >= game.Height)
         {
             return;
@@ -110,6 +139,15 @@ internal class BoardDrawable : IDrawable
         {
             HandleClickEmptySquare(x, y);
         }
+    }
+
+    /// <summary>
+    /// Handles a clicked square by updating its state according to selected mode. See also <seealso cref="HandleCell(int, int)"/>.
+    /// </summary>
+    /// <param name="cell">The coordinates of the clicked cell (so in cell coordinates)</param>
+    public void HandleCell(Point cell)
+    {
+        HandleCell((int) cell.X, (int) cell.Y);
     }
 
     private void HandleClickFilledSquare(int x, int y)
