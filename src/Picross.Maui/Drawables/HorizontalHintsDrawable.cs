@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Maui.Drawables
+namespace Picross.Maui.Drawables
 {
     internal class HorizontalHintsDrawable : IDrawable
     {

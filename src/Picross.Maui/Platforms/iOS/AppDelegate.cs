@@ -1,6 +1,7 @@
 ﻿using Foundation;
+using Picross.Maui;
 
-namespace Maui.Platforms.iOS
+namespace Picross.Maui.Platforms.iOS
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

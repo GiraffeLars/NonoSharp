@@ -1,7 +1,7 @@
 ﻿using Microsoft.Maui.Graphics;
 using Picross.Game;
 
-namespace Maui.Drawables;
+namespace Picross.Maui.Drawables;
 
 internal class BoardDrawable : IDrawable
 {
