@@ -140,20 +140,14 @@ internal class BoardDrawable : IDrawable
             return;
         }
 
-        if (game.IsSquareFilled(x, y))
+        if (!lockFillType)
         {
-            HandleClickFilledSquare(x, y);
-        }
-        else if (game.IsSquareCrossed(x, y))
-        {
-            HandleClickCrossedSquare(x, y);
-        }
-        else
-        {
-            HandleClickEmptySquare(x, y);
+            // This is the first move in a potential drag, we need to determine the users intention
+            DetermineTouchIntention(x, y);
+            lockFillType = true;
         }
 
-        lockFillType = true;
+        SetCell(x, y);
     }
 
     /// <summary>
@@ -162,77 +156,53 @@ internal class BoardDrawable : IDrawable
     /// <param name="cell">The coordinates of the clicked cell (so in cell coordinates)</param>
     public void HandleCell(Point cell)
     {
-        HandleCell((int) cell.X, (int) cell.Y);
+        HandleCell((int)cell.X, (int)cell.Y);
     }
 
-    private void HandleClickFilledSquare(int x, int y)
+
+    private void DetermineTouchIntention(int x, int y)
     {
-        if (fillType == FillType.CROSS)
+        if (game.IsSquareFilled(x, y))
         {
-            game.CrossCell(x, y);
-            return;
+            if (fillType == FillType.FILL)
+            {
+                fillType = FillType.EMPTY;
+            }
+            // Do not update the fill type if we click a filled square when either cross or empty is selected, keep current one
+        }
+        else if (game.IsSquareCrossed(x, y))
+        {
+            if (fillType == FillType.CROSS)
+            {
+                fillType = FillType.EMPTY;
+            }
+            // Do not update the fill type if we click a crossed square when either fill or empty is selected, keep current one
         }
 
-        // When filling, also check if the cell is empty to still allow cells to be emptied
-        // when this is the first click.
-        if (fillType == FillType.FILL && game.IsSquareEmpty(x, y))
-        {
-            game.FillCell(x, y);
-            return;
-        }
-
-        // In this case, either this is the first click, which is on a empty cell while placing crosses, or we are already
-        // emptying. In both cases, we should empty the cell and lock the fill type (if it hasn't already).
-        // If we have already locked, then we should skip emptying.
-        if (fillType == FillType.EMPTY || !lockFillType)
-        {
-            
-            game.EmptyCell(x, y);
-            fillType = FillType.EMPTY;
-        }
+        // When a empty square is clicked, we should leave the fill type as is.
     }
 
-    private void HandleClickCrossedSquare(int x, int y)
+    private void SetCell(int x, int y)
     {
-        if (fillType == FillType.FILL)
+        // Do not change already filled cells, as this would introduce a new action to undo
+        if (fillType == FillType.FILL && !game.IsSquareFilled(x, y))
         {
             game.FillCell(x, y);
-            return;
         }
-
-
-        // When crossing, also check if the cell is empty to still allow cells to be emptied
-        // when this is the first click.
-        if (fillType == FillType.CROSS && game.IsSquareEmpty(x, y))
+        // Again, do not change crossed cells to cross to avoid introducing new undo actions
+        else if (fillType == FillType.CROSS && !game.IsSquareCrossed(x, y))
         {
             game.CrossCell(x, y);
-            return;
         }
-
-        // In this case, either this is the first click, which is on a empty cell while placing crosses, or we are already
-        // emptying. In both cases, we should empty the cell and lock the fill type (if it hasn't already).
-        // If we have already locked, then we should skip emptying.
-        if (fillType == FillType.EMPTY || !lockFillType)
-        { 
-            game.EmptyCell(x, y);
-            fillType = FillType.EMPTY;
-        }
-    }
-
-    private void HandleClickEmptySquare(int x, int y)
-    {
-        if (fillType == FillType.FILL)
+        else if (fillType == FillType.EMPTY && !game.IsSquareEmpty(x, y))
         {
-            game.FillCell(x, y);
-            return;
+            // Only empty cells that were part of the intended types to remove
+            // E.g. only empty cells that are filled in if the intention was to empty filled in squares
+            if ((OldFillType == FillType.FILL && game.IsSquareFilled(x, y)) ||
+                (OldFillType == FillType.CROSS && game.IsSquareCrossed(x, y)) )
+            {
+                game.EmptyCell(x, y);
+            }
         }
-
-        if (fillType == FillType.CROSS)
-        {
-            game.CrossCell(x, y);
-            return;
-        }
-
-        // Ignore other possibilities as filltype must be locked since in this case we must be emptying
     }
 }
