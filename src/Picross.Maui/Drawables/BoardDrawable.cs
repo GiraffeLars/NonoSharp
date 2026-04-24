@@ -3,13 +3,6 @@ using Picross.Game;
 
 namespace Picross.Maui.Drawables;
 
-internal enum FillType
-{
-    FILL,
-    CROSS,
-    EMPTY
-}
-
 internal class BoardDrawable : IDrawable
 {
     private GameAPI game;
@@ -97,14 +90,18 @@ internal class BoardDrawable : IDrawable
     }
 
     /// <summary>
-    /// Converts touch coordinates to cell coordinates.
+    /// Converts touch coordinates to cell coordinates. Cell-coordinates are in <c>int</c> and can thus safely
+    /// be casted as such.
     /// </summary>
     /// <param name="touchX">x coordinate of touch</param>
     /// <param name="touchY">y coordinate of touch</param>
     /// <returns><c>Point</c> of cell touched.</returns>
     public Point ConvertTouchToCell(double touchX, double touchY)
     {
-        return new Point(touchX / cellSize, touchY / cellSize);
+        return new Point(
+            Math.Floor(touchX / cellSize),
+            Math.Floor(touchY / cellSize)
+            );
     }
 
     public Point ConvertTouchToCell(Point touchCoordinates)
