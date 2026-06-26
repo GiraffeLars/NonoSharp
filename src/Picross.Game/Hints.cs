@@ -1,6 +1,6 @@
 ﻿namespace Picross.Game
 {
-    public class Hints
+    public class Hints : ICloneable
     {
         private List<Hint> hints;
         private bool vertical;
@@ -11,6 +11,13 @@
         internal Hints(bool vertical, int position)
         {
             hints = new List<Hint>();
+            this.vertical = vertical;
+            this.position = position;
+        }
+
+        private Hints(bool vertical, int position, List<Hint> hints)
+        {
+            this.hints = hints;
             this.vertical = vertical;
             this.position = position;
         }
@@ -199,6 +206,19 @@
             {
                 hints[hintIndex]._completed = true;
             }
+        }
+
+        public object Clone()
+        {
+            var hintCopy = new List<Hint>();
+
+            foreach(Hint h in hints)
+            {
+                // Create deep copy of the hints, otherwise interference might occur with user playing
+                hintCopy.Add((Hint) h.Clone());
+            }
+
+            return new Hints(vertical, position, hintCopy);
         }
     }
 }

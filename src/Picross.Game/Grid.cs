@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Picross.Game
 {
-    internal class Grid
+    internal class Grid : ICloneable
     {
-        private SquareType[,] grid;
+        private readonly SquareType[,] grid;
         private List<Point> solution;
         private int filled = 0;
         private int paddingString = 0;
@@ -44,6 +44,31 @@ namespace Picross.Game
             InitializeHints();
             
         }
+
+        /// <summary>
+        /// Creates a full custom Grid
+        /// </summary>
+        /// <param name="grid">List of SquareType, with data of filled in squares, etc..</param>
+        /// <param name="solution">Solution to this grid</param>
+        /// <param name="filled">How many squares are filled in. Should be consistent with <paramref name="grid"/>.</param>
+        /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
+        /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
+        /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
+        /// <param name="verticalHints">Vertical hint data (i.e. those on top of the grid)</param>
+        /// <param name="horizontalHints">Horizontal hint data (i.e. those on the left of the grid)</param>
+        internal Grid(SquareType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height, Hints[] verticalHints, Hints[] horizontalHints)
+        {
+            this.grid = grid;
+            this.solution = solution;
+            this.filled = filled;
+            this.paddingString = paddingString;
+            Width = width;
+            Height = height;
+            VerticalHints = verticalHints;
+            HorizontalHints = horizontalHints;
+        }
+
+
 
         /// <summary>
         /// Makes the solution into a 2D array representation, just as <paramref name="this.grid"/>
@@ -361,6 +386,40 @@ namespace Picross.Game
             }
 
             return hintsStr;
+        }
+
+        /// <summary>
+        /// Deep copies <paramref name="toClone"/>
+        /// </summary>
+        /// <param name="toClone">The hints array to clone</param>
+        /// <returns>Deep copy of <c>toClone</c></returns>
+        private Hints[] CloneHints(Hints[] toClone)
+        {
+            Hints[] clone = new Hints[toClone.Length];
+
+            for (int i = 0; i < toClone.Length; i++)
+            {
+                clone[i] = (Hints) toClone[i].Clone();
+            }
+
+            return clone;
+        }
+
+        public object Clone()
+        {
+            Hints[] verticalCopy = CloneHints(VerticalHints);
+            Hints[] horizontalCopy = CloneHints(HorizontalHints);
+
+            return new Grid(
+                (SquareType[,]) grid.Clone(),
+                solution,
+                filled,
+                paddingString,
+                Width,
+                Height,
+                verticalCopy,
+                horizontalCopy
+            );
         }
     }
 
