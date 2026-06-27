@@ -232,6 +232,7 @@ namespace Picross.Game.Tests
             List<Point> sol = [new Point(0, 0), new Point(2, 0)];
             grid.SetSolution(sol);
 
+            // [O][X][X]
             grid.SetCell(0, 0, SquareType.FILLED);
             grid.SetCell(1, 0, SquareType.CROSS);
             grid.SetCell(2, 0, SquareType.CROSS);
@@ -241,6 +242,7 @@ namespace Picross.Game.Tests
             Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
 
             // Now check single filled in cell at the end
+            // [X][X][O]
             grid.SetCell(0, 0, SquareType.CROSS);
             grid.SetCell(2, 0, SquareType.FILLED);
 
