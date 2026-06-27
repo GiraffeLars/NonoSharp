@@ -9,29 +9,25 @@ namespace Picross.Game
     /// and whether the puzzle can be improved with 100% certainty.
     /// At its current state, the Solver will not make any "guesses", meaning that puzzles with a valid
     /// solution that might require logical deductions might be rejected.
+    /// Puzzles where guessing is required, i.e. without one unique answer, are rejected. 
+    /// TODO replace the Solvable algorithm with a backtracking/dynamic programming aproach for better performance
+    /// TODO also consider applying logical deductions, allowing for more difficult puzzles
     /// </summary>
     internal class Solver
     {
-        // The playing grid of the user, should generally not be modified
-        private Grid grid;
-
-        // Grid to work on to calculate solutions (Copy of grid).
-        private Grid workingGrid;
+        // TODO replace the Solvable algorithm with a backtracking/dynamic programming aproach for better performance
+        // TODO also consider applying logical deductions, allowing for more difficult puzzles
 
         private static readonly SquareType[] typesToCheck = [SquareType.FILLED, SquareType.CROSS];
-
-        internal Solver(Grid grid)
-        {
-            this.grid = grid;
-            this.workingGrid = (Grid) grid.Clone();
-        }
 
         /// <summary>
         /// Determines whether a puzzle can be solved
         /// </summary>
         /// <returns>True if the puzzle can be solved, false if not</returns>
-        public bool IsSolvable()
+        public static bool IsSolvable(Grid grid)
         {
+            // Grid to work on to calculate solutions (Copy of grid).
+            Grid workingGrid = (Grid) grid.Clone();
             bool changedInIteration;
 
             do
@@ -59,7 +55,7 @@ namespace Picross.Game
 
                     if (changedCells)
                     {
-                        workingGrid.SetColumn(i, line);
+                        workingGrid.SetRow(i, line);
                         changedInIteration = true;
                     }
                 }
@@ -78,10 +74,16 @@ namespace Picross.Game
         /// <param name="line">The line to improve. Improved cells will be changed in the array.</param>
         /// <param name="hints">The hints to base the improvement on</param>
         /// <returns>True if any cells were changed, false otherwise</returns>
-        private bool ImproveLine(SquareType[] line, Hints hints)
+        private static bool ImproveLine(SquareType[] line, Hints hints)
         {
             List<SquareType[]> validPermutations = [];
             ComputePermutations(line, hints, 0, validPermutations);
+
+            if (validPermutations.Count == 0)
+            {
+                // This whole line has been filled in and can not be improved without replacing user placed cells
+                return false;
+            }
 
             bool changedCells = false;
             for (int i = 0; i < line.Length; i++)
@@ -118,7 +120,7 @@ namespace Picross.Game
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
-        private void ComputePermutations(SquareType[] line, Hints hints, int index, List<SquareType[]> currentlyFound)
+        private static void ComputePermutations(SquareType[] line, Hints hints, int index, List<SquareType[]> currentlyFound)
         {
             if (index >= line.Length)
             {
