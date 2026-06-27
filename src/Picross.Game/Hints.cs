@@ -56,6 +56,22 @@
             DoCompletionBackward(line, leftOffAt);
         }
 
+        internal void DoCompletion(SquareType[] line)
+        {
+            if (hints.Count == 0) return;
+            Reset();
+            LinkedList<SquareType> linked = new();
+            foreach(SquareType cell in line)
+            {
+                linked.AddLast(cell);
+            }
+
+            LinkedListNode<SquareType>? node = linked.First;
+
+            int leftOffAt = DoCompletionForward(linked);
+            DoCompletionBackward(linked, leftOffAt);
+        }
+
         /// <summary>
         /// Checks hint completion by starting from the front
         /// </summary>

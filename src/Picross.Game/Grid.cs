@@ -227,8 +227,17 @@ namespace Picross.Game
             return grid[x, y];
         }
 
+        /// <summary>
+        /// Get the current column data as a LinkedList. For an array representation, see <seealso cref="GetColumnArray(int)"/>.
+        /// </summary>
+        /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
+        /// <returns>LinkedList of cells and their associated SquareType data</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>column</c> is not a valid column, i.e. out of range of the grid width.</exception>
         internal LinkedList<SquareType> GetColumn(int column)
         {
+            ArgumentOutOfRangeException.ThrowIfNegative(column);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
+
             LinkedList<SquareType> list = new LinkedList<SquareType>();
 
             for (int i = 0; i < Height; i++)
@@ -239,8 +248,38 @@ namespace Picross.Game
             return list;
         }
 
+        /// <summary>
+        /// Get the current column data as an array. For an LinkedList representation, see <seealso cref="GetColumn(int)(int)"/>.
+        /// </summary>
+        /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
+        /// <returns>Array of SquareType corresponding to the cells in the column</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>column</c> is not a valid column, i.e. out of range of the grid width.</exception>
+        internal SquareType[] GetColumnArray(int column)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(column);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
+
+            SquareType[] cells = new SquareType[Height];
+
+            for (int i = 0; i < Height; i++)
+            {
+                SquareType type = grid[column, i];
+                cells[i] = type;
+            }
+            return cells;
+        }
+
+        /// <summary>
+        /// Get the current row data as a LinkedList. For an array representation, see <seealso cref="GetRowArray(int)"/>.
+        /// </summary>
+        /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
+        /// <returns>LinkedList of cells and their associated SquareType data</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
         internal LinkedList<SquareType> GetRow(int row)
         {
+            ArgumentOutOfRangeException.ThrowIfNegative(row);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
+
             LinkedList<SquareType> list = new LinkedList<SquareType>();
 
             for (int i = 0; i < Width; i++)
@@ -249,6 +288,72 @@ namespace Picross.Game
                 list.AddLast(type);
             }
             return list;
+        }
+
+        /// <summary>
+        /// Get the current row data as an array. For an LinkedList representation, see <seealso cref="GetRow(int)"/>.
+        /// </summary>
+        /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
+        /// <returns>Array of SquareType corresponding to the cells in the row</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
+        internal SquareType[] GetRowArray(int row) 
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(row);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
+
+            SquareType[] cells = new SquareType[Height];
+
+            for (int i = 0; i < Width; i++)
+            {
+                SquareType type = grid[i, row];
+                cells[i] = type;
+            }
+            return cells;
+        }
+
+        /// <summary>
+        /// Sets the specified <paramref name="row"/> to <paramref name="newRow"/>
+        /// </summary>
+        /// <param name="row">The row to change</param>
+        /// <param name="newRow">New row</param>
+        /// <exception cref="ArgumentException">Thrown when dimensions of <c>newRow</c> do not match the grid</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row</exception>
+        internal void SetRow(int row, SquareType[] newRow)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(row);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
+            
+            if (newRow.Length != Width)
+            {
+                throw new ArgumentException("newRow must have the match the dimension of the grid!");
+            }
+
+            for (int i = 0; i < Width; i++)
+            {
+                if (newRow[i] != GetCell(i, row))
+                {
+                    SetCell(i, row, newRow[i]);
+                }
+            }
+        }
+
+        internal void SetColumn(int column, SquareType[] newColumn)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(column);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
+
+            if (newColumn.Length != Height)
+            {
+                throw new ArgumentException("newRow must have the match the dimension of the grid!");
+            }
+
+            for (int i = 0; i < Height; i++)
+            {
+                if (newColumn[i] != GetCell(column, i))
+                {
+                    SetCell(column, i, newColumn[i]);
+                }
+            }
         }
 
         private void FillRandomly(List<Point> g)
