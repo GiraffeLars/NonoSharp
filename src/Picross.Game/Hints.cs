@@ -122,6 +122,7 @@
             if (hintIndex <  hints.Count && hints[hintIndex].Number == squaresFound)
             {
                 hints[hintIndex]._completed = true;
+                hintIndex++; // Increase hint index as this hint is completed
             }
             return hintIndex;
         }
