@@ -5,11 +5,11 @@ using Picross.Game;
 
 namespace Picross.Game.Tests
 {
-    public class GameAPITest
+    public class GameAPITests
     {
         private readonly GameAPI api;
 
-        public GameAPITest()
+        public GameAPITests()
         {
             api = new GameAPI(15, 15);
         }

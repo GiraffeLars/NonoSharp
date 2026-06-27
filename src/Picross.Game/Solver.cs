@@ -16,9 +16,9 @@ namespace Picross.Game
         private Grid grid;
 
         // Grid to work on to calculate solutions (Copy of grid).
-        private Grid workingGrid; 
+        private Grid workingGrid;
 
-        private static SquareType[] typesToCheck = [SquareType.FILLED, SquareType.CROSS];
+        private static readonly SquareType[] typesToCheck = [SquareType.FILLED, SquareType.CROSS];
 
         internal Solver(Grid grid)
         {
@@ -133,7 +133,8 @@ namespace Picross.Game
                     }
                 }
 
-                currentlyFound.Add(line);
+                SquareType[] clone = (SquareType[]) line.Clone();
+                currentlyFound.Add(clone);
                 return;
             }
 
