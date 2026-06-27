@@ -221,5 +221,36 @@ namespace Picross.Game.Tests
             grid.SetCell(7, 0, SquareType.BLANK);
             Assert.False(grid.IsSolved());
         }
+
+        [Fact]
+        public void TestHint_SingleFilled_TwoInSolution()
+        {
+            // Solution
+            // [O][X][O]
+
+            Grid grid = new(3, 1);
+            List<Point> sol = [new Point(0, 0), new Point(2, 0)];
+            grid.SetSolution(sol);
+
+            grid.SetCell(0, 0, SquareType.FILLED);
+            grid.SetCell(1, 0, SquareType.CROSS);
+            grid.SetCell(2, 0, SquareType.CROSS);
+
+            // Since the first square is filled in, we expect the first hint to be completed as it makes more sense intuitively
+            Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
+            Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
+
+            // Now check single filled in cell at the end
+            grid.SetCell(0, 0, SquareType.CROSS);
+            grid.SetCell(2, 0, SquareType.FILLED);
+
+            // It does not really matter which hint is completed, both make sense in a way, as long as one is completed and the other is not
+            bool completed0 = grid.HorizontalHints[0].GetHint(0).Completed;
+            bool completed1 = grid.HorizontalHints[0].GetHint(1).Completed;
+
+            // Since these are bools, c0 != c1 implies that one is true and the other is false
+            // This is enough for what we want to test as above
+            Assert.NotEqual(completed0, completed1);
+        }
     }
 }
