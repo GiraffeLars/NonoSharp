@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Picross.Game
@@ -21,13 +22,11 @@ namespace Picross.Game
         private static readonly SquareType[] typesToCheck = [SquareType.FILLED, SquareType.CROSS];
 
         /// <summary>
-        /// Determines whether a puzzle can be solved
+        /// Solves <paramref name="grid"/>.
         /// </summary>
-        /// <returns>True if the puzzle can be solved, false if not</returns>
-        public static bool IsSolvable(Grid grid)
+        /// <param name="grid">Grid to solve</param>
+        private static void SolveGrid(Grid grid)
         {
-            // Grid to work on to calculate solutions (Copy of grid).
-            Grid workingGrid = (Grid) grid.Clone();
             bool changedInIteration;
 
             do
@@ -35,31 +34,52 @@ namespace Picross.Game
                 changedInIteration = false;
 
                 // Loop through columns and improve where possible
-                for (int i = 0; i < workingGrid.Width; i++)
+                for (int i = 0; i < grid.Width; i++)
                 {
-                    SquareType[] line = workingGrid.GetColumnArray(i);
-                    bool changedCells = ImproveLine(line, workingGrid.VerticalHints[i]);
+                    SquareType[] line = grid.GetColumnArray(i);
+                    bool changedCells = ImproveLine(line, grid.VerticalHints[i]);
 
                     if (changedCells)
                     {
-                        workingGrid.SetColumn(i, line);
+                        grid.SetColumn(i, line);
                         changedInIteration = true;
                     }
                 }
-                
+
                 // Loop through rows and improve where possible
-                for (int i = 0; i < workingGrid.Height; i++)
+                for (int i = 0; i < grid.Height; i++)
                 {
-                    SquareType[] line = workingGrid.GetRowArray(i);
-                    bool changedCells = ImproveLine(line, workingGrid.HorizontalHints[i]);
+                    SquareType[] line = grid.GetRowArray(i);
+
+                    bool changedCells = ImproveLine(line, grid.HorizontalHints[i]);
 
                     if (changedCells)
                     {
-                        workingGrid.SetRow(i, line);
+                        grid.SetRow(i, line);
                         changedInIteration = true;
                     }
                 }
             } while (changedInIteration);
+        }
+
+        /// <summary>
+        /// Solves <paramref name="grid"/>.
+        /// </summary>
+        /// <param name="grid">Grid to solve</param>
+        public static void Solve(Grid grid)
+        {
+            SolveGrid(grid);
+        }
+
+        /// <summary>
+        /// Determines whether a puzzle can be solved
+        /// </summary>
+        /// <returns>True if the puzzle can be solved, false if not</returns>
+        public static bool IsSolvable(Grid grid)
+        {
+            // Grid to work on to calculate solutions (Copy of grid).
+            Grid workingGrid = (Grid) grid.Clone();
+            SolveGrid(workingGrid);
 
             // At the end of all iterations, check if the puzzle is solved.
             // The loop stops either if the puzzle is solved and no lines could be improved, or if the puzzle was not solved
@@ -74,7 +94,7 @@ namespace Picross.Game
         /// <param name="line">The line to improve. Improved cells will be changed in the array.</param>
         /// <param name="hints">The hints to base the improvement on</param>
         /// <returns>True if any cells were changed, false otherwise</returns>
-        private static bool ImproveLine(SquareType[] line, Hints hints)
+        internal static bool ImproveLine(SquareType[] line, Hints hints)
         {
             List<SquareType[]> validPermutations = [];
             ComputePermutations(line, hints, 0, validPermutations);
@@ -96,7 +116,12 @@ namespace Picross.Game
 
                 SquareType firstPermutationType = validPermutations[0][i];
                 int j;
-                for (j = 1;  j < validPermutations.Count; j++)
+                
+                if (firstPermutationType == SquareType.BLANK)
+                {
+                    Debug.WriteLine("Found blank, very bad!!!!");
+                }
+                for (j = 1; j < validPermutations.Count; j++)
                 {
                     if (validPermutations[j][i] != firstPermutationType)
                     {

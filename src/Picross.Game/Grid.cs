@@ -1,4 +1,6 @@
 ﻿using System.Data.Common;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text;
 
@@ -38,11 +40,9 @@ namespace Picross.Game
 
             FillRandomly(solution);
 
-
             VerticalHints = new Hints[width];
             HorizontalHints = new Hints[height];
             InitializeHints();
-            
         }
 
         /// <summary>
@@ -56,16 +56,16 @@ namespace Picross.Game
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="verticalHints">Vertical hint data (i.e. those on top of the grid)</param>
         /// <param name="horizontalHints">Horizontal hint data (i.e. those on the left of the grid)</param>
-        internal Grid(SquareType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height, Hints[] verticalHints, Hints[] horizontalHints)
+        internal Grid(SquareType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height)
         {
             this.grid = grid;
-            this.solution = solution;
             this.filled = filled;
             this.paddingString = paddingString;
             Width = width;
             Height = height;
-            VerticalHints = verticalHints;
-            HorizontalHints = horizontalHints;
+            VerticalHints = new Hints[width];
+            HorizontalHints = new Hints[height];
+            SetSolution(solution);
         }
 
 
@@ -90,6 +90,7 @@ namespace Picross.Game
         /// Sets the solution to a Grid and sets the hints.
         /// </summary>
         /// <param name="solution"></param>
+        [MemberNotNull(nameof(solution))]
         internal void SetSolution(List<Point> solution)
         { 
             this.solution = solution;
@@ -301,7 +302,7 @@ namespace Picross.Game
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
 
-            SquareType[] cells = new SquareType[Height];
+            SquareType[] cells = new SquareType[Width];
 
             for (int i = 0; i < Width; i++)
             {
@@ -512,18 +513,13 @@ namespace Picross.Game
 
         public object Clone()
         {
-            Hints[] verticalCopy = CloneHints(VerticalHints);
-            Hints[] horizontalCopy = CloneHints(HorizontalHints);
-
             return new Grid(
                 (SquareType[,]) grid.Clone(),
                 solution,
                 filled,
                 paddingString,
                 Width,
-                Height,
-                verticalCopy,
-                horizontalCopy
+                Height
             );
         }
     }
