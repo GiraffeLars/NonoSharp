@@ -36,13 +36,18 @@ namespace Picross.Game
             this.Height = height;
 
             grid = new SquareType[width, height];
-            solution = new List<Point>();
 
-            FillRandomly(solution);
 
             VerticalHints = new Hints[width];
             HorizontalHints = new Hints[height];
-            InitializeHints();
+
+            // Generate a random grid and guarantee it is solvable
+            do
+            {
+                solution = new List<Point>();
+                FillRandomly(solution);
+                InitializeHints();
+            } while (!Solver.IsSolvable(this));
         }
 
         /// <summary>
