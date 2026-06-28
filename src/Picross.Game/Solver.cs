@@ -124,19 +124,11 @@ namespace Picross.Game
         {
             if (index >= line.Length)
             {
-                // Check if all hints are satisfied
-                hints.DoCompletion(line);
-
-                for (int h = 0; h < hints.Count; h++)
-                {
-                    if (!hints.GetHint(h).Completed)
-                    {
-                        return;
-                    }
+                if (IsValidPermutation(line, hints))
+                { 
+                    SquareType[] clone = (SquareType[])line.Clone();
+                    currentlyFound.Add(clone);
                 }
-
-                SquareType[] clone = (SquareType[]) line.Clone();
-                currentlyFound.Add(clone);
                 return;
             }
 
@@ -155,6 +147,32 @@ namespace Picross.Game
             }
 
             line[index] = SquareType.BLANK;
+        }
+
+        private static bool IsValidPermutation(SquareType[] permutation, Hints hints)
+        {
+            /* Hints are marked as completed, even if there are still other squares in the row, i.e. more filled in squares than 
+               the hint requires.
+               This is intentional behaviour, but means we must check if the total of squares filled in match the hints
+            */
+            int filledIn = permutation.Count(cell => cell == SquareType.FILLED);
+            if (filledIn != hints.TotalCellsInHints)
+            {
+                return false;
+            }
+
+            // Check if all hints are satisfied
+            hints.DoCompletion(permutation);
+
+            for (int h = 0; h < hints.Count; h++)
+            {
+                if (!hints.GetHint(h).Completed)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
