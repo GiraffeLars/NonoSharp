@@ -1,10 +1,13 @@
 ﻿namespace Picross.Game
 {
-    public class Hints
+    public class Hints : ICloneable
     {
         private List<Hint> hints;
         private bool vertical;
         private int position;
+
+        // The total amount of filled cells these hints concern
+        public int TotalCellsInHints {  get; private set; }
 
         public int Count { get { return hints.Count; } }
 
@@ -13,6 +16,15 @@
             hints = new List<Hint>();
             this.vertical = vertical;
             this.position = position;
+            TotalCellsInHints = 0;
+        }
+
+        private Hints(bool vertical, int position, List<Hint> hints)
+        {
+            this.hints = hints;
+            this.vertical = vertical;
+            this.position = position;
+            TotalCellsInHints = 0;
         }
 
         /// <summary>
@@ -22,6 +34,7 @@
         internal void Add(Hint hint)
         {
             hints.Add(hint);
+            TotalCellsInHints += hint.Number;
         }
 
         // TODO rework this in some way such that GetHint is removed, it adds confusion and overhead
@@ -47,6 +60,22 @@
 
             int leftOffAt = DoCompletionForward(line);
             DoCompletionBackward(line, leftOffAt);
+        }
+
+        internal void DoCompletion(SquareType[] line)
+        {
+            if (hints.Count == 0) return;
+            Reset();
+            LinkedList<SquareType> linked = new();
+            foreach(SquareType cell in line)
+            {
+                linked.AddLast(cell);
+            }
+
+            LinkedListNode<SquareType>? node = linked.First;
+
+            int leftOffAt = DoCompletionForward(linked);
+            DoCompletionBackward(linked, leftOffAt);
         }
 
         /// <summary>
@@ -200,6 +229,19 @@
             {
                 hints[hintIndex]._completed = true;
             }
+        }
+
+        public object Clone()
+        {
+            var hintCopy = new List<Hint>();
+
+            foreach(Hint h in hints)
+            {
+                // Create deep copy of the hints, otherwise interference might occur with user playing
+                hintCopy.Add((Hint) h.Clone());
+            }
+
+            return new Hints(vertical, position, hintCopy);
         }
     }
 }

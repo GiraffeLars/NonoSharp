@@ -1,12 +1,14 @@
 ﻿using System.Data.Common;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text;
 
 namespace Picross.Game
 {
-    internal class Grid
+    internal class Grid : ICloneable
     {
-        private SquareType[,] grid;
+        private readonly SquareType[,] grid;
         private List<Point> solution;
         private int filled = 0;
         private int paddingString = 0;
@@ -34,16 +36,44 @@ namespace Picross.Game
             this.Height = height;
 
             grid = new SquareType[width, height];
-            solution = new List<Point>();
-
-            FillRandomly(solution);
 
 
             VerticalHints = new Hints[width];
             HorizontalHints = new Hints[height];
-            InitializeHints();
-            
+
+            // Generate a random grid and guarantee it is solvable
+            do
+            {
+                solution = new List<Point>();
+                FillRandomly(solution);
+                InitializeHints();
+            } while (!Solver.IsSolvable(this));
         }
+
+        /// <summary>
+        /// Creates a full custom Grid
+        /// </summary>
+        /// <param name="grid">List of SquareType, with data of filled in squares, etc..</param>
+        /// <param name="solution">Solution to this grid</param>
+        /// <param name="filled">How many squares are filled in. Should be consistent with <paramref name="grid"/>.</param>
+        /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
+        /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
+        /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
+        /// <param name="verticalHints">Vertical hint data (i.e. those on top of the grid)</param>
+        /// <param name="horizontalHints">Horizontal hint data (i.e. those on the left of the grid)</param>
+        internal Grid(SquareType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height)
+        {
+            this.grid = grid;
+            this.filled = filled;
+            this.paddingString = paddingString;
+            Width = width;
+            Height = height;
+            VerticalHints = new Hints[width];
+            HorizontalHints = new Hints[height];
+            SetSolution(solution);
+        }
+
+
 
         /// <summary>
         /// Makes the solution into a 2D array representation, just as <paramref name="this.grid"/>
@@ -65,6 +95,7 @@ namespace Picross.Game
         /// Sets the solution to a Grid and sets the hints.
         /// </summary>
         /// <param name="solution"></param>
+        [MemberNotNull(nameof(solution))]
         internal void SetSolution(List<Point> solution)
         { 
             this.solution = solution;
@@ -202,8 +233,17 @@ namespace Picross.Game
             return grid[x, y];
         }
 
+        /// <summary>
+        /// Get the current column data as a LinkedList. For an array representation, see <seealso cref="GetColumnArray(int)"/>.
+        /// </summary>
+        /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
+        /// <returns>LinkedList of cells and their associated SquareType data</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>column</c> is not a valid column, i.e. out of range of the grid width.</exception>
         internal LinkedList<SquareType> GetColumn(int column)
         {
+            ArgumentOutOfRangeException.ThrowIfNegative(column);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
+
             LinkedList<SquareType> list = new LinkedList<SquareType>();
 
             for (int i = 0; i < Height; i++)
@@ -214,8 +254,38 @@ namespace Picross.Game
             return list;
         }
 
+        /// <summary>
+        /// Get the current column data as an array. For an LinkedList representation, see <seealso cref="GetColumn(int)(int)"/>.
+        /// </summary>
+        /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
+        /// <returns>Array of SquareType corresponding to the cells in the column</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>column</c> is not a valid column, i.e. out of range of the grid width.</exception>
+        internal SquareType[] GetColumnArray(int column)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(column);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
+
+            SquareType[] cells = new SquareType[Height];
+
+            for (int i = 0; i < Height; i++)
+            {
+                SquareType type = grid[column, i];
+                cells[i] = type;
+            }
+            return cells;
+        }
+
+        /// <summary>
+        /// Get the current row data as a LinkedList. For an array representation, see <seealso cref="GetRowArray(int)"/>.
+        /// </summary>
+        /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
+        /// <returns>LinkedList of cells and their associated SquareType data</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
         internal LinkedList<SquareType> GetRow(int row)
         {
+            ArgumentOutOfRangeException.ThrowIfNegative(row);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
+
             LinkedList<SquareType> list = new LinkedList<SquareType>();
 
             for (int i = 0; i < Width; i++)
@@ -224,6 +294,72 @@ namespace Picross.Game
                 list.AddLast(type);
             }
             return list;
+        }
+
+        /// <summary>
+        /// Get the current row data as an array. For an LinkedList representation, see <seealso cref="GetRow(int)"/>.
+        /// </summary>
+        /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
+        /// <returns>Array of SquareType corresponding to the cells in the row</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
+        internal SquareType[] GetRowArray(int row) 
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(row);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
+
+            SquareType[] cells = new SquareType[Width];
+
+            for (int i = 0; i < Width; i++)
+            {
+                SquareType type = grid[i, row];
+                cells[i] = type;
+            }
+            return cells;
+        }
+
+        /// <summary>
+        /// Sets the specified <paramref name="row"/> to <paramref name="newRow"/>
+        /// </summary>
+        /// <param name="row">The row to change</param>
+        /// <param name="newRow">New row</param>
+        /// <exception cref="ArgumentException">Thrown when dimensions of <c>newRow</c> do not match the grid</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row</exception>
+        internal void SetRow(int row, SquareType[] newRow)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(row);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
+            
+            if (newRow.Length != Width)
+            {
+                throw new ArgumentException("newRow must have the match the dimension of the grid!");
+            }
+
+            for (int i = 0; i < Width; i++)
+            {
+                if (newRow[i] != GetCell(i, row))
+                {
+                    SetCell(i, row, newRow[i]);
+                }
+            }
+        }
+
+        internal void SetColumn(int column, SquareType[] newColumn)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(column);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
+
+            if (newColumn.Length != Height)
+            {
+                throw new ArgumentException("newRow must have the match the dimension of the grid!");
+            }
+
+            for (int i = 0; i < Height; i++)
+            {
+                if (newColumn[i] != GetCell(column, i))
+                {
+                    SetCell(column, i, newColumn[i]);
+                }
+            }
         }
 
         private void FillRandomly(List<Point> g)
@@ -361,6 +497,35 @@ namespace Picross.Game
             }
 
             return hintsStr;
+        }
+
+        /// <summary>
+        /// Deep copies <paramref name="toClone"/>
+        /// </summary>
+        /// <param name="toClone">The hints array to clone</param>
+        /// <returns>Deep copy of <c>toClone</c></returns>
+        private Hints[] CloneHints(Hints[] toClone)
+        {
+            Hints[] clone = new Hints[toClone.Length];
+
+            for (int i = 0; i < toClone.Length; i++)
+            {
+                clone[i] = (Hints) toClone[i].Clone();
+            }
+
+            return clone;
+        }
+
+        public object Clone()
+        {
+            return new Grid(
+                (SquareType[,]) grid.Clone(),
+                solution,
+                filled,
+                paddingString,
+                Width,
+                Height
+            );
         }
     }
 
