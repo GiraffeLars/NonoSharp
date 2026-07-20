@@ -37,7 +37,7 @@ namespace Picross.Game
                 for (int i = 0; i < grid.Width; i++)
                 {
                     SquareType[] line = grid.GetColumnArray(i);
-                    bool changedCells = ImproveLine(line, grid.VerticalHints[i]);
+                    bool changedCells = ImproveLine(line, grid.ColumnHints[i]);
 
                     if (changedCells)
                     {
@@ -51,7 +51,7 @@ namespace Picross.Game
                 {
                     SquareType[] line = grid.GetRowArray(i);
 
-                    bool changedCells = ImproveLine(line, grid.HorizontalHints[i]);
+                    bool changedCells = ImproveLine(line, grid.RowHints[i]);
 
                     if (changedCells)
                     {

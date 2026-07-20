@@ -16,8 +16,8 @@ namespace Picross.Game
         public int Width { get; }
         public int Height { get; }
 
-        public Hints[] VerticalHints { get; }
-        public Hints[] HorizontalHints { get; }
+        public Hints[] ColumnHints { get; }
+        public Hints[] RowHints { get; }
 
         /// <summary>
         /// Constructs a Grid.
@@ -38,8 +38,8 @@ namespace Picross.Game
             grid = new SquareType[width, height];
 
 
-            VerticalHints = new Hints[width];
-            HorizontalHints = new Hints[height];
+            ColumnHints = new Hints[width];
+            RowHints = new Hints[height];
 
             // Generate a random grid and guarantee it is solvable
             do
@@ -59,8 +59,6 @@ namespace Picross.Game
         /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
         /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
-        /// <param name="verticalHints">Vertical hint data (i.e. those on top of the grid)</param>
-        /// <param name="horizontalHints">Horizontal hint data (i.e. those on the left of the grid)</param>
         internal Grid(SquareType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height)
         {
             this.grid = grid;
@@ -68,8 +66,8 @@ namespace Picross.Game
             this.paddingString = paddingString;
             Width = width;
             Height = height;
-            VerticalHints = new Hints[width];
-            HorizontalHints = new Hints[height];
+            ColumnHints = new Hints[width];
+            RowHints = new Hints[height];
             SetSolution(solution);
         }
 
@@ -107,27 +105,27 @@ namespace Picross.Game
         {
             for (int i = 0; i < Width; i++)
             {
-                VerticalHints[i] = new Hints(true, i);
+                ColumnHints[i] = new Hints(true, i);
             }
             for (int i = 0; i < Height; i++)
             {
-                HorizontalHints[i] = new Hints(false, i);
+                RowHints[i] = new Hints(false, i);
             }
-            SetHints(VerticalHints, true);
-            SetHints(HorizontalHints, false);
+            SetHints(ColumnHints, true);
+            SetHints(RowHints, false);
             
         }
 
         /// <summary>
         /// Creates the hints for the solution of this grid.
         /// </summary>
-        /// <param name="hints">Which hints to set, either <c>verticalHints</c> or <c>horizontalHints</c></param>
-        /// <param name="vertical">Whether we are setting the verticalHints, corresponding to the <paramref name="hints"/> parameter</param>
-        private void SetHints(Hints[] hints, bool vertical)
+        /// <param name="hints">Which hints to set, either <c>ColumnHints</c> or <c>RowHints</c></param>
+        /// <param name="isColumn">Whether we are setting the ColumnHints, corresponding to the <paramref name="hints"/> parameter</param>
+        private void SetHints(Hints[] hints, bool isColumn)
         {
-            // Sets the hint limits based on whether we process the vertical hints
-            int xLimit = vertical ? Width : Height;
-            int yLimit = vertical ? Height : Width;
+            // Sets the hint limits based on whether we process the column hints
+            int xLimit = isColumn ? Width : Height;
+            int yLimit = isColumn ? Height : Width;
 
             SquareType[,] gridSol = GridifySolution();
             for (int x = 0; x < xLimit; x++)
@@ -135,7 +133,7 @@ namespace Picross.Game
                 int count = 0;
                 for (int y = 0; y < yLimit; y++)
                 {
-                    SquareType cell = vertical ? gridSol[x, y] : gridSol[y, x];
+                    SquareType cell = isColumn ? gridSol[x, y] : gridSol[y, x];
 
                     // If this is not a filled square
                     if (cell != SquareType.FILLED)
@@ -151,7 +149,7 @@ namespace Picross.Game
 
                 // Do final hint adding in case the last square is filled
                 // Count minus 1 as it is increased by one even if unfilled
-                SquareType lastCell = vertical ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
+                SquareType lastCell = isColumn ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
                 if (count > 0 && lastCell == SquareType.FILLED)
                 {
                     AddHint(hints, x, count);
@@ -161,7 +159,7 @@ namespace Picross.Game
                     hints[x].Add(new Hint(0));
                 }
 
-                DoHorizontalPaddingCount(hints[x].Count, vertical);
+                DoRowPaddingCount(hints[x].Count, isColumn);
             }
         }
 
@@ -173,9 +171,9 @@ namespace Picross.Game
             }
         }
 
-        private void DoHorizontalPaddingCount(int count, bool vertical)
+        private void DoRowPaddingCount(int count, bool isColumn)
         {
-            if (!vertical && count > paddingString)
+            if (!isColumn && count > paddingString)
             {
                 paddingString = count; 
             }
@@ -212,8 +210,8 @@ namespace Picross.Game
             grid[x, y] = value;
 
             // TODO change hints from ints to using Hints and Hint classes then change completion here
-            HorizontalHints[y].DoCompletion(this);
-            VerticalHints[x].DoCompletion(this);
+            RowHints[y].DoCompletion(this);
+            ColumnHints[x].DoCompletion(this);
         }
 
         /// <summary>
@@ -407,15 +405,15 @@ namespace Picross.Game
             //Console.WriteLine();
 
             StringBuilder sb = new StringBuilder();
-            String[] horizontalHintsStr = CreateHorizontalHintsString();
+            String[] rowHintsStr = CreateRowHintsString();
 
-            sb.Append(CreateVerticalHintsString());
+            sb.Append(CreateColumnHintsString());
             //sb.AppendLine();
 
             for (int y = 0; y < Height; y++)
             {
                 sb.Append('\n');
-                sb.Append(horizontalHintsStr[y]);
+                sb.Append(rowHintsStr[y]);
                 for (int x = 0; x < Width; x++)
                 {
                     char c = ' ';
@@ -439,7 +437,7 @@ namespace Picross.Game
             return sb.ToString();
         }
 
-        private String CreateVerticalHintsString()
+        private String CreateColumnHintsString()
         {
             StringBuilder sb = new StringBuilder();
             
@@ -455,7 +453,7 @@ namespace Picross.Game
                 lastFilled = 0;
                 for (int x = 0; x < Width; x++)
                 {
-                    Hints hints = VerticalHints[x];
+                    Hints hints = ColumnHints[x];
                     if (hints.Count > y)
                     {
                         // Add spaces for all columns with no hints until this column
@@ -477,7 +475,7 @@ namespace Picross.Game
             return sb.ToString();
         }
 
-        private String[] CreateHorizontalHintsString()
+        private String[] CreateRowHintsString()
         {
             String[] hintsStr = new String[Height];
 
@@ -485,7 +483,7 @@ namespace Picross.Game
             {
                 int x;
                 StringBuilder sb = new StringBuilder();
-                Hints hints = HorizontalHints[i];
+                Hints hints = RowHints[i];
 
                 for (x = 0; x < hints.Count; x++)
                 {

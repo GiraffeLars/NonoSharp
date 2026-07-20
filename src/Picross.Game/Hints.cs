@@ -3,7 +3,7 @@
     public class Hints : ICloneable
     {
         private List<Hint> hints;
-        private bool vertical;
+        private bool isColumnHints;
         private int position;
 
         // The total amount of filled cells these hints concern
@@ -11,18 +11,18 @@
 
         public int Count { get { return hints.Count; } }
 
-        internal Hints(bool vertical, int position)
+        internal Hints(bool isColumnHints, int position)
         {
             hints = new List<Hint>();
-            this.vertical = vertical;
+            this.isColumnHints = isColumnHints;
             this.position = position;
             TotalCellsInHints = 0;
         }
 
-        private Hints(bool vertical, int position, List<Hint> hints)
+        private Hints(bool isColumnHints, int position, List<Hint> hints)
         {
             this.hints = hints;
-            this.vertical = vertical;
+            this.isColumnHints = isColumnHints;
             this.position = position;
             TotalCellsInHints = 0;
         }
@@ -55,7 +55,7 @@
         internal void DoCompletion(Grid grid) {
             if (hints.Count == 0) return;
             Reset();
-            LinkedList<SquareType> line = vertical ? grid.GetColumn(position) : grid.GetRow(position);
+            LinkedList<SquareType> line = isColumnHints ? grid.GetColumn(position) : grid.GetRow(position);
             LinkedListNode<SquareType>? node = line.First;
 
             int leftOffAt = DoCompletionForward(line);
@@ -241,7 +241,7 @@
                 hintCopy.Add((Hint) h.Clone());
             }
 
-            return new Hints(vertical, position, hintCopy);
+            return new Hints(isColumnHints, position, hintCopy);
         }
     }
 }

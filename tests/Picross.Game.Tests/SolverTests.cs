@@ -107,7 +107,7 @@ namespace Picross.Game.Tests
 
             // Copy to avoid changing the grid unintentionally
             SquareType[] line = (SquareType[]) grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.HorizontalHints[0]);
+            Solver.ImproveLine(line, grid.RowHints[0]);
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
@@ -119,7 +119,7 @@ namespace Picross.Game.Tests
             // Now check if the line can correctly be solved with extra information
             grid.SetCell(3, 0, SquareType.FILLED);
             line = (SquareType[])grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.HorizontalHints[0]);
+            Solver.ImproveLine(line, grid.RowHints[0]);
 
             // Check if 0th cell is not filled
             Assert.NotEqual(SquareType.FILLED, line[0]);

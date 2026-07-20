@@ -72,7 +72,7 @@ namespace Picross.Game.Tests
         }
 
         [Fact]
-        public void TestHintsNumbersVertical()
+        public void TestHintsNumbersColumn()
         {
             for (int i = 0; i < grid.Width; i++)
             {
@@ -80,32 +80,32 @@ namespace Picross.Game.Tests
                 {
                     continue;
                 }
-                Assert.Equal(1, grid.VerticalHints[i].Count);
-                Assert.Equal(1, grid.VerticalHints[i].GetHint(0).Number);
+                Assert.Equal(1, grid.ColumnHints[i].Count);
+                Assert.Equal(1, grid.ColumnHints[i].GetHint(0).Number);
             }
 
-            // Check that vertical hints for 2 is 0
-            Assert.Equal(1, grid.VerticalHints[2].Count);
-            Assert.Equal(0, grid.VerticalHints[2].GetHint(0).Number);
+            // Check that column hints for 2 is 0
+            Assert.Equal(1, grid.ColumnHints[2].Count);
+            Assert.Equal(0, grid.ColumnHints[2].GetHint(0).Number);
         }
 
         [Fact]
-        public void TestHintsNumbersHorizontal()
+        public void TestHintsNumbersRow()
         {
-            Hints hints = Assert.Single(grid.HorizontalHints);
+            Hints hints = Assert.Single(grid.RowHints);
             Assert.Equal(2, hints.Count);
             Assert.Equal(2, hints.GetHint(0).Number);
             Assert.Equal(2, hints.GetHint(1).Number);
         }
 
         [Fact]
-        public void TestHintsCompletedVertical()
+        public void TestHintsCompletedColumn()
         {
-            // Vertical hints using a grid of 5 x 1 with the current solution
+            // Column hints using a grid of 5 x 1 with the current solution
             // should only be correct at index 2 (i.e. where no square is expected)
             for (int i = 0; i < grid.Width; i++)
             {
-                Assert.Equal(i == 2, grid.VerticalHints[i].GetHint(0).Completed);
+                Assert.Equal(i == 2, grid.ColumnHints[i].GetHint(0).Completed);
             }
 
             // Fill in the expected squares
@@ -114,22 +114,22 @@ namespace Picross.Game.Tests
             // Now all hints should be completed
             for (int i = 0; i < grid.Width; i++)
             {
-                Assert.True(grid.VerticalHints[i].GetHint(0).Completed);
+                Assert.True(grid.ColumnHints[i].GetHint(0).Completed);
             }
 
             // Finally, if we place a square at the expected empty one, this should no longer be completed
             grid.SetCell(2, 0, SquareType.FILLED);
-            Assert.False(grid.VerticalHints[2].GetHint(0).Completed);
+            Assert.False(grid.ColumnHints[2].GetHint(0).Completed);
         }
 
         [Fact]
-        public void TestHintsCompletedHorizontal()
+        public void TestHintsCompletedRow()
         {
             // The grid is not filled in, we expected these to not be completed
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.False(grid.HorizontalHints[i].GetHint(0).Completed);
-                Assert.False(grid.HorizontalHints[i].GetHint(1).Completed);
+                Assert.False(grid.RowHints[i].GetHint(0).Completed);
+                Assert.False(grid.RowHints[i].GetHint(1).Completed);
             }
 
             FillInGridSolution();
@@ -137,14 +137,14 @@ namespace Picross.Game.Tests
             // Now we expected all hints to be completed
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.True(grid.HorizontalHints[i].GetHint(0).Completed);
-                Assert.True(grid.HorizontalHints[i].GetHint(1).Completed);
+                Assert.True(grid.RowHints[i].GetHint(0).Completed);
+                Assert.True(grid.RowHints[i].GetHint(1).Completed);
             }
 
             // Test for completion if only the last hints are filled in
             grid.SetCell(0, 0, SquareType.BLANK);
             grid.SetCell(1, 0, SquareType.BLANK);
-            Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.True(grid.RowHints[0].GetHint(1).Completed);
         }
 
         [Fact]
@@ -155,22 +155,22 @@ namespace Picross.Game.Tests
 
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.True(grid.HorizontalHints[i].GetHint(0).Completed);
-                Assert.True(grid.HorizontalHints[i].GetHint(1).Completed);
+                Assert.True(grid.RowHints[i].GetHint(0).Completed);
+                Assert.True(grid.RowHints[i].GetHint(1).Completed);
             }
 
             grid.SetCell(1, 0, SquareType.CROSS);
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.False(grid.HorizontalHints[i].GetHint(0).Completed);
-                Assert.True(grid.HorizontalHints[i].GetHint(1).Completed);
+                Assert.False(grid.RowHints[i].GetHint(0).Completed);
+                Assert.True(grid.RowHints[i].GetHint(1).Completed);
             }
 
             grid.SetCell(4, 0, SquareType.CROSS);
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.False(grid.HorizontalHints[i].GetHint(0).Completed);
-                Assert.False(grid.HorizontalHints[i].GetHint(1).Completed);
+                Assert.False(grid.RowHints[i].GetHint(0).Completed);
+                Assert.False(grid.RowHints[i].GetHint(1).Completed);
             }
         }
 
@@ -180,8 +180,8 @@ namespace Picross.Game.Tests
             grid = GetBigGrid();
 
             Assert.False(grid.IsSolved());
-            Assert.False(grid.HorizontalHints[0].GetHint(0).Completed);
-            Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.False(grid.RowHints[0].GetHint(0).Completed);
+            Assert.False(grid.RowHints[0].GetHint(1).Completed);
 
 
             grid.SetCell(2, 0, SquareType.FILLED);
@@ -196,27 +196,27 @@ namespace Picross.Game.Tests
             grid.SetCell(5, 0, SquareType.CROSS);
             Assert.True(grid.IsSolved());
 
-            Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
+            Assert.True(grid.RowHints[0].GetHint(0).Completed);
 
             // Our specifications for when a user knows this should be filled requires all hints after the first/last to be between crosses or other squares
-            Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.False(grid.RowHints[0].GetHint(1).Completed);
 
             grid.SetCell(8, 0, SquareType.CROSS);
-            Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.True(grid.RowHints[0].GetHint(1).Completed);
 
             for (int i = 9; i < grid.Width; i++)
             {
                 grid.SetCell(i, 0, SquareType.CROSS);
             }
             Assert.True(grid.IsSolved());
-            Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
-            Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.True(grid.RowHints[0].GetHint(0).Completed);
+            Assert.True(grid.RowHints[0].GetHint(1).Completed);
 
             // Check if hint completeness is still true if we know that it was handled from the back
             grid.SetCell(0, 0, SquareType.BLANK);
             Assert.True(grid.IsSolved());
-            Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
-            Assert.True(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.True(grid.RowHints[0].GetHint(0).Completed);
+            Assert.True(grid.RowHints[0].GetHint(1).Completed);
 
             grid.SetCell(7, 0, SquareType.BLANK);
             Assert.False(grid.IsSolved());
@@ -238,8 +238,8 @@ namespace Picross.Game.Tests
             grid.SetCell(2, 0, SquareType.CROSS);
 
             // Since the first square is filled in, we expect the first hint to be completed as it makes more sense intuitively
-            Assert.True(grid.HorizontalHints[0].GetHint(0).Completed);
-            Assert.False(grid.HorizontalHints[0].GetHint(1).Completed);
+            Assert.True(grid.RowHints[0].GetHint(0).Completed);
+            Assert.False(grid.RowHints[0].GetHint(1).Completed);
 
             // Now check single filled in cell at the end
             // [X][X][O]
@@ -247,8 +247,8 @@ namespace Picross.Game.Tests
             grid.SetCell(2, 0, SquareType.FILLED);
 
             // It does not really matter which hint is completed, both make sense in a way, as long as one is completed and the other is not
-            bool completed0 = grid.HorizontalHints[0].GetHint(0).Completed;
-            bool completed1 = grid.HorizontalHints[0].GetHint(1).Completed;
+            bool completed0 = grid.RowHints[0].GetHint(0).Completed;
+            bool completed1 = grid.RowHints[0].GetHint(1).Completed;
 
             // Since these are bools, c0 != c1 implies that one is true and the other is false
             // This is enough for what we want to test as above
