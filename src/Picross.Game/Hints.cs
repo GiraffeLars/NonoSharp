@@ -1,13 +1,22 @@
-﻿namespace Picross.Game
+﻿using System.Collections;
+
+namespace Picross.Game
 {
-    public class Hints : ICloneable
+    public class Hints : ICloneable, IEnumerable<Hint>
     {
         private List<Hint> hints;
         private bool isColumnHints;
         private int position;
 
-        // The total amount of filled cells these hints concern
+        /// <summary>
+        /// The total amount of filled cells these hints concern
+        /// </summary>
         public int TotalCellsInHints {  get; private set; }
+
+        /// <summary>
+        /// Whether this line of Hints is fully completed (i.e. all hints are completed)
+        /// </summary>
+        public bool FullyCompleted { get; private set; }
 
         public int Count { get { return hints.Count; } }
 
@@ -38,7 +47,18 @@
         }
 
         // TODO rework this in some way such that GetHint is removed, it adds confusion and overhead
-        public Hint GetHint(int position) { return hints[position]; }
+        /// <summary>
+        /// GetHint has been deprecated. Use the index operator, e.g. <c>Hints h[i]</c>, instead.<br/>
+        /// Gets Hint at <paramref name="position"/>.
+        /// </summary>
+        /// <param name="position">Position of requested Hint</param>
+        /// <returns></returns>
+        [Obsolete("GetHint has been deprecated. Use the index operator, e.g. Hints h[i], instead.")]
+        public Hint GetHint(int position) 
+        {
+            
+            return hints[position]; 
+        }
 
         /// <summary>
         /// Resets the all hints by setting their completed status to false.
@@ -60,6 +80,8 @@
 
             int leftOffAt = DoCompletionForward(line);
             DoCompletionBackward(line, leftOffAt);
+
+            SetFullyCompleted();
         }
 
         internal void DoCompletion(SquareType[] line)
@@ -231,6 +253,20 @@
             }
         }
 
+        private void SetFullyCompleted()
+        {
+            foreach (Hint h in this)
+            {
+                if (!h.Completed)
+                {
+                    FullyCompleted = false;
+                    return;
+                }
+            }
+
+            FullyCompleted = true;
+        }
+
         public object Clone()
         {
             var hintCopy = new List<Hint>();
@@ -242,6 +278,27 @@
             }
 
             return new Hints(isColumnHints, position, hintCopy);
+        }
+
+        public IEnumerator<Hint> GetEnumerator()
+        {
+            for (int i = 0; i < hints.Count; i++)
+            {
+                yield return hints[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public Hint this[int index]
+        {
+            get
+            {
+                return hints[index];
+            }
         }
     }
 }

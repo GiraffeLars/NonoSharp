@@ -1,4 +1,6 @@
-﻿namespace Picross.Game
+﻿using System.Diagnostics;
+
+namespace Picross.Game
 {
     public class GameAPI
     {
@@ -30,6 +32,8 @@
         {
             Command command = CreateCellCommand(x, y, SquareType.FILLED);
             ExecuteCommand(command);
+
+            DoAutoCross(x, y);
         }
 
         /// <summary>
@@ -42,6 +46,8 @@
         {
             Command command = CreateCellCommand(x, y, SquareType.CROSS);
             ExecuteCommand(command);
+
+            DoAutoCross(x, y);
         }
 
         /// <summary>
@@ -54,6 +60,8 @@
         {
             Command command = CreateCellCommand(x, y, SquareType.BLANK);
             ExecuteCommand(command);
+
+            DoAutoCross(x, y);
         }
 
         private void ExecuteCommand(Command command)
@@ -61,6 +69,83 @@
             command.Execute();
             undoStack.AddLast(command);
             redoStack.Clear();
+        }
+
+        private void DoAutoCross(int x, int y)
+        {
+            DoColumnAutoCross(x, y);
+            DoRowAutoCross(x, y);
+        }
+
+        private void DoColumnAutoCross(int x, int y)
+        {
+            LinkedList<int> groups = grid.GetGroupsInColumn(x);
+            Hints hints = grid.ColumnHints[x];
+            bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
+
+            if (groupsMatchHints)
+            {
+                for (int i = 0; i < grid.Width; i++)
+                {
+                    if (grid.GetCell(x, i) == SquareType.BLANK)
+                    {
+                        CrossCell(x, i);
+                    }
+                }
+            }
+        }
+
+        private void DoRowAutoCross(int x, int y)
+        {
+            LinkedList<int> groups = grid.GetGroupsInRow(y);
+            Hints hints = grid.RowHints[y];
+            bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
+
+            if (groupsMatchHints)
+            {
+                for (int i = 0; i < grid.Height; i++)
+                {
+                    if (grid.GetCell(i, y) == SquareType.BLANK)
+                    {
+                        CrossCell(i, y);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines whether <paramref name="groups"/> exactly matches <paramref name="hints"/>, i.e. consist of the same groups.
+        /// </summary>
+        /// <param name="groups">
+        /// A linked list where each value represents the size of a consecutive group of filled cells.
+        /// </param>
+        /// <param name="hints">
+        /// The expected hints for the line corresponding with <paramref name="groups"/>.
+        /// </param>
+        /// <returns>
+        /// true if the number of groups matches the hints as described, false otherwise.
+        /// </returns>
+        private static bool DoGroupsMatchHints(LinkedList<int> groups, Hints hints)
+        {
+            if (hints.Count != groups.Count)
+            {
+                return false;
+            }
+
+            // Check if each group has the same number of cells filled as expected in the hints
+            bool groupsMatchHints = true;
+            LinkedListNode<int>? node = groups.First;
+            for (int i = 0; i < groups.Count; i++)
+            {
+                if (hints[i].Number != node!.Value)
+                {
+                    groupsMatchHints = false;
+                    break;
+                }
+                node = node.Next;
+            }
+
+            return groupsMatchHints;
         }
 
         private CellCommand CreateCellCommand(int x, int y, SquareType newType)

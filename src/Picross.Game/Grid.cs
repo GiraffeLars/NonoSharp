@@ -74,7 +74,7 @@ namespace Picross.Game
 
 
         /// <summary>
-        /// Makes the solution into a 2D array representation, just as <paramref name="this.grid"/>
+        /// Makes the solution into a 2D array representation, just as <c>grid</c>
         /// </summary>
         /// <returns>2D array of <c>SquareType</c> where each point in the solution is <c>SquareType.FILLED</c></returns>
         private SquareType[,] GridifySolution()
@@ -358,6 +358,69 @@ namespace Picross.Game
                     SetCell(column, i, newColumn[i]);
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive filled in squares.  
+        /// </summary>
+        /// <param name="line">The line to determine groups from</param>
+        /// <returns>A <c>LinkedList of int</c> where each entry is a separate group and each value is the total number of cells filled in this group</returns>
+        private static LinkedList<int> GetGroups(SquareType[] line)
+        {
+            LinkedList<int> groups = new();
+            int groupSize = 0;
+
+            foreach (SquareType cell in line)
+            {
+                if (groupSize == 0 && cell != SquareType.FILLED)
+                {
+                    continue;
+                }
+                else if (cell != SquareType.FILLED)
+                {
+                    // groupSize > 0, group ends here
+                    groups.AddLast(groupSize);
+                    groupSize = 0;
+                }
+                else
+                {
+                    // cell == FILLED
+                    groupSize++;
+                }
+            }
+
+            // Check if we ended on a filled square in which case
+            // groupSize > 0 and thus still needs to be added
+            if (groupSize > 0)
+            {
+                groups.AddLast(groupSize);
+            }
+
+            return groups;
+        }
+
+        /// <summary>
+        /// Returns a linked list of each group present in row <paramref name="row"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
+        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in squares. See also <seealso cref="GetGroupsInColumn(int)(int)"/>.
+        /// </summary>
+        /// <param name="row">The row in the grid to get the rows from</param>
+        /// <returns>A LinkedList as described above</returns>
+        internal LinkedList<int> GetGroupsInRow(int row)
+        {
+            SquareType[] line = GetRowArray(row);
+            return GetGroups(line);
+        }
+
+        /// <summary>
+        /// Returns a linked list of each group present in column <paramref name="col"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
+        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in squares. See also <seealso cref="GetGroupsInRow(int)"/>.
+        /// </summary>
+        /// <param name="col">The column in the grid to get the rows from</param>
+        /// <returns>A LinkedList as described above</returns>
+        internal LinkedList<int> GetGroupsInColumn(int col)
+        {
+            SquareType[] line = GetColumnArray(col);
+            return GetGroups(line);
         }
 
         private void FillRandomly(List<Point> g)
