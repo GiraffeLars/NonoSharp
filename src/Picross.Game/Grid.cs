@@ -397,13 +397,6 @@ namespace Picross.Game
 
         public override string ToString()
         {
-            //foreach (Point p in solution)
-            //{
-            //    Console.Write(p);
-            //    Console.Write(" ");
-            //}
-            //Console.WriteLine();
-
             StringBuilder sb = new StringBuilder();
             String[] rowHintsStr = CreateRowHintsString();
 
@@ -440,9 +433,6 @@ namespace Picross.Game
         private String CreateColumnHintsString()
         {
             StringBuilder sb = new StringBuilder();
-            
-            //Console.WriteLine(getPadding());
-            //Console.WriteLine(paddingString);
 
             bool newStringRow;
             int lastFilled;
