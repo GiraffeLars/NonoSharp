@@ -8,6 +8,15 @@ namespace Picross.Game
     {
         void Execute();
         void Undo();
+
+        public static Command operator +(Command left, Command right)
+        {
+            LinkedList<Command> combined = new LinkedList<Command>();
+            combined.AddLast(left);
+            combined.AddLast(right);
+
+            return new CompositeCommand(combined);
+        }
     }
 
     internal class CellCommand : Command
@@ -35,6 +44,41 @@ namespace Picross.Game
         public void Undo()
         {
             grid.SetCell(x, y, oldType);
+        }
+    }
+
+    /// <summary>
+    /// A Command consisting of multiple Commands.
+    /// </summary>
+    internal class CompositeCommand : Command
+    {
+        private readonly LinkedList<Command> commands;
+
+        internal CompositeCommand(LinkedList<Command> commands)
+        {
+            this.commands = commands;
+        }
+
+        public void Execute()
+        {
+            LinkedListNode<Command>? node = commands.First;
+
+            while (node != null)
+            {
+                node.Value.Execute();
+                node = node.Next;
+            }
+        }
+
+        public void Undo()
+        {
+            LinkedListNode<Command>? node = commands.Last;
+
+            while (node != null)
+            {
+                node.Value.Undo();
+                node = node.Previous;
+            }
         }
     }
 }

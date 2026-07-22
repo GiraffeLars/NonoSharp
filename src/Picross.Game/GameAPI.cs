@@ -30,10 +30,7 @@ namespace Picross.Game
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void FillCell(int x, int y)
         {
-            Command command = CreateCellCommand(x, y, SquareType.FILLED);
-            ExecuteCommand(command);
-
-            DoAutoCross(x, y);
+            DoMove(x, y, SquareType.FILLED);
         }
 
         /// <summary>
@@ -44,10 +41,7 @@ namespace Picross.Game
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void CrossCell(int x, int y)
         {
-            Command command = CreateCellCommand(x, y, SquareType.CROSS);
-            ExecuteCommand(command);
-
-            DoAutoCross(x, y);
+            DoMove(x, y, SquareType.CROSS);
         }
 
         /// <summary>
@@ -58,29 +52,82 @@ namespace Picross.Game
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void EmptyCell(int x, int y)
         {
-            Command command = CreateCellCommand(x, y, SquareType.BLANK);
-            ExecuteCommand(command);
-
-            DoAutoCross(x, y);
+            DoMove(x, y, SquareType.BLANK);
         }
 
+        /// <summary>
+        /// Executes the player's move. Changed (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newType"/> and handles auto-crosses.
+        /// The move is also appended to the undo-stack.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="newType"></param>
+        private void DoMove(int x, int y, SquareType newType)
+        {
+            CellCommand initalCommand = CreateCellCommand(x, y, newType);
+
+            // Execute the command before determining auto-crosses
+            initalCommand.Execute();
+
+            // Get auto-cross command and execute
+            CompositeCommand autoCrossCommand = GetAutoCrossCommand(x, y);
+            autoCrossCommand.Execute();
+
+            // Push the move and the auto-crosses to the stack together for one fluid undo for the player
+            PushCommand((Command)initalCommand + autoCrossCommand);
+        }
+
+        /// <summary>
+        /// Executes <paramref name="command"/> and pushes it onto the undoStack. See also <seealso cref="PushCommand(Command)"/>.
+        /// </summary>
+        /// <param name="command">Command to execute and push</param>
         private void ExecuteCommand(Command command)
         {
             command.Execute();
+            PushCommand(command);
+        }
+
+        /// <summary>
+        /// Pushes <paramref name="command"/> onto <c>undoStack</c> and clears <c>redoStack</c>.
+        /// </summary>
+        /// <param name="command">Command to push</param>
+        private void PushCommand(Command command)
+        {
             undoStack.AddLast(command);
             redoStack.Clear();
         }
 
-        private void DoAutoCross(int x, int y)
+        /// <summary>
+        /// Returns the CompositeCommand consisting of cross cell commands replacing blank cells after a line has been completed
+        /// </summary>
+        /// <param name="x">x coordinate of cell changed in current move</param>
+        /// <param name="y">y coordinate of cell changed in current move</param>
+        /// <returns>CompositeCommand as above</returns>
+        private CompositeCommand GetAutoCrossCommand(int x, int y)
         {
-            DoColumnAutoCross(x, y);
-            DoRowAutoCross(x, y);
+            LinkedList<Command> autoCrossCommands = [];
+
+            foreach (int i in GetColumnAutoCross(x, y))
+            {
+                Command cmd = CreateCellCommand(x, i, SquareType.CROSS);
+                autoCrossCommands.AddLast(cmd);
+            }
+
+            foreach (int i in GetRowAutoCross(x, y))
+            {
+                Command cmd = CreateCellCommand(i, y, SquareType.CROSS);
+                autoCrossCommands.AddLast(cmd);
+            }
+
+            return new CompositeCommand(autoCrossCommands);
         }
 
-        private void DoColumnAutoCross(int x, int y)
+        private List<int> GetColumnAutoCross(int x, int y)
         {
             LinkedList<int> groups = grid.GetGroupsInColumn(x);
             Hints hints = grid.ColumnHints[x];
+            List<int> posToCross = [];
+
             bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
 
             if (groupsMatchHints)
@@ -89,16 +136,20 @@ namespace Picross.Game
                 {
                     if (grid.GetCell(x, i) == SquareType.BLANK)
                     {
-                        CrossCell(x, i);
+                        posToCross.Add(i);
                     }
                 }
             }
+
+            return posToCross;
         }
 
-        private void DoRowAutoCross(int x, int y)
+        private List<int> GetRowAutoCross(int x, int y)
         {
             LinkedList<int> groups = grid.GetGroupsInRow(y);
             Hints hints = grid.RowHints[y];
+            List<int> posToCross = [];
+
             bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
 
             if (groupsMatchHints)
@@ -107,10 +158,12 @@ namespace Picross.Game
                 {
                     if (grid.GetCell(i, y) == SquareType.BLANK)
                     {
-                        CrossCell(i, y);
+                        posToCross.Add(i);
                     }
                 }
             }
+
+            return posToCross;
         }
 
         /// <summary>
