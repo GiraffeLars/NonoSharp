@@ -54,6 +54,11 @@ namespace Picross.Game
     {
         private readonly LinkedList<Command> commands;
 
+        /// <summary>
+        /// Total Command types in this CompositeCommand. Is not recursive.
+        /// </summary>
+        public int Count { get { return commands.Count; } }
+
         internal CompositeCommand(LinkedList<Command> commands)
         {
             this.commands = commands;

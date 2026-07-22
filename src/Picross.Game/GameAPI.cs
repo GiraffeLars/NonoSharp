@@ -64,17 +64,35 @@ namespace Picross.Game
         /// <param name="newType"></param>
         private void DoMove(int x, int y, SquareType newType)
         {
+            // Check if auto-crosses are possible (i.e. a square goes to filled or from filled)
+            bool mightAutoCross = newType == SquareType.FILLED || grid.GetCell(x, y) == SquareType.FILLED;
+
             CellCommand initalCommand = CreateCellCommand(x, y, newType);
 
             // Execute the command before determining auto-crosses
             initalCommand.Execute();
 
+            if (!mightAutoCross)
+            {
+                // Only push this command if auto-cross is not possible and return
+                PushCommand(initalCommand);
+                return;
+            }
+
             // Get auto-cross command and execute
             CompositeCommand autoCrossCommand = GetAutoCrossCommand(x, y);
-            autoCrossCommand.Execute();
 
-            // Push the move and the auto-crosses to the stack together for one fluid undo for the player
-            PushCommand((Command)initalCommand + autoCrossCommand);
+            if (autoCrossCommand.Count > 0)
+            {
+                autoCrossCommand.Execute();
+
+                // Push the move and the auto-crosses to the stack together for one fluid undo for the player
+                PushCommand((Command)initalCommand + autoCrossCommand);
+            } else
+            {
+                // Don't execute auto cross command and only push the initial command since the auto cross command is empty
+                PushCommand(initalCommand);
+            }
         }
 
         /// <summary>
@@ -107,13 +125,13 @@ namespace Picross.Game
         {
             LinkedList<Command> autoCrossCommands = [];
 
-            foreach (int i in GetColumnAutoCross(x, y))
+            foreach (int i in GetColumnAutoCross(x))
             {
                 Command cmd = CreateCellCommand(x, i, SquareType.CROSS);
                 autoCrossCommands.AddLast(cmd);
             }
 
-            foreach (int i in GetRowAutoCross(x, y))
+            foreach (int i in GetRowAutoCross(y))
             {
                 Command cmd = CreateCellCommand(i, y, SquareType.CROSS);
                 autoCrossCommands.AddLast(cmd);
@@ -122,19 +140,21 @@ namespace Picross.Game
             return new CompositeCommand(autoCrossCommands);
         }
 
-        private List<int> GetColumnAutoCross(int x, int y)
+        private List<int> GetColumnAutoCross(int col)
         {
-            LinkedList<int> groups = grid.GetGroupsInColumn(x);
-            Hints hints = grid.ColumnHints[x];
+            LinkedList<int> groups = grid.GetGroupsInColumn(col);
+            Hints hints = grid.ColumnHints[col];
             List<int> posToCross = [];
 
             bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
 
             if (groupsMatchHints)
             {
-                for (int i = 0; i < grid.Width; i++)
+                SquareType[] column = grid.GetColumnArray(col);
+
+                for (int i = 0; i < column.Length; i++)
                 {
-                    if (grid.GetCell(x, i) == SquareType.BLANK)
+                    if (column[i] == SquareType.BLANK)
                     {
                         posToCross.Add(i);
                     }
@@ -144,19 +164,20 @@ namespace Picross.Game
             return posToCross;
         }
 
-        private List<int> GetRowAutoCross(int x, int y)
+        private List<int> GetRowAutoCross(int row)
         {
-            LinkedList<int> groups = grid.GetGroupsInRow(y);
-            Hints hints = grid.RowHints[y];
+            LinkedList<int> groups = grid.GetGroupsInRow(row);
+            Hints hints = grid.RowHints[row];
             List<int> posToCross = [];
 
             bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
 
             if (groupsMatchHints)
             {
-                for (int i = 0; i < grid.Height; i++)
+                SquareType[] rowCells = grid.GetRowArray(row);
+                for (int i = 0; i < rowCells.Length; i++)
                 {
-                    if (grid.GetCell(i, y) == SquareType.BLANK)
+                    if (rowCells[i] == SquareType.BLANK)
                     {
                         posToCross.Add(i);
                     }
