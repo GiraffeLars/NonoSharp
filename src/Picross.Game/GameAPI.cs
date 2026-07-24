@@ -4,7 +4,7 @@ namespace Picross.Game
 {
     public class GameAPI
     {
-        Grid grid;
+        private Grid grid;
 
         public int Width { get { return grid.Width; } }
         public int Height { get { return grid.Height; } }
@@ -18,6 +18,13 @@ namespace Picross.Game
 
         public GameAPI(int width, int height) {
             grid = new Grid(width, height);
+            undoStack = new LinkedList<Command>();
+            redoStack = new LinkedList<Command>();
+        }
+
+        internal GameAPI(Grid grid)
+        {
+            this.grid = grid;
             undoStack = new LinkedList<Command>();
             redoStack = new LinkedList<Command>();
         }
