@@ -191,7 +191,7 @@ namespace Picross.Game
 
             for (int h = 0; h < hints.Count; h++)
             {
-                if (!hints.GetHint(h).Completed)
+                if (!hints[h].Completed)
                 {
                     return false;
                 }

@@ -2,6 +2,10 @@
 
 namespace Picross.Game
 {
+    /// <summary>
+    /// The hints of a line. Each Hint in Hints can be accessed by using the indexer.
+    /// E.g.: Hint hintAtI = (Hints) hints[i]
+    /// </summary>
     public class Hints : ICloneable, IEnumerable<Hint>
     {
         private List<Hint> hints;
@@ -54,6 +58,9 @@ namespace Picross.Game
         /// <param name="position">Position of requested Hint</param>
         /// <returns></returns>
         [Obsolete("GetHint has been deprecated. Use the index operator, e.g. Hints h[i], instead.")]
+
+
+
         public Hint GetHint(int position) 
         {
             

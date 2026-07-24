@@ -511,7 +511,7 @@ namespace Picross.Game
                     {
                         // Add spaces for all columns with no hints until this column
                         sb.Append(new string(' ', (x - lastFilled) * 3));
-                        sb.Append($" {hints.GetHint(y)} ");
+                        sb.Append($" {hints[y]} ");
                         
                         newStringRow = true;
                         lastFilled = x + 1;
@@ -540,7 +540,7 @@ namespace Picross.Game
 
                 for (x = 0; x < hints.Count; x++)
                 {
-                    sb.Append($"{hints.GetHint(x)} ");
+                    sb.Append($"{hints[x]} ");
                 }
 
                 sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));
