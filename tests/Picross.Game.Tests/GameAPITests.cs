@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using Picross.Game;
 
@@ -108,6 +109,38 @@ namespace Picross.Game.Tests
             Assert.False(api.CanRedo);
             Assert.True(api.IsSquareFilled(0, 0));
             Assert.False(api.IsSquareEmpty(0, 0));
+        }
+
+        [Fact]
+        public void TestAutoCross()
+        {
+            Grid g = new Grid(5, 1);
+            GameAPI autoCrossAPI = new(g);
+
+            // [O][X][O][O][X]
+            List<int> solXCoords = new() { 0, 2, 3 };
+            g.SetSolution(solXCoords.Select(x => new Point(x, 0)).ToList());
+            autoCrossAPI.FillCell(0, 0);
+
+            // Check if auto cross didn't trigger
+            for (int i = 1; i < 5; i++)
+            {
+                Assert.True(autoCrossAPI.IsSquareEmpty(i, 0));
+            }
+
+            // Set rest of solution, and check for only blank space to be crossed
+            autoCrossAPI.FillCell(2, 0); autoCrossAPI.FillCell(3, 0);
+            for (int i = 0; i < 5; i++)
+            {
+                if (solXCoords.Contains(i))
+                {
+                    Assert.True(autoCrossAPI.IsSquareFilled(i, 0));
+                }
+                else
+                {
+                    Assert.True(autoCrossAPI.IsSquareCrossed(i, 0));
+                }
+            }
         }
     }
 }
