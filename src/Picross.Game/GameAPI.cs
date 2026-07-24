@@ -94,7 +94,7 @@ namespace Picross.Game
                 autoCrossCommand.Execute();
 
                 // Push the move and the auto-crosses to the stack together for one fluid undo for the player
-                PushCommand((Command)initalCommand + autoCrossCommand);
+                PushCommand(CompositeCommand.Combine(initalCommand, autoCrossCommand));
             } else
             {
                 // Don't execute auto cross command and only push the initial command since the auto cross command is empty

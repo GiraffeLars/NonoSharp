@@ -8,15 +8,6 @@ namespace Picross.Game
     {
         void Execute();
         void Undo();
-
-        public static Command operator +(Command left, Command right)
-        {
-            LinkedList<Command> combined = new LinkedList<Command>();
-            combined.AddLast(left);
-            combined.AddLast(right);
-
-            return new CompositeCommand(combined);
-        }
     }
 
     internal class CellCommand : Command
@@ -84,6 +75,22 @@ namespace Picross.Game
                 node.Value.Undo();
                 node = node.Previous;
             }
+        }
+
+        /// <summary>
+        /// Combines commands <paramref name="x"/> and <paramref name="y"/> into one <c>CompositeCommand</c>.
+        /// <paramref name="x"/> is the first command.
+        /// </summary>
+        /// <param name="x">The first command to combine</param>
+        /// <param name="y">The second command to combine</param>
+        /// <returns><c>CompositeCommand</c> consisting of Commands x and y, with x being the first</returns>
+        public static CompositeCommand Combine(Command x, Command y)
+        {
+            LinkedList<Command> combined = new LinkedList<Command>();
+            combined.AddLast(x);
+            combined.AddLast(y);
+
+            return new CompositeCommand(combined);
         }
     }
 }
