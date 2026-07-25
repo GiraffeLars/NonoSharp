@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 
 namespace Picross.Game
 {
@@ -16,10 +17,17 @@ namespace Picross.Game
         private readonly LinkedList<Command> undoStack;
         private readonly LinkedList<Command> redoStack;
 
-        public GameAPI(int width, int height) {
-            grid = new Grid(width, height);
-            undoStack = new LinkedList<Command>();
-            redoStack = new LinkedList<Command>();
+        /// <summary>
+        /// Creates an API instance with a random puzzle
+        /// </summary>
+        /// <param name="width">Width of the grid for the game</param>
+        /// <param name="height">Height of the grid for the game</param>
+        /// <returns>GameAPI instance as described above</returns>
+        public static GameAPI CreateRandomPuzzle(int width, int height)
+        {
+            List<Point> sol = SolutionHelper.GenerateRandomSolution(width, height);
+            Grid g = new(width, height, sol);
+            return new GameAPI(g);
         }
 
         internal GameAPI(Grid grid)
