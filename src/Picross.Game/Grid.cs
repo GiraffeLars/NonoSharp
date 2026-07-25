@@ -24,8 +24,9 @@ namespace Picross.Game
         /// </summary>
         /// <param name="width">Width of the grid</param>
         /// <param name="height">Height of the grid</param>
+        /// <param name="solution">The solution for the grid</param>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
-        public Grid(int width, int height)
+        public Grid(int width, int height, List<Point> solution)
         {
             if (width <= 0 || height <= 0)
             {
@@ -37,23 +38,23 @@ namespace Picross.Game
 
             grid = new SquareType[width, height];
 
-
             ColumnHints = new Hints[width];
             RowHints = new Hints[height];
 
-            // Generate a random grid and guarantee it is solvable
-            do
-            {
-                solution = new List<Point>();
-                FillRandomly(solution);
-                InitializeHints();
-            } while (!Solver.IsSolvable(this));
+            SetSolution(solution);
         }
+
+        /// <summary>
+        /// Creates a <paramref name="width"/>×<paramref name="height"/> grid with an empty solution.
+        /// </summary>
+        /// <param name="width">Width of the grid</param>
+        /// <param name="height">Height of the grid</param>
+        public Grid(int width, int height) : this(width, height, []) { }
 
         /// <summary>
         /// Creates a full custom Grid
         /// </summary>
-        /// <param name="grid">List of SquareType, with data of filled in squares, etc..</param>
+        /// <param name="grid">List of SquareType, with data of filled in squares, etc.</param>
         /// <param name="solution">Solution to this grid</param>
         /// <param name="filled">How many squares are filled in. Should be consistent with <paramref name="grid"/>.</param>
         /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
@@ -421,22 +422,6 @@ namespace Picross.Game
         {
             SquareType[] line = GetColumnArray(col);
             return GetGroups(line);
-        }
-
-        private void FillRandomly(List<Point> g)
-        {
-            var random = new Random();
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (random.NextInt64() % 2 == 0)
-                    {
-                        Point p = new Point(x, y);
-                        g.Add(p);
-                    }
-                }
-            }
         }
 
         public bool IsSolved()

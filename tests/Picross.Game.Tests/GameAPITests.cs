@@ -12,7 +12,9 @@ namespace Picross.Game.Tests
 
         public GameAPITests()
         {
-            api = new GameAPI(15, 15);
+            // API for a 15x15 grid with an empty solution.
+            // Don't generate random solvable solutions as this increases test time.
+            api = new GameAPI(new Grid(15, 15));
         }
 
         [Fact]
