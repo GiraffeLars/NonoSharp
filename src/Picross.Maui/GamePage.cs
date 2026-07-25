@@ -3,6 +3,7 @@ using Microsoft.Maui.Graphics;
 using Picross.Game;
 using Picross.Maui.Drawables;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Picross.Maui;
@@ -159,6 +160,12 @@ public class GamePage : ContentPage
         boardView.StartInteraction += OnTouchStart;
         boardView.DragInteraction += OnTouchMove;
         boardView.EndInteraction += OnTouchEnd;
+
+#if WINDOWS
+        Debug.WriteLine("Adding press events");
+        boardView.HandlerChanged += OnHandlerChanged;
+        boardView.HandlerChanging += OnHandlerChanging;
+#endif
     }
 
     [MemberNotNull(nameof(mainGrid))]
@@ -373,4 +380,40 @@ public class GamePage : ContentPage
 
         UpdateCommandButtons();
     }
+
+#if WINDOWS
+    private void OnHandlerChanged(object? sender, EventArgs e)
+    {
+        if (boardView.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeView)
+        {
+            nativeView.PointerPressed += OnNativePointerPressed;
+            nativeView.PointerReleased += OnNativePointerReleased;
+        }
+    }
+
+    private void OnHandlerChanging(object? sender, HandlerChangingEventArgs e)
+    {
+        // Per MAUI docs, always clean up the added events to prevent a memory leak
+        if (e.OldHandler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeView)
+        {
+            nativeView.PointerPressed -= OnNativePointerPressed;
+            nativeView.PointerReleased -= OnNativePointerReleased;
+        }
+    }
+
+    private void OnNativePointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        var point = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender);
+
+        if (point.Properties.IsRightButtonPressed)
+        {
+            Debug.WriteLine("RMB pressed");
+        }
+    }
+
+    private void OnNativePointerReleased(object? sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        Debug.WriteLine("Mouse released");
+    }
+#endif
 }
