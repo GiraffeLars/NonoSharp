@@ -3,7 +3,6 @@ using Microsoft.Maui.Graphics;
 using Picross.Game;
 using Picross.Maui.Drawables;
 using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Picross.Maui;
@@ -158,7 +157,6 @@ public class GamePage : ContentPage
         };
 
 #if WINDOWS
-        Debug.WriteLine("Adding press events");
         boardView.HandlerChanged += OnHandlerChanged;
         boardView.HandlerChanging += OnHandlerChanging;
 #else
@@ -330,7 +328,7 @@ public class GamePage : ContentPage
         return cell;
     }
 
-    private void handleMoveStart(float x, float y)
+    private void HandleMoveStart(float x, float y)
     {
         isDragging = true;
         Point cell = boardDrawable.ConvertTouchToCell(x, y);
@@ -359,12 +357,10 @@ public class GamePage : ContentPage
 
     private void OnTouchStart(object sender, TouchEventArgs e)
     {
-        Debug.WriteLine("Touch started");
-
         var touch = e.Touches.First();
 
         boardDrawable.OldFillType = boardDrawable.fillType;
-        handleMoveStart(touch.X, touch.Y);
+        HandleMoveStart(touch.X, touch.Y);
     }
 
     private void OnTouchMove(object sender, TouchEventArgs e)
@@ -427,10 +423,9 @@ public class GamePage : ContentPage
         boardDrawable.OldFillType = boardDrawable.fillType;
         if (point.Properties.IsRightButtonPressed)
         {
-            Debug.WriteLine("RMB pressed");
             ToggleFillMode();
         }
-        handleMoveStart((float) point.Position.X, (float) point.Position.Y);
+        HandleMoveStart((float) point.Position.X, (float) point.Position.Y);
     }
 
     private void OnNativePointerReleased(object? sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -439,7 +434,6 @@ public class GamePage : ContentPage
 
         if (point.Properties.PointerUpdateKind == Microsoft.UI.Input.PointerUpdateKind.RightButtonReleased)
         {
-            Debug.WriteLine("RMB Released");
             ToggleFillMode();
         }
 
