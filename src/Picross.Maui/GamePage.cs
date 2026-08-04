@@ -41,6 +41,11 @@ public partial class GamePage : ThemedPage
     {
         game = GameAPI.CreateRandomPuzzle(width, height);
 
+        game.CellStateChanged += (s, e) =>
+        {
+            InvalidateViews();
+        };
+
         FillHintData();
 
         CreateToggleButton();
@@ -238,7 +243,6 @@ public partial class GamePage : ThemedPage
         {
             game.Undo();
             UpdateCommandButtons();
-            InvalidateViews();
         };
 
         // Redo
@@ -257,7 +261,6 @@ public partial class GamePage : ThemedPage
         {
             game.Redo();
             UpdateCommandButtons();
-            InvalidateViews();
         };
 
         commandButtonsGrid.Add(undoButton, 0, 0);
@@ -322,8 +325,6 @@ public partial class GamePage : ThemedPage
         boardDrawable.HandleCell(cell);
         visitedCells.Add(((int)cell.X, (int)cell.Y));
         startingCell = cell;
-
-        InvalidateViews();
     }
 
     private void HandleMoveEnd()
@@ -372,7 +373,6 @@ public partial class GamePage : ThemedPage
 
         boardDrawable.HandleCell(lockedCell);
         visitedCells.Add(((int) lockedCell.X, (int) lockedCell.Y));
-        InvalidateViews();
     }
 
     private void OnTouchEnd(object? sender, TouchEventArgs e)
