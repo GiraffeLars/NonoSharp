@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace Picross.Game
 {
-    internal interface Command
+    internal interface ICommand
     {
         void Execute();
         void Undo();
+
+        /// <summary>
+        /// The changed cells.
+        /// </summary>
+        IEnumerable<Point> GetChanges();
     }
 
-    internal class CellCommand : Command
+    internal class CellCommand : ICommand
     {
-        int x;
-        int y;
-        Grid grid;
-        SquareType newType;
-        SquareType oldType;
+        public readonly int x;
+        public readonly int y;
+        private Grid grid;
+        public readonly SquareType newType;
+        public readonly SquareType oldType;
 
         public CellCommand(int x, int y, Grid g, SquareType newType, SquareType oldType)
         {
@@ -36,28 +42,33 @@ namespace Picross.Game
         {
             grid.SetCell(x, y, oldType);
         }
+
+        public IEnumerable<Point> GetChanges()
+        {
+            return [new Point(x, y)];
+        }
     }
 
     /// <summary>
     /// A Command consisting of multiple Commands.
     /// </summary>
-    internal class CompositeCommand : Command
+    internal class CompositeCommand : ICommand
     {
-        private readonly LinkedList<Command> commands;
+        protected readonly LinkedList<ICommand> commands;
 
         /// <summary>
         /// Total Command types in this CompositeCommand. Is not recursive.
         /// </summary>
         public int Count { get { return commands.Count; } }
 
-        internal CompositeCommand(LinkedList<Command> commands)
+        internal CompositeCommand(LinkedList<ICommand> commands)
         {
             this.commands = commands;
         }
 
         public void Execute()
         {
-            LinkedListNode<Command>? node = commands.First;
+            LinkedListNode<ICommand>? node = commands.First;
 
             while (node != null)
             {
@@ -68,13 +79,25 @@ namespace Picross.Game
 
         public void Undo()
         {
-            LinkedListNode<Command>? node = commands.Last;
+            LinkedListNode<ICommand>? node = commands.Last;
 
             while (node != null)
             {
                 node.Value.Undo();
                 node = node.Previous;
             }
+        }
+
+        public IEnumerable<Point> GetChanges()
+        {
+            List<Point> changes = [];
+
+            foreach(ICommand command in commands)
+            {
+                changes.AddRange(command.GetChanges());
+            }
+
+            return changes;
         }
 
         /// <summary>
@@ -84,9 +107,9 @@ namespace Picross.Game
         /// <param name="x">The first command to combine</param>
         /// <param name="y">The second command to combine</param>
         /// <returns><c>CompositeCommand</c> consisting of Commands x and y, with x being the first</returns>
-        public static CompositeCommand Combine(Command x, Command y)
+        public static CompositeCommand Combine(ICommand x, ICommand y)
         {
-            LinkedList<Command> combined = new LinkedList<Command>();
+            LinkedList<ICommand> combined = new LinkedList<ICommand>();
             combined.AddLast(x);
             combined.AddLast(y);
 

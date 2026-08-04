@@ -14,8 +14,8 @@ namespace Picross.Game
         public bool CanUndo { get { return undoStack.Count != 0; } }
         public bool CanRedo { get { return redoStack.Count != 0; } }
 
-        private readonly LinkedList<Command> undoStack;
-        private readonly LinkedList<Command> redoStack;
+        private readonly LinkedList<ICommand> undoStack;
+        private readonly LinkedList<ICommand> redoStack;
 
         // Events
         /// <summary>
@@ -39,8 +39,8 @@ namespace Picross.Game
         internal GameAPI(Grid grid)
         {
             this.grid = grid;
-            undoStack = new LinkedList<Command>();
-            redoStack = new LinkedList<Command>();
+            undoStack = new LinkedList<ICommand>();
+            redoStack = new LinkedList<ICommand>();
         }
 
         /// <summary>
@@ -88,15 +88,16 @@ namespace Picross.Game
             // Check if auto-crosses are possible (i.e. a square goes to filled or from filled)
             bool mightAutoCross = newType == SquareType.FILLED || grid.GetCell(x, y) == SquareType.FILLED;
 
-            CellCommand initalCommand = CreateCellCommand(x, y, newType);
+            CellCommand initialCommand = CreateCellCommand(x, y, newType);
 
             // Execute the command before determining auto-crosses
-            initalCommand.Execute();
+            initialCommand.Execute();
 
             if (!mightAutoCross)
             {
-                // Only push this command if auto-cross is not possible and return
-                PushCommand(initalCommand);
+                // Only push this command and send event if auto-cross is not possible and return
+                PushCommand(initialCommand);
+                OnCellStateChanged(new([.. initialCommand.GetChanges()]));
                 return;
             }
 
@@ -108,19 +109,22 @@ namespace Picross.Game
                 autoCrossCommand.Execute();
 
                 // Push the move and the auto-crosses to the stack together for one fluid undo for the player
-                PushCommand(CompositeCommand.Combine(initalCommand, autoCrossCommand));
+                CompositeCommand combinedCommand = CompositeCommand.Combine(initialCommand, autoCrossCommand);
+                PushCommand(combinedCommand);
+                OnCellStateChanged(new([.. combinedCommand.GetChanges()]));
             } else
             {
                 // Don't execute auto cross command and only push the initial command since the auto cross command is empty
-                PushCommand(initalCommand);
+                PushCommand(initialCommand);
+                OnCellStateChanged(new([.. initialCommand.GetChanges()]));
             }
         }
 
         /// <summary>
-        /// Executes <paramref name="command"/> and pushes it onto the undoStack. See also <seealso cref="PushCommand(Command)"/>.
+        /// Executes <paramref name="command"/> and pushes it onto the undoStack. See also <seealso cref="PushCellCommand(ICommand)"/>.
         /// </summary>
         /// <param name="command">Command to execute and push</param>
-        private void ExecuteCommand(Command command)
+        private void ExecuteCommand(ICommand command)
         {
             command.Execute();
             PushCommand(command);
@@ -130,7 +134,7 @@ namespace Picross.Game
         /// Pushes <paramref name="command"/> onto <c>undoStack</c> and clears <c>redoStack</c>.
         /// </summary>
         /// <param name="command">Command to push</param>
-        private void PushCommand(Command command)
+        private void PushCommand(ICommand command)
         {
             undoStack.AddLast(command);
             redoStack.Clear();
@@ -144,17 +148,17 @@ namespace Picross.Game
         /// <returns>CompositeCommand as above</returns>
         private CompositeCommand GetAutoCrossCommand(int x, int y)
         {
-            LinkedList<Command> autoCrossCommands = [];
+            LinkedList<ICommand> autoCrossCommands = [];
 
             foreach (int i in GetColumnAutoCross(x))
             {
-                Command cmd = CreateCellCommand(x, i, SquareType.CROSS);
+                ICommand cmd = CreateCellCommand(x, i, SquareType.CROSS);
                 autoCrossCommands.AddLast(cmd);
             }
 
             foreach (int i in GetRowAutoCross(y))
             {
-                Command cmd = CreateCellCommand(i, y, SquareType.CROSS);
+                ICommand cmd = CreateCellCommand(i, y, SquareType.CROSS);
                 autoCrossCommands.AddLast(cmd);
             }
 
@@ -257,10 +261,12 @@ namespace Picross.Game
         {
             if (!CanUndo) return;
 
-            Command c = undoStack.Last!.Value; // We know for sure that this isn't null as non-empty
+            ICommand c = undoStack.Last!.Value; // We know for sure that this isn't null as non-empty
             undoStack.RemoveLast();
             c.Undo();
             redoStack.AddLast(c);
+
+            OnCellStateChanged(new([.. c.GetChanges()]));
         }
 
         /// <summary>
@@ -270,10 +276,12 @@ namespace Picross.Game
         {
             if (!CanRedo) return;
 
-            Command c = redoStack.Last!.Value;
+            ICommand c = redoStack.Last!.Value;
             redoStack.RemoveLast();
             c.Execute();
             undoStack.AddLast(c);
+
+            OnCellStateChanged(new([.. c.GetChanges()]));
         }
 
         public bool IsSquareEmpty(int x, int y)
