@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using Picross.Game.Events;
 
 namespace Picross.Game
 {
     public class GameAPI
     {
         private Grid grid;
-
         public int Width { get { return grid.Width; } }
         public int Height { get { return grid.Height; } }
         public Hints[] ColumnHints { get { return grid.ColumnHints; } }
@@ -16,6 +16,12 @@ namespace Picross.Game
 
         private readonly LinkedList<Command> undoStack;
         private readonly LinkedList<Command> redoStack;
+
+        // Events
+        /// <summary>
+        /// <c>CellStateChanged</c> is raised when one or more cell change to a new state.
+        /// </summary>
+        public event EventHandler<CellStateEventArgs> CellStateChanged;
 
         /// <summary>
         /// Creates an API instance with a random puzzle
@@ -288,6 +294,11 @@ namespace Picross.Game
         public bool IsPuzzleSolved()
         {
             return grid.IsSolved();
+        }
+
+        protected virtual void OnCellStateChanged(CellStateEventArgs e)
+        {
+            CellStateChanged?.Invoke(this, e);
         }
 
         public override String ToString() { return grid.ToString(); }
