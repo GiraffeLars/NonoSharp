@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Picross.Maui;
 
-public class GamePage : ContentPage
+public class GamePage : ThemedPage
 {
     private GameAPI game;
     private GraphicsView boardView;
@@ -51,9 +51,7 @@ public class GamePage : ContentPage
         CreateViews();
         CreateMainGrid();
 
-        // Set theme related things. Set background here as well in case of mismatch between
-        // system standard background and Theme.BackgroundColor
-        this.BackgroundColor = Theme.BackgroundColor;
+        // Add extra theme change logic since we require views to be redrawn
         Application.Current!.RequestedThemeChanged += OnThemeChanged;
 
         Content = mainGrid;
@@ -107,7 +105,7 @@ public class GamePage : ContentPage
 
     private void OnThemeChanged(object? sender, AppThemeChangedEventArgs args)
     {
-        this.BackgroundColor = Theme.BackgroundColor;
+        // Changing background color is handled by ThemedPage
         InvalidateViews();
     }
 
