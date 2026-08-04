@@ -24,6 +24,11 @@ namespace Picross.Game
         public event EventHandler<CellStateEventArgs>? CellStateChanged;
 
         /// <summary>
+        /// Raised when the puzzle has been solved.
+        /// </summary>
+        public event EventHandler? PuzzleSolved;
+
+        /// <summary>
         /// Creates an API instance with a random puzzle
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
@@ -41,6 +46,10 @@ namespace Picross.Game
             this.grid = grid;
             undoStack = new LinkedList<ICommand>();
             redoStack = new LinkedList<ICommand>();
+
+            // The puzzle can switch between solved and unsolved when a cell changes state.
+            // Thus, we can handle sending the puzzle solved event after a cell changes state.
+            CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
         }
 
         /// <summary>
@@ -307,6 +316,22 @@ namespace Picross.Game
         protected virtual void OnCellStateChanged(CellStateEventArgs e)
         {
             CellStateChanged?.Invoke(this, e);
+        }
+
+        protected virtual void OnPuzzleSolved()
+        {
+            PuzzleSolved?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Checks if the puzzle is solved and calls <see cref="OnPuzzleSolved()"/> if this is the case
+        /// </summary>
+        private void HandlePuzzleSolvedEvent()
+        {
+            if (grid.IsSolved())
+            {
+                OnPuzzleSolved();
+            }
         }
 
         public override String ToString() { return grid.ToString(); }
