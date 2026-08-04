@@ -21,7 +21,7 @@ namespace Picross.Game
         /// <summary>
         /// <c>CellStateChanged</c> is raised when one or more cell change to a new state.
         /// </summary>
-        public event EventHandler<CellStateEventArgs> CellStateChanged;
+        public event EventHandler<CellStateEventArgs>? CellStateChanged;
 
         /// <summary>
         /// Creates an API instance with a random puzzle
