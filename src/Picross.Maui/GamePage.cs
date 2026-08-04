@@ -37,6 +37,11 @@ public partial class GamePage : ThemedPage
     // Cell where the first touch of this movement occured
     private Point startingCell;
 
+#if WINDOWS
+    // Used to avoid memory leak. See OnHandlerChanging and OnHandlerChanged.
+    private Microsoft.UI.Xaml.FrameworkElement? _nativeView = null;
+#endif
+
     public GamePage(int width, int height)
     {
         game = GameAPI.CreateRandomPuzzle(width, height);
@@ -387,18 +392,22 @@ public partial class GamePage : ThemedPage
         {
             nativeView.PointerPressed += OnNativePointerPressed;
             nativeView.PointerReleased += OnNativePointerReleased;
+
+            // Store the native view as the events will need to be unsubscribed from.
+            // However, it seems that using the HandlerChanging event does not allow us to unsubscribe
+            // using the event args.
+            _nativeView = nativeView;
         }
     }
 
     private void OnHandlerChanging(object? sender, HandlerChangingEventArgs e)
     {
-        // Per MAUI docs, always clean up the added events to prevent a memory leak
-        // TODO: This does not work yet! This input system needs to be put in boardView and 
-        // a rework will be necessary using probably an event system to redraw the view in GamePage
-        if (e.OldHandler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeView)
+        // Per MAUI docs, always clean up the added native events to prevent a memory leak
+        if (_nativeView != null)
         {
-            nativeView.PointerPressed -= OnNativePointerPressed;
-            nativeView.PointerReleased -= OnNativePointerReleased;
+            _nativeView.PointerPressed -= OnNativePointerPressed;
+            _nativeView.PointerReleased -= OnNativePointerReleased;
+            _nativeView = null;
         }
     }
 
