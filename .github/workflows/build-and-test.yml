@@ -24,5 +24,6 @@ jobs:
       run: dotnet restore src/Picross.Game/Picross.Game.csproj
     - name: Build
       run: dotnet build -c Release --no-restore src/Picross.Game/Picross.Game.csproj
+      run: dotnet build -c Release --no-restore tests/Picross.Game.Tests/Picross.Game.Tests.csproj
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal tests/Picross.Game.Tests/Picross.Game.Tests.csproj
