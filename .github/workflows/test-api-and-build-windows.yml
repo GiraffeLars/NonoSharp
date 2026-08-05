@@ -51,6 +51,9 @@ jobs:
 
   build-maui-windows:
     needs: build-and-test-api, changed
+
+    if: needs.changed.outputs.changed == 'true'
+
     runs-on: windows-latest
 
     steps:
