@@ -1,12 +1,10 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Build and Test API project
+name: Build and Test API and build MAUI project
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 env:
@@ -36,8 +34,23 @@ jobs:
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal ${{ env.TEST_PROJECT }}
 
+  changed:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for changes in MAUI project
+        id: check
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -q 'src/Picross.Maui/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
   build-maui-windows:
-    needs: build-and-test-api
+    needs: build-and-test-api, changed
     runs-on: windows-latest
 
     steps:
@@ -55,4 +68,4 @@ jobs:
     - name: Build API project
       run: dotnet build -c Release --no-restore ${{ env.GAME_PROJECT }}
     - name: Build MAUI project
-      run: dotnet build -c Release -f net10.0-windows10.0.19041.0 --no-restore ${{ env.MAUI_PROJECT }}
+      run: dotnet build -c Release -f net10.0-windows10.0.19041.0 ${{ env.MAUI_PROJECT }}
