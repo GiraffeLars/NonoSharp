@@ -50,7 +50,8 @@ jobs:
           fi
 
   build-maui-windows:
-    needs: build-and-test-api, changed
+    needs: build-and-test-api
+    needs: changed
 
     if: needs.changed.outputs.changed == 'true'
 
