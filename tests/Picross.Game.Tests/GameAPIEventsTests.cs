@@ -8,9 +8,9 @@ namespace Picross.Game.Tests
     public class GameAPIEventsTests
     {
         [Fact]
-        public void TestCellStateChangedEvent()
+        public async Task TestCellStateChangedEvent()
         {
-            GameAPI api = GameAPI.CreateRandomPuzzle(1, 1);
+            GameAPI api = await GameAPI.CreateRandomPuzzle(1, 1);
             bool eventFired = false;
             object? sender = null;
             CellStateEventArgs? args = null;

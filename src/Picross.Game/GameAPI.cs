@@ -34,9 +34,10 @@ namespace Picross.Game
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
         /// <returns>GameAPI instance as described above</returns>
-        public static GameAPI CreateRandomPuzzle(int width, int height)
+        public async static Task<GameAPI> CreateRandomPuzzle(int width, int height)
         {
-            List<Point> sol = SolutionHelper.GenerateRandomSolution(width, height);
+            // Generate solution using a task as generating a puzzle is expensive
+            List<Point> sol = await Task.Run(() => SolutionHelper.GenerateRandomSolution(width, height));
             Grid g = new(width, height, sol);
             return new GameAPI(g);
         }
