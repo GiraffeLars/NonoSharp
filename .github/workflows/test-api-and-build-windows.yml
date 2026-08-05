@@ -55,4 +55,4 @@ jobs:
     - name: Build API project
       run: dotnet build -c Release --no-restore ${{ env.GAME_PROJECT }}
     - name: Build MAUI project
-      run: dotnet build -c Release -f net-10.0-windows10.0.19041.0 --no-restore ${{ env.MAUI_PROJECT }}
+      run: dotnet build -c Release -f net10.0-windows10.0.19041.0 --no-restore ${{ env.MAUI_PROJECT }}
