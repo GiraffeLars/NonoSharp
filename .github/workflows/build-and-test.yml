@@ -21,7 +21,9 @@ jobs:
       with:
         dotnet-version: 10.0.x
     - name: Restore dependencies
-      run: dotnet restore src/Picross.Game/Picross.Game.csproj
+      run: |-
+        dotnet restore src/Picross.Game/Picross.Game.csproj
+        dotnet restore tests/Picross.Game.Tests/Picross.Game.Tests.csproj
     - name: Build API project
       run: dotnet build -c Release --no-restore src/Picross.Game/Picross.Game.csproj
     - name: Build Test project
