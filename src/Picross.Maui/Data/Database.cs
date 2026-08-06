@@ -10,7 +10,7 @@ namespace Picross.Maui.Data
     {
         internal const string DatabaseFilename = "PicrossData.db3";
 
-        internal const SQLite.SQLiteOpenFlags Flags = 
+        internal const SQLite.SQLiteOpenFlags Flags =
         // open the database in read/write mode
         SQLite.SQLiteOpenFlags.ReadWrite |
         // create the database if it doesn't exist
@@ -32,12 +32,19 @@ namespace Picross.Maui.Data
             await _con.CreateTableAsync<Settings>();
         }
 
-        internal async Task<Settings?> GetSettingsAsync() {
+        internal async Task<Settings> GetSettingsAsync() {
             await Init();
 
-            Settings? res = await _con!.Table<Settings>().FirstOrDefaultAsync();
-            Debug.WriteLineIf(res == null, "null");
-            return res;
+            Settings? settings = await _con!.Table<Settings>().FirstOrDefaultAsync();
+            
+            if (settings == null)
+            {
+                // Return default settings as the database has not written any yet
+                // That means that the user has not changed any settings yet
+                return new Settings();
+            }
+
+            return settings;
         }
     }
 }

@@ -2,15 +2,25 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Maui.Graphics;
+using Picross.Maui.Data;
 
 namespace Picross.Maui
 {
     internal class Theme
     {
+        private static readonly SettingsService settingsService = IPlatformApplication.Current!.Services.GetRequiredService<SettingsService>();
+
         private static bool IsDarkMode()
         {
-            AppTheme? systemTheme = Application.Current?.RequestedTheme;
-            return systemTheme == AppTheme.Dark;
+            Settings settings = settingsService.CurrentSettings;
+
+            if (settings.Theme == AppTheme.Unspecified)
+            {
+                AppTheme systemTheme = Application.Current!.RequestedTheme;
+                return systemTheme == AppTheme.Dark;
+            }
+
+            return settings.Theme == AppTheme.Dark;
         }
 
         public static Color FilledCell => IsDarkMode() ? Colors.LightGray : Colors.Black;

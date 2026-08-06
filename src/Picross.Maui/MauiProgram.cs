@@ -22,9 +22,16 @@ namespace Picross.Maui
 
             // Add database as singleton
             builder.Services.AddSingleton<Database>();
-            // Don't add ThemedPage as Transient, this allows us to avoid writing .. : base(Database db) each page
 
-            return builder.Build();
+            // Add SettingsService. Is initialized after the app has been built.
+            builder.Services.AddSingleton<SettingsService>();
+
+            var app = builder.Build();
+
+            SettingsService settingsService = app.Services.GetRequiredService<SettingsService>();
+            Task.Run(() => settingsService.InitializeAsync());
+
+            return app;
         }
     }
 }

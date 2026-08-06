@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Picross.Maui.Data
 {
-    internal class Settings
+    public class Settings
     {
         [PrimaryKey]
         public int ID { get; set; } = 1; // Settings is a single-row database
 
-        public string Theme { get; set; } = "System"; // Expected to be System, Light, Dark
+        public AppTheme Theme { get; set; } = AppTheme.Unspecified;
     }
 }
