@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Picross.Maui.Data;
 
 namespace Picross.Maui
 {
@@ -18,6 +19,10 @@ namespace Picross.Maui
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
+
+            // Add database as singleton
+            builder.Services.AddSingleton<Database>();
+            // Don't add ThemedPage as Transient, this allows us to avoid writing .. : base(Database db) each page
 
             return builder.Build();
         }

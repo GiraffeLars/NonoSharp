@@ -1,4 +1,5 @@
 using Picross.Game;
+using Picross.Maui.Data;
 using System.Text;
 
 namespace Picross.Maui;
@@ -59,6 +60,7 @@ public class MainPage : ThemedPage
 
             but.Clicked += async (s, e) =>
             {
+                await db.GetSettingsAsync();
                 await OnGeneratePuzzleButtonClicked(size);
             };
 
