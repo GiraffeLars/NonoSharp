@@ -8,11 +8,9 @@ namespace Picross.Maui
 {
     internal class Theme
     {
-        private static readonly SettingsService settingsService = IPlatformApplication.Current!.Services.GetRequiredService<SettingsService>();
-
         private static bool IsDarkMode()
         {
-            Settings settings = settingsService.CurrentSettings;
+            Settings settings = SettingsService.CurrentSettings;
 
             if (settings.Theme == AppTheme.Unspecified)
             {

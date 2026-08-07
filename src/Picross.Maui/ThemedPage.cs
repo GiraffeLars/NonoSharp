@@ -12,25 +12,20 @@ namespace Picross.Maui
     public partial class ThemedPage : ContentPage
     {
         protected Dictionary<string, GraphicsView> views;
-        protected Database db;
 
         public ThemedPage() : base() 
         {
-            // Get database from the services ourselves, instead of using injection from MAUI app shell
-            // This is to avoid writing something like Class : base(Database db) every page
-            db = IPlatformApplication.Current!.Services.GetRequiredService<Database>();
-
             views = new();
 
             // Set Background color (in case of system mismatch) and add event handling when system theme changes
             BackgroundColor = Theme.BackgroundColor;
             Application.Current!.RequestedThemeChanged += (s, a) =>
             {
-                HandleThemeChanged();
+                UpdateTheme();
             };
         }
 
-        private void HandleThemeChanged()
+        protected void UpdateTheme()
         {
             BackgroundColor = Theme.BackgroundColor;
             InvalidateViews();

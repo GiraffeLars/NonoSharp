@@ -46,5 +46,17 @@ namespace Picross.Maui.Data
 
             return settings;
         }
+
+        internal async Task<int> SaveSettingsAsync(Settings toSave)
+        {
+            await Init();
+            Debug.WriteLine(toSave.ID);
+
+            if (await _con!.Table<Settings>().FirstOrDefaultAsync() != null)
+            {
+                return await _con!.UpdateAsync(toSave);
+            }
+            return await _con!.InsertAsync(toSave);
+        }
     }
 }

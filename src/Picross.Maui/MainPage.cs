@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Picross.Maui;
 
-public class MainPage : ThemedPage
+public partial class MainPage : ThemedPage
 {
     private readonly Grid menu;
     private readonly ActivityIndicator indicator;
@@ -50,22 +50,32 @@ public class MainPage : ThemedPage
 
     private void AddButtons(Grid grid)
     {
+        int margin = 10;
+        int height = 50;
+
         // Create 3 buttons, 5x5, 10x10, 15x15
         for (int i = 0; i < 3; i++)
         {
             int size = (i + 1) * 5;
             String text = $"{size}x{size}";
 
-            Button but = new() { Text = text, Margin = 10, HeightRequest = 50 };
+            Button but = new() { Text = text, Margin = margin, HeightRequest = height };
 
             but.Clicked += async (s, e) =>
             {
-                await db.GetSettingsAsync();
                 await OnGeneratePuzzleButtonClicked(size);
             };
 
             grid.Add(but, 1, i);
         }
+
+        Button settings = new() { Text = "Settings", Margin = margin, HeightRequest = height };
+        settings.Clicked += async (s, e) =>
+        {
+            await Navigation.PushAsync(new SettingsPage());
+        };
+
+        grid.Add(settings, 1, 3);
     }
 
     private async Task OnGeneratePuzzleButtonClicked(int size)
@@ -87,5 +97,12 @@ public class MainPage : ThemedPage
             // Ensure the menu is enabled and buttons can be pressed once the user returns
             menu.IsEnabled = true;
         }
+    }
+
+    protected override void OnAppearing()
+    {
+        // TODO rework to on navigation from settingspage
+        UpdateTheme();
+        base.OnAppearing();
     }
 }
