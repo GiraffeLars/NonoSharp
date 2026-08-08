@@ -1,5 +1,6 @@
 using Picross.Game;
 using Picross.Maui.Data;
+using System.Diagnostics;
 using System.Text;
 
 namespace Picross.Maui;
@@ -100,10 +101,14 @@ public partial class MainPage : ThemedPage
         }
     }
 
-    protected override void OnAppearing()
+    protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
-        // TODO rework to on navigation from settingspage
-        UpdateTheme();
-        base.OnAppearing();
+        if (args.PreviousPage is SettingsPage)
+        {
+            // Update the theme in case it was changed in the settings
+            UpdateTheme();
+        }
+
+        base.OnNavigatedTo(args);
     }
 }
