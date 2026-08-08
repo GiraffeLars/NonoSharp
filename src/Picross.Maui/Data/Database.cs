@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using SQLite;
 
@@ -50,7 +49,6 @@ namespace Picross.Maui.Data
         internal async Task<int> SaveSettingsAsync(Settings toSave)
         {
             await Init();
-            Debug.WriteLine(toSave.ID);
 
             if (await _con!.Table<Settings>().FirstOrDefaultAsync() != null)
             {
