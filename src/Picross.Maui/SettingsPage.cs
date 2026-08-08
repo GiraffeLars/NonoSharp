@@ -16,6 +16,7 @@ namespace Picross.Maui
 
         private SettingsService settingsService;
         private Settings settings;
+        private Picker themePicker;
         
         public SettingsPage()
         {
@@ -41,12 +42,13 @@ namespace Picross.Maui
             }
             };
 
-            Picker themePicker = new()
+            themePicker = new()
             {
                 Title = "Select a theme",
-                
+
                 // Select the names of themes settings
-                ItemsSource = themesSelection.Select(t => t.SettingsName).ToList()
+                ItemsSource = themesSelection.Select(t => t.SettingsName).ToList(),
+                TitleColor = Theme.PrimaryText
             };
 
             menu.Add(themePicker, 1, 0);
@@ -69,6 +71,12 @@ namespace Picross.Maui
             settings.Theme = chosen;
             UpdateTheme();
             await settingsService.SaveSettingsAsync();
+        }
+
+        protected override void UpdateTheme()
+        {
+            themePicker.TitleColor = Theme.PrimaryText;
+            base.UpdateTheme();
         }
     }
 }

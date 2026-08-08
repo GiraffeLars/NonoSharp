@@ -25,7 +25,7 @@ namespace Picross.Maui
             };
         }
 
-        protected void UpdateTheme()
+        protected virtual void UpdateTheme()
         {
             BackgroundColor = Theme.BackgroundColor;
             InvalidateViews();
