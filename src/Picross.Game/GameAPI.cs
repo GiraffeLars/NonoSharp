@@ -29,17 +29,29 @@ namespace Picross.Game
         public event EventHandler? PuzzleSolved;
 
         /// <summary>
-        /// Creates an API instance with a random puzzle
+        /// Creates an API instance with a random puzzle. See <see cref="GameAPI.CreateRandomPuzzleAsync(int, int)"/> for the asynchronous method.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
         /// <returns>GameAPI instance as described above</returns>
-        public async static Task<GameAPI> CreateRandomPuzzle(int width, int height)
+        public static GameAPI CreateRandomPuzzle(int width, int height)
         {
             // Generate solution using a task as generating a puzzle is expensive
-            List<Point> sol = await Task.Run(() => SolutionHelper.GenerateRandomSolution(width, height));
+            List<Point> sol = SolutionHelper.GenerateRandomSolution(width, height);
             Grid g = new(width, height, sol);
             return new GameAPI(g);
+        }
+
+        /// <summary>
+        /// Creates an API instance with a random puzzle asynchronously by running <see cref="GameAPI.CreateRandomPuzzle(int, int)"/> on the ThreadPool
+        /// as it is computionally expensive.
+        /// </summary>
+        /// <param name="width">Width of the grid for the game</param>
+        /// <param name="height">Height of the grid for the game</param>
+        /// <returns>GameAPI instance as described above</returns>
+        public async static Task<GameAPI> CreateRandomPuzzleAsync(int width, int height)
+        {
+            return await Task.Run(() => CreateRandomPuzzle(width, height));
         }
 
         internal GameAPI(Grid grid)

@@ -10,7 +10,7 @@ namespace Picross.Game.Tests
         [Fact]
         public async Task TestCellStateChangedEvent()
         {
-            GameAPI api = await GameAPI.CreateRandomPuzzle(1, 1);
+            GameAPI api = new(new Grid(1, 1));
             bool eventFired = false;
             object? sender = null;
             CellStateEventArgs? args = null;
