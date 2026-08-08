@@ -27,6 +27,7 @@ public partial class MainPage : ThemedPage
             {
                 new RowDefinition(),
                 new RowDefinition(),
+                new RowDefinition(),
                 new RowDefinition()
             }
         };
@@ -36,14 +37,14 @@ public partial class MainPage : ThemedPage
             VerticalOptions = LayoutOptions.Center
         };
 
+        AddButtons(menu);
+        menu.Add(indicator);
+
         // Set row and column span to ensure the indicator is centered
         menu.SetColumnSpan(indicator, menu.ColumnDefinitions.Count);
         menu.SetRowSpan(indicator, menu.RowDefinitions.Count);
 
         SemanticProperties.SetDescription(indicator, "Loading");
-
-        AddButtons(menu);
-        menu.Add(indicator);
 
         Content = menu;
     }
