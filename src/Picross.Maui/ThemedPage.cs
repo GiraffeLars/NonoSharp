@@ -28,6 +28,15 @@ namespace Picross.Maui
         protected virtual void UpdateTheme()
         {
             BackgroundColor = Theme.BackgroundColor;
+
+#if !ANDROID
+            // Change the bar color as well to avoid a weird mismatch
+            // Not on android since the nav bar is set to purple by default (colors.xml in Android folder)
+            if (this.Parent is NavigationPage navPage)
+            {
+                navPage.BarBackgroundColor = Theme.BackgroundColor;
+            }
+#endif
             InvalidateViews();
         }
 

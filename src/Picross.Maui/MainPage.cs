@@ -47,6 +47,9 @@ public partial class MainPage : ThemedPage
 
         SemanticProperties.SetDescription(indicator, "Loading");
 
+        // Set theme in case of mismatch between user selected theme and system theme
+        UpdateTheme();
+
         Content = menu;
     }
 
