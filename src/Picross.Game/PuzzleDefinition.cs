@@ -17,7 +17,7 @@ namespace Picross.Game
         // Bools take 1 bit, ints 32. Depending on the density and dimensions of the puzzle, one can be more optimal for storage space
         // but considering that usually >50% of cells are filled, storing the expected state of each cell is very defendable
 
-        private int version = 0;
+        public int Version { get; } = 0;
 
         /// <summary>
         /// Total amount of bytes used by solution, rounded up
@@ -52,7 +52,7 @@ namespace Picross.Game
             MemoryStream ms = new();
 
             BinaryWriter bw = new BinaryWriter(ms);
-            bw.Write(version);
+            bw.Write(Version);
             bw.Write(width);
             bw.Write(height);
 

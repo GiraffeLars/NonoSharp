@@ -6,6 +6,12 @@ namespace Picross.Game.Tests
 {
     public class PuzzleDefinitionTests
     {
+        // Basic solution with corresponding puzzle def
+        private static readonly bool[] sol = [
+            false, true, false, false, false, true, true, true,
+            true, false, true, false, false, false, true];
+        private readonly PuzzleDefinition puzzle = new(sol.Length, 1, sol);
+
         [Fact]
         public void TestConvertSolutionToBytesSingleByte()
         {
@@ -20,9 +26,6 @@ namespace Picross.Game.Tests
         [Fact]
         public void TestConvertSolutionToBytesMultipleBytes()
         {
-            bool[] sol = [
-                false, true, false, false, false, true, true, true,
-                true, false, true, false, false, false, true];
 
             PuzzleDefinition p = new(sol.Length, 1, sol);
             // 01000111 , 10100010 base 2 = 71 162 base 10
@@ -31,6 +34,26 @@ namespace Picross.Game.Tests
             Assert.Equal(2, bytes.Length);
             Assert.Equal(71, bytes[0]);
             Assert.Equal(162, bytes[1]);
+        }
+
+        [Fact]
+        public void TestSerialize()
+        {
+            byte[] serialized = puzzle.Serialize();
+            
+            // 3 * 32 bits for version, width, height (=3*4 bytes) and the bytes for the solution
+            Assert.Equal(3 * 4 + 2, serialized.Length);
+
+            // Version
+            Assert.Equal(puzzle.Version, BitConverter.ToInt32(serialized.AsSpan()[0..4]));
+
+            // Width & height
+            Assert.Equal(sol.Length, BitConverter.ToInt32(serialized.AsSpan()[4..8]));
+            Assert.Equal(1, BitConverter.ToInt32(serialized.AsSpan()[8..12]));
+
+            // Serialized solution, tested before
+            Assert.Equal(71, serialized[12]);
+            Assert.Equal(162, serialized[13]);
         }
     }
 }
