@@ -32,7 +32,7 @@ namespace Picross.Game
             TotalCellsInHints = 0;
         }
 
-        private Hints(bool isColumnHints, int position, List<Hint> hints)
+        internal Hints(bool isColumnHints, int position, List<Hint> hints)
         {
             this.hints = hints;
             this.isColumnHints = isColumnHints;
@@ -50,7 +50,6 @@ namespace Picross.Game
             TotalCellsInHints += hint.Number;
         }
 
-        // TODO rework this in some way such that GetHint is removed, it adds confusion and overhead
         /// <summary>
         /// GetHint has been deprecated. Use the index operator, e.g. <c>Hints h[i]</c>, instead.<br/>
         /// Gets Hint at <paramref name="position"/>.
@@ -58,9 +57,6 @@ namespace Picross.Game
         /// <param name="position">Position of requested Hint</param>
         /// <returns></returns>
         [Obsolete("GetHint has been deprecated. Use the index operator, e.g. Hints h[i], instead.")]
-
-
-
         public Hint GetHint(int position) 
         {
             
