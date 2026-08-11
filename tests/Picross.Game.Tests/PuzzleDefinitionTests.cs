@@ -55,5 +55,26 @@ namespace Picross.Game.Tests
             Assert.Equal(71, serialized[12]);
             Assert.Equal(162, serialized[13]);
         }
+
+        [Fact]
+        public void TestConvertBytesToSolution()
+        {
+            byte[] bytes = [71, 162];
+
+            bool[] determinedSolution = PuzzleDefinition.ConvertBytesToSolution(bytes, sol.Length, 1);
+
+            Assert.Equal(sol.Length, determinedSolution.Length);
+            Assert.Equal(sol, determinedSolution);
+        }
+
+        [Fact]
+        public void TestDeserialize()
+        {
+            PuzzleDefinition receivedDefinition = PuzzleDefinition.Deserialize(puzzle.Serialize());
+
+            Assert.Equal(puzzle.Width, receivedDefinition.Width);
+            Assert.Equal(puzzle.Height, receivedDefinition.Height);
+            Assert.Equal(sol, receivedDefinition.Solution);
+        }
     }
 }

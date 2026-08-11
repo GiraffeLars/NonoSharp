@@ -7,13 +7,13 @@ namespace Picross.Game
 {
     internal class PuzzleDefinition
     {
-        private int width;
-        private int height;
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         /// <summary>
         /// The solution in bool, going from left-to-right, top-to-bottom.
         /// </summary>
-        private bool[] solution;
+        public bool[] Solution { get; private set; }
         // Bools take 1 bit, ints 32. Depending on the density and dimensions of the puzzle, one can be more optimal for storage space
         // but considering that usually >50% of cells are filled, storing the expected state of each cell is very defendable
 
@@ -22,13 +22,13 @@ namespace Picross.Game
         /// <summary>
         /// Total amount of bytes used by solution, rounded up
         /// </summary>
-        private int SolutionLengthBytes => (int)Math.Ceiling((double)solution.Length / 8);
+        private int SolutionLengthBytes => (int)Math.Ceiling((double)Solution.Length / 8);
 
         internal PuzzleDefinition(int width, int height, bool[] solution)
         {
-            this.width = width;
-            this.height = height;
-            this.solution = solution;
+            this.Width = width;
+            this.Height = height;
+            this.Solution = solution;
         }
 
         public static bool[] ConvertPointSolutionToBools(int width, int height, List<Point> solution)
@@ -53,8 +53,8 @@ namespace Picross.Game
 
             BinaryWriter bw = new BinaryWriter(ms);
             bw.Write(Version);
-            bw.Write(width);
-            bw.Write(height);
+            bw.Write(Width);
+            bw.Write(Height);
 
             bw.Write(ConvertSolutionToBytes());
 
@@ -67,14 +67,14 @@ namespace Picross.Game
         {
             byte[] bytes = new byte[SolutionLengthBytes];
 
-            for (int i = 0; i < width * height; i++)
+            for (int i = 0; i < Width * Height; i++)
             {
                 // Append the solution bit to the byte of its location
                 // Both arrays read from left to right, as done by the << operator and 7 - i%8, resulting in the first
                 // character being the leading character in the byte as well, etc.
 
                 // Check if the solution is true, otherwise skip this appending step, as it is already 0 by default
-                if (solution[i])
+                if (Solution[i])
                 {
                     bytes[i / 8] |= (byte) (1 << 7 - i % 8);
                 }
@@ -111,7 +111,7 @@ namespace Picross.Game
             {
                 byte b = bytes[i / 8];
 
-                if ((b & (byte)(1 << 7 - i % 8)) == 1) // Check if bit at corresponding position is set
+                if ((b & (byte)(1 << 7 - i % 8)) != 0) // Check if bit at corresponding position is set (this num is 0 if they do not match, otherwise, this is 2^x)
                 {
                     sol[i] = true;
                 }
