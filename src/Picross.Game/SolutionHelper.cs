@@ -50,5 +50,21 @@ namespace Picross.Game
 
             return points;
         }
+
+        /// <summary>
+        /// Saves <paramref name="solution"/>, together with the puzzle dimension <paramref name="width"/> and <paramref name="height"/>, and stores it locally.
+        /// </summary>
+        /// <param name="solution">The solution of a grid to save</param>
+        /// <param name="width">Puzzle width</param>
+        /// <param name="height">Puzzle height</param>
+        public static void SaveSolution(List<Point> solution, int width, int height)
+        {
+            //PuzzleDefinition puzzle = new(width, height, PuzzleDefinition.)
+        }
+
+        //private static byte[] ConvertSolutionToBytes(List<Point> solution)
+        //{
+            
+        //}
     }
 }
