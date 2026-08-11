@@ -32,7 +32,7 @@ namespace Picross.Game
             TotalCellsInHints = 0;
         }
 
-        private Hints(bool isColumnHints, int position, List<Hint> hints)
+        internal Hints(bool isColumnHints, int position, List<Hint> hints)
         {
             this.hints = hints;
             this.isColumnHints = isColumnHints;
@@ -50,7 +50,6 @@ namespace Picross.Game
             TotalCellsInHints += hint.Number;
         }
 
-        // TODO rework this in some way such that GetHint is removed, it adds confusion and overhead
         /// <summary>
         /// GetHint has been deprecated. Use the index operator, e.g. <c>Hints h[i]</c>, instead.<br/>
         /// Gets Hint at <paramref name="position"/>.
@@ -58,9 +57,6 @@ namespace Picross.Game
         /// <param name="position">Position of requested Hint</param>
         /// <returns></returns>
         [Obsolete("GetHint has been deprecated. Use the index operator, e.g. Hints h[i], instead.")]
-
-
-
         public Hint GetHint(int position) 
         {
             
@@ -133,7 +129,8 @@ namespace Picross.Game
                 // Check if we are allowed to mark this hint as completed
                 // A hint is allowed to be completed if it started from the first possible square in the grid
                 // Or it has a cross
-                if (node.Value == SquareType.CROSS || (node.Value == SquareType.BLANK && startedFromFirst))
+                bool firstGroupCompleteFollowedByBlank = node.Value == SquareType.BLANK && startedFromFirst;
+                if (node.Value == SquareType.CROSS || firstGroupCompleteFollowedByBlank)
                 {
                     if (squaresFound == hints[hintIndex].Number)
                     {
@@ -151,6 +148,12 @@ namespace Picross.Game
                         // This hint is not completed, meaning all other hints are incorrect as well
                         // We stop this loop
                         return hintIndex - 1;
+                    }
+
+                    if (firstGroupCompleteFollowedByBlank)
+                    {
+                        // Immediatly stop checking if the first hint group was not seperated by a cross
+                        return hintIndex;
                     }
 
                     // Reset variables for next iteration
@@ -239,11 +242,12 @@ namespace Picross.Game
                     continue;
                 }
 
-                if (node.Value == SquareType.BLANK && !startedFromFirst)
+                if (node.Value == SquareType.BLANK)
                 {
                     // Now, we do not know whether the player knows that these hints are correct or not,
                     // as we require crosses between squares for squares not starting at the first index
-                    // We return as we have no other garauntees on other hints
+                    // We return as we have no other guarantees on other hints. If this was the first checked hint,
+                    // we still return to avoid unintuitively marking following hints as complete
                     return;
                 }
 
