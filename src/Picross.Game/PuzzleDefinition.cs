@@ -69,7 +69,15 @@ namespace Picross.Game
 
             for (int i = 0; i < width * height; i++)
             {
-                bytes[i / 8] = (byte)((bytes[i / 8] << 1) | (solution[i] ? 1 : 0));
+                // Append the solution bit to the byte of its location
+                // Both arrays read from left to right, as done by the << operator and 7 - i%8, resulting in the first
+                // character being the leading character in the byte as well, etc.
+
+                // Check if the solution is true, otherwise skip this appending step, as it is already 0 by default
+                if (solution[i])
+                {
+                    bytes[i / 8] |= (byte) (1 << 7 - i % 8);
+                }
             }
             return bytes;
         }
