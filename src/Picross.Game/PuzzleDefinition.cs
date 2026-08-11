@@ -17,7 +17,7 @@ namespace Picross.Game
         // Bools take 1 bit, ints 32. Depending on the density and dimensions of the puzzle, one can be more optimal for storage space
         // but considering that usually >50% of cells are filled, storing the expected state of each cell is very defendable
 
-        public int Version { get; } = 0;
+        public static int Version { get; } = 0;
 
         /// <summary>
         /// Total amount of bytes used by solution, rounded up
@@ -80,6 +80,43 @@ namespace Picross.Game
                 }
             }
             return bytes;
+        }
+
+        public static PuzzleDefinition Deserialize(byte[] serializedPuzzle)
+        {
+            MemoryStream ms = new(serializedPuzzle);
+            BinaryReader br = new BinaryReader(ms);
+
+
+            int readVersion = br.ReadInt32();
+            if (readVersion != Version)
+            {
+                throw new NotSupportedException($"The given puzzle's version ({readVersion}) does not match the current version ({Version})!");
+            }
+
+            int readWidth = br.ReadInt32();
+            int readHeight = br.ReadInt32();
+
+            byte[] remaining = br.ReadBytes((int)Math.Ceiling((double)(readWidth * readHeight) / 8));
+            bool[] readSolution = ConvertBytesToSolution(remaining, readWidth, readHeight);
+
+            return new(readWidth, readHeight, readSolution);
+        }
+
+        public static bool[] ConvertBytesToSolution(byte[] bytes, int width, int height)
+        {
+            bool[] sol = new bool[width * height];
+
+            for (int i = 0; i < sol.Length; i++)
+            {
+                byte b = bytes[i / 8];
+
+                if ((b & (byte)(1 << 7 - i % 8)) == 1) // Check if bit at corresponding position is set
+                {
+                    sol[i] = true;
+                }
+            }
+            return sol;
         }
     }
 }

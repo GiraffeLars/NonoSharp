@@ -45,7 +45,7 @@ namespace Picross.Game.Tests
             Assert.Equal(3 * 4 + 2, serialized.Length);
 
             // Version
-            Assert.Equal(puzzle.Version, BitConverter.ToInt32(serialized.AsSpan()[0..4]));
+            Assert.Equal(PuzzleDefinition.Version, BitConverter.ToInt32(serialized.AsSpan()[0..4]));
 
             // Width & height
             Assert.Equal(sol.Length, BitConverter.ToInt32(serialized.AsSpan()[4..8]));
