@@ -48,7 +48,7 @@ namespace Picross.Game
             return boolSol;
         }
 
-        public List<Point> ConvertBoolSolutionToPoints()
+        internal List<Point> ConvertBoolSolutionToPoints()
         { 
             List<Point> points = new List<Point>();
             for (int i = 0; i < Solution.Length; i++)
@@ -140,13 +140,28 @@ namespace Picross.Game
 
         /// <summary>
         /// Saves this puzzle at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
-        /// See also <seealso cref="File.WriteAllBytes(string, byte)"/>.
+        /// See also <seealso cref="File.WriteAllBytes(string, byte[])"/>.
         /// </summary>
         /// <param name="path">The path to save the puzzle to</param>
         public void SavePuzzle(string path)
         {
             byte[] serialized = Serialize();
             File.WriteAllBytes(path, serialized);
+        }
+
+
+        /// <summary>
+        /// Saves this puzzle asynchronously at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
+        /// See also <seealso cref="File.WriteAllBytesAsync(string, byte[], CancellationToken)"/>.
+        /// </summary>
+        /// <param name="path">The path to save the puzzle to</param>
+        public async Task SavePuzzleAsync(string path)
+        {
+            byte[] serialized = Serialize();
+            // No SerializeAsync method as puzzles are usually small in terms of bytes.
+            // This is also the reason that there are no async binarywriter/readers available in .NET
+
+            await File.WriteAllBytesAsync(path, serialized);
         }
 
         /// <summary>
@@ -157,6 +172,18 @@ namespace Picross.Game
         public static PuzzleDefinition LoadPuzzle(string path)
         {
             byte[] serializedPuzzle = File.ReadAllBytes(path);
+            return Deserialize(serializedPuzzle);
+        }
+
+
+        /// <summary>
+        /// Loads the puzzle located at <paramref name="path"/> asynchronously
+        /// </summary>
+        /// <param name="path">Path of the puzzle to load</param>
+        /// <returns>A PuzzleDefinition of the requested puzzle, if available</returns>
+        public static async Task<PuzzleDefinition> LoadPuzzleAsync(string path)
+        {
+            byte[] serializedPuzzle = await File.ReadAllBytesAsync(path);
             return Deserialize(serializedPuzzle);
         }
     }

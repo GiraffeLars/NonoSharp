@@ -94,7 +94,7 @@ namespace Picross.Game
         /// Sets the solution to a Grid and sets the hints.
         /// </summary>
         /// <param name="solution"></param>
-        [MemberNotNull(nameof(solution))]
+        [MemberNotNull(nameof(Solution))]
         internal void SetSolution(List<Point> solution)
         { 
             this.Solution = solution;
