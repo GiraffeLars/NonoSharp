@@ -9,7 +9,7 @@ namespace Picross.Game
     internal class Grid : ICloneable
     {
         private readonly SquareType[,] grid;
-        private List<Point> solution;
+        internal List<Point> Solution {get; private set; }
         private int filled = 0;
         private int paddingString = 0;
 
@@ -82,7 +82,7 @@ namespace Picross.Game
         {
             SquareType[,] s = new SquareType[Width, Height];
 
-            foreach (Point p in solution)
+            foreach (Point p in Solution)
             {
                 s[p.X, p.Y] = SquareType.FILLED;
             }
@@ -97,7 +97,7 @@ namespace Picross.Game
         [MemberNotNull(nameof(solution))]
         internal void SetSolution(List<Point> solution)
         { 
-            this.solution = solution;
+            this.Solution = solution;
             InitializeHints();
         }
 
@@ -426,14 +426,14 @@ namespace Picross.Game
 
         public bool IsSolved()
         {
-            if (filled != solution.Count())
+            if (filled != Solution.Count())
             {
                 return false; 
             }
 
-            for (int i = 0; i < solution.Count(); i++)
+            for (int i = 0; i < Solution.Count(); i++)
             {
-                Point p = solution[i];
+                Point p = Solution[i];
                 if (grid[p.X, p.Y] != SquareType.FILLED)
                 {
                     return false;
@@ -556,7 +556,7 @@ namespace Picross.Game
         {
             return new Grid(
                 (SquareType[,]) grid.Clone(),
-                solution,
+                Solution,
                 filled,
                 paddingString,
                 Width,

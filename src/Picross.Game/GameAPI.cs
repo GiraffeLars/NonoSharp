@@ -347,6 +347,31 @@ namespace Picross.Game
             }
         }
 
+        /// <summary>
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) at <paramref name="path"/>.
+        /// </summary>
+        /// <param name="path">Path to save the puzzle at</param>
+        public void SaveAsFile(string path)
+        {
+            PuzzleDefinition puzzle = new(Width, Height, grid.Solution);
+            puzzle.SavePuzzle(path);
+        }
+
+
+        /// <summary>
+        /// Loads the puzzle at <paramref name="path"/> and returns a new GameAPI instance.
+        /// </summary>
+        /// <param name="path">Puzzle to load</param>
+        /// <returns>GameAPI instance of the puzzle located at the given path</returns>
+        public static GameAPI LoadFromFile(string path)
+        {
+            PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
+            
+            Grid grid = new Grid(puzzle.Width, puzzle.Height);
+            grid.SetSolution(puzzle.ConvertBoolSolutionToPoints());
+            return new(grid);
+        }
+
         public override String ToString() { return grid.ToString(); }
     }
 }

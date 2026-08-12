@@ -31,6 +31,9 @@ namespace Picross.Game
             this.Solution = solution;
         }
 
+        internal PuzzleDefinition(int width, int height, List<Point> solution) : 
+            this(width, height, ConvertPointSolutionToBools(width, height, solution)) { }
+
         public static bool[] ConvertPointSolutionToBools(int width, int height, List<Point> solution)
         {
             bool[] boolSol = new bool[width * height];
@@ -43,6 +46,21 @@ namespace Picross.Game
             }
 
             return boolSol;
+        }
+
+        public List<Point> ConvertBoolSolutionToPoints()
+        { 
+            List<Point> points = new List<Point>();
+            for (int i = 0; i < Solution.Length; i++)
+            {
+                if (Solution[i])
+                {
+                    int x = i % Width;
+                    int y = i / Height;
+                    points.Add(new(x, y));
+                }
+            }
+            return points;
         }
 
         public byte[] Serialize()
@@ -63,7 +81,7 @@ namespace Picross.Game
             return ms.ToArray();
         }
 
-        public byte[] ConvertSolutionToBytes()
+        internal byte[] ConvertSolutionToBytes()
         {
             byte[] bytes = new byte[SolutionLengthBytes];
 
@@ -91,7 +109,8 @@ namespace Picross.Game
             int readVersion = br.ReadInt32();
             if (readVersion != Version)
             {
-                throw new NotSupportedException($"The given puzzle's version ({readVersion}) does not match the current version ({Version})!");
+                throw new NotSupportedException(
+                    $"The given puzzle's version ({readVersion}) does not match the current version ({Version})!");
             }
 
             int readWidth = br.ReadInt32();
@@ -103,7 +122,7 @@ namespace Picross.Game
             return new(readWidth, readHeight, readSolution);
         }
 
-        public static bool[] ConvertBytesToSolution(byte[] bytes, int width, int height)
+        internal static bool[] ConvertBytesToSolution(byte[] bytes, int width, int height)
         {
             bool[] sol = new bool[width * height];
 
@@ -111,12 +130,34 @@ namespace Picross.Game
             {
                 byte b = bytes[i / 8];
 
-                if ((b & (byte)(1 << 7 - i % 8)) != 0) // Check if bit at corresponding position is set (this num is 0 if they do not match, otherwise, this is 2^x)
-                {
+                // Check if bit at corresponding position is set (this num is 0 if they do not match, otherwise, this is 2^x)
+                if ((b & (byte)(1 << 7 - i % 8)) != 0) {
                     sol[i] = true;
                 }
             }
             return sol;
+        }
+
+        /// <summary>
+        /// Saves this puzzle at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
+        /// See also <seealso cref="File.WriteAllBytes(string, byte)"/>.
+        /// </summary>
+        /// <param name="path">The path to save the puzzle to</param>
+        public void SavePuzzle(string path)
+        {
+            byte[] serialized = Serialize();
+            File.WriteAllBytes(path, serialized);
+        }
+
+        /// <summary>
+        /// Loads the puzzle located at <paramref name="path"/>
+        /// </summary>
+        /// <param name="path">Path of the puzzle to load</param>
+        /// <returns>A PuzzleDefinition of the requested puzzle, if available</returns>
+        public static PuzzleDefinition LoadPuzzle(string path)
+        {
+            byte[] serializedPuzzle = File.ReadAllBytes(path);
+            return Deserialize(serializedPuzzle);
         }
     }
 }
