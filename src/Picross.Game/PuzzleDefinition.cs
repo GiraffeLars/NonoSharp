@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 
@@ -123,7 +124,7 @@ namespace Picross.Game
 
             if (readMagic != magic)
             {
-                throw new InvalidFileFormatException($"The provided file is not supported!");
+                throw new InvalidFileFormatException("The provided file is not supported!");
             }
 
             int readVersion = br.ReadInt32();
@@ -137,10 +138,23 @@ namespace Picross.Game
             int readWidth = br.ReadInt32();
             int readHeight = br.ReadInt32();
 
+            // The expected total of bytes to read for the puzzle. This is the total number of cells (w * h), converted to bytes, rounded up
+            int remainingByteCount = (int)Math.Ceiling((double)(readWidth * readHeight) / 8);
+
             // Read the bytes of the puzzle. These are the total number of cells converted to bytes, round up
-            byte[] remaining = br.ReadBytes((int)Math.Ceiling((double)(readWidth * readHeight) / 8)); 
+            byte[] remaining = br.ReadBytes(remainingByteCount);
+
+            if (ms.Position != ms.Length || remaining.Length < remainingByteCount)
+            {
+                // Check for extra or missing data after the file should have been fully read
+                // If that is the case, this is not a supported file as the dimensions do not match
+                throw new InvalidFileFormatException("The provided file is not supported!");
+            }
+
             bool[] readSolution = ConvertBytesToSolution(remaining, readWidth, readHeight);
 
+            br.Close();
+            ms.Close();
             return new(readWidth, readHeight, readSolution, readTitle);
         }
 
