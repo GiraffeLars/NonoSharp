@@ -372,7 +372,9 @@ namespace Picross.Game
         /// </summary>
         /// <param name="path">Puzzle to load</param>
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
-        public static GameAPI LoadFromFile(string path)
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        public static GameAPI LoadFromFile(string path) 
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
             
@@ -386,6 +388,8 @@ namespace Picross.Game
         /// </summary>
         /// <param name="path">Puzzle to load</param>
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         public static async Task<GameAPI> LoadFromFileAsync(string path)
         {
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);

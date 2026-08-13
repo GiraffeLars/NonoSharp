@@ -11,6 +11,7 @@ namespace Picross.Game.Tests
             false, true, false, false, false, true, true, true,
             true, false, true, false, false, false, true];
         private readonly PuzzleDefinition puzzle = new(sol.Length, 1, sol);
+        private readonly PuzzleDefinition titledPuzzle = new(sol.Length, 1, sol, title: "test");
 
         [Fact]
         public void TestConvertSolutionToBytesSingleByte()
@@ -40,20 +41,78 @@ namespace Picross.Game.Tests
         public void TestSerialize()
         {
             byte[] serialized = puzzle.Serialize();
+            int byteNum = 0;
             
-            // 3 * 32 bits for version, width, height (=3*4 bytes) and the bytes for the solution
-            Assert.Equal(3 * 4 + 2, serialized.Length);
+            // 4 for magic, 3 * 32 bits for version, width, height (=4*4 bytes), 1 byte for empty title and the bytes for the solution
+            Assert.Equal(4 + 3 * 4 + 1 + 2, serialized.Length);
+
+            // Magic
+            Assert.Equal(Encoding.ASCII.GetBytes(PuzzleDefinition.magic), serialized[byteNum..(byteNum + 4)]);
+            byteNum += 4;
 
             // Version
-            Assert.Equal(PuzzleDefinition.Version, BitConverter.ToInt32(serialized.AsSpan()[0..4]));
+            Assert.Equal(PuzzleDefinition.Version, BitConverter.ToInt32(serialized.AsSpan()[byteNum.. (byteNum + 4)]));
+            byteNum += 4;
+
+            // Title, should be 1 byte of 0's as the string is empty
+            Assert.Equal(0, serialized[byteNum]);
+            byteNum += 1;
 
             // Width & height
-            Assert.Equal(sol.Length, BitConverter.ToInt32(serialized.AsSpan()[4..8]));
-            Assert.Equal(1, BitConverter.ToInt32(serialized.AsSpan()[8..12]));
+            Assert.Equal(sol.Length, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
+            byteNum += 4;
+
+            Assert.Equal(1, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
+            byteNum += 4;
 
             // Serialized solution, tested before
-            Assert.Equal(71, serialized[12]);
-            Assert.Equal(162, serialized[13]);
+            Assert.Equal(71, serialized[byteNum]);
+            byteNum += 1;
+
+            Assert.Equal(162, serialized[byteNum]);
+        }
+
+        [Fact]
+        public void TestSerializeTitledPuzzle()
+        {
+            byte[] serialized = titledPuzzle.Serialize();
+            int byteNum = 0;
+
+            // 4 for magic, 3 * 32 bits for version, width, height (=4*4 bytes),
+            // 1 byte for title length, 4 for title and the bytes for the solution
+            Assert.Equal(4 + 3 * 4 + 1 + 4 + 2, serialized.Length);
+
+            // Magic
+            Assert.Equal(Encoding.ASCII.GetBytes(PuzzleDefinition.magic), serialized[byteNum..(byteNum + 4)]);
+            byteNum += 4;
+
+            // Version
+            Assert.Equal(PuzzleDefinition.Version, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
+            byteNum += 4;
+
+            // Title length, should be 4 as the title is "test". Each character fits in the first 7 bits 
+            Assert.Equal(4, serialized[byteNum]);
+            byteNum += 1;
+
+            // Title
+            Assert.Equal((byte)'t', serialized[byteNum]);
+            Assert.Equal((byte)'e', serialized[++byteNum]);
+            Assert.Equal((byte)'s', serialized[++byteNum]);
+            Assert.Equal((byte)'t', serialized[++byteNum]);
+            byteNum++;
+
+            // Width & height
+            Assert.Equal(sol.Length, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
+            byteNum += 4;
+
+            Assert.Equal(1, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
+            byteNum += 4;
+
+            // Serialized solution, tested before
+            Assert.Equal(71, serialized[byteNum]);
+            byteNum += 1;
+
+            Assert.Equal(162, serialized[byteNum]);
         }
 
         [Fact]
@@ -72,6 +131,18 @@ namespace Picross.Game.Tests
         {
             PuzzleDefinition receivedDefinition = PuzzleDefinition.Deserialize(puzzle.Serialize());
 
+            Assert.Equal(puzzle.Title, receivedDefinition.Title);
+            Assert.Equal(puzzle.Width, receivedDefinition.Width);
+            Assert.Equal(puzzle.Height, receivedDefinition.Height);
+            Assert.Equal(sol, receivedDefinition.Solution);
+        }
+
+        [Fact]
+        public void TestDeserializeTitledPuzzle()
+        {
+            PuzzleDefinition receivedDefinition = PuzzleDefinition.Deserialize(puzzle.Serialize());
+
+            Assert.Equal(puzzle.Title, receivedDefinition.Title);
             Assert.Equal(puzzle.Width, receivedDefinition.Width);
             Assert.Equal(puzzle.Height, receivedDefinition.Height);
             Assert.Equal(sol, receivedDefinition.Solution);
