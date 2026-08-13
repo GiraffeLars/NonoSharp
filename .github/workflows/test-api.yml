@@ -6,6 +6,8 @@ name: Build and Test API project
 on:
   pull_request:
     branches: [ "main" ]
+  push:
+      branches: [ "main" ]
 
 env:
   GAME_PROJECT: src/Picross.Game/Picross.Game.csproj
