@@ -47,7 +47,7 @@ namespace Picross.Game.Tests
             Assert.Equal(4 + 3 * 4 + 1 + 2, serialized.Length);
 
             // Magic
-            Assert.Equal(Encoding.ASCII.GetBytes(PuzzleDefinition.magic), serialized[byteNum..(byteNum + 4)]);
+            Assert.Equal(Encoding.ASCII.GetBytes(PuzzleDefinition.MAGIC), serialized[byteNum..(byteNum + 4)]);
             byteNum += 4;
 
             // Version
@@ -83,7 +83,7 @@ namespace Picross.Game.Tests
             Assert.Equal(4 + 3 * 4 + 1 + 4 + 2, serialized.Length);
 
             // Magic
-            Assert.Equal(Encoding.ASCII.GetBytes(PuzzleDefinition.magic), serialized[byteNum..(byteNum + 4)]);
+            Assert.Equal(Encoding.ASCII.GetBytes(PuzzleDefinition.MAGIC), serialized[byteNum..(byteNum + 4)]);
             byteNum += 4;
 
             // Version

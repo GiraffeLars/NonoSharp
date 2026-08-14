@@ -351,6 +351,9 @@ namespace Picross.Game
         /// Saves a serialized version of the puzzle (that is, the solution and dimensions) at <paramref name="path"/>.
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
+        /// Usually, there is an inner exception giving more details.</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public void SaveAsFile(string path)
         {
             PuzzleDefinition puzzle = new(Width, Height, grid.Solution);
@@ -361,6 +364,9 @@ namespace Picross.Game
         /// Saves a serialized version of the puzzle (that is, the solution and dimensions) at <paramref name="path"/>.
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
+        /// Usually, there is an inner exception giving more details.</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public async Task SaveAsFileAsync(string path)
         {
             PuzzleDefinition puzzle = new PuzzleDefinition(Width, Height, grid.Solution);
@@ -374,6 +380,7 @@ namespace Picross.Game
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public static GameAPI LoadFromFile(string path) 
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
@@ -390,6 +397,7 @@ namespace Picross.Game
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public static async Task<GameAPI> LoadFromFileAsync(string path)
         {
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
