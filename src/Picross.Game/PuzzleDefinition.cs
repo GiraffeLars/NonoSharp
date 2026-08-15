@@ -176,36 +176,7 @@ namespace Picross.Game
             MemoryStream ms = new(serializedPuzzle);
             BinaryReader br = new BinaryReader(ms);
 
-            try
-            {
-                string readMagic = Encoding.ASCII.GetString(br.ReadBytes(Encoding.ASCII.GetByteCount(MAGIC)));
-
-                if (readMagic != MAGIC)
-                {
-                    throw new InvalidFileFormatException("The provided file is not supported!");
-                }
-            } 
-            catch (Exception e)
-            {
-                br.Close();
-                ms.Close();
-
-                if (e is InvalidFileFormatException)
-                {
-                    throw;
-                }
-                // Catch all exceptions possibly thrown by the read magic line
-                else if (e is ArgumentException || e is ArgumentNullException || e is DecoderFallbackException
-                    || e is IOException || e is ObjectDisposedException || e is ArgumentOutOfRangeException ||
-                    e is EncoderFallbackException)
-                {
-                    throw new InvalidFileFormatException("The provided file is not supported");
-                } else
-                {
-                    // In case of missed exceptions
-                    throw;
-                }
-            }
+            ValidateMagic(ms, br);
 
             try
             {
@@ -281,6 +252,50 @@ namespace Picross.Game
                 br.Close();
                 ms.Close();
             }
+        }
+
+        /// <summary>
+        /// Validates the magic, i.e. the first x bytes taken by <c>MAGIC</c>. If this is not <c>MAGIC</c>, <paramref name="ms"/> and <paramref name="br"/> are closed.
+        /// </summary>
+        /// <param name="ms">MemoryStream to read</param>
+        /// <param name="br">BinaryReader of <paramref name="ms"/></param>
+        /// <returns>True if successfull. Otherwise, exceptions are thrown.</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the magic is invalid</exception>
+        private static bool ValidateMagic(MemoryStream ms, BinaryReader br)
+        {
+            try
+            {
+                string readMagic = Encoding.ASCII.GetString(br.ReadBytes(Encoding.ASCII.GetByteCount(MAGIC)));
+
+                if (readMagic != MAGIC)
+                {
+                    throw new InvalidFileFormatException("The provided file is not supported!");
+                }
+            }
+            catch (Exception e)
+            {
+                br.Close();
+                ms.Close();
+
+                if (e is InvalidFileFormatException)
+                {
+                    throw;
+                }
+                // Catch all exceptions possibly thrown by the read magic line
+                else if (e is ArgumentException || e is ArgumentNullException || e is DecoderFallbackException
+                    || e is IOException || e is ObjectDisposedException || e is ArgumentOutOfRangeException ||
+                    e is EncoderFallbackException)
+                {
+                    throw new InvalidFileFormatException("The provided file is not supported");
+                }
+                else
+                {
+                    // In case of missed exceptions
+                    throw;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
