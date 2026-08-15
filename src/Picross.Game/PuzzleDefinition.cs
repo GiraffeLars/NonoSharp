@@ -96,9 +96,9 @@ namespace Picross.Game
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs</exception>
         public byte[] Serialize()
         {
-            MemoryStream ms = new();
+            using var ms = new MemoryStream();
+            using var bw = new BinaryWriter(ms);
 
-            BinaryWriter bw = new BinaryWriter(ms);
             bw.Write(Encoding.ASCII.GetBytes(MAGIC));
             bw.Write(Version);
 
@@ -129,11 +129,6 @@ namespace Picross.Game
             {
                 // Shouldn't happen, here for completeness
                 throw new PuzzleSerializationFailedException("Received a null argument!", e);
-            }
-            finally
-            {
-                bw.Close();
-                ms.Close();
             }
 
             return ms.ToArray();
@@ -173,9 +168,8 @@ namespace Picross.Game
         /// inner exception giving more details.</exception>
         public static PuzzleDefinition Deserialize(byte[] serializedPuzzle)
         {
-            MemoryStream ms = new(serializedPuzzle);
-            BinaryReader br = new BinaryReader(ms);
-
+            using var ms = new MemoryStream(serializedPuzzle);
+            using var br = new BinaryReader(ms);
             ValidateMagic(ms, br);
 
             try
@@ -191,7 +185,8 @@ namespace Picross.Game
                 if (readTitle.Length > MAX_TITLE_LENGTH)
                 {
                     throw new InvalidFileFormatException("The provided file is not supported!");
-                } else if (readTitle == "")
+                }
+                else if (readTitle == "")
                 {
                     readTitle = null;
                 }
@@ -201,7 +196,7 @@ namespace Picross.Game
 
                 if (readWidth <= 0 || readHeight <= 0)
                 {
-                    throw new InvalidFileFormatException("The provided file is not supported!");
+                    throw new InvalidFileFormatException("The provided file's puzzle dimension are invalid!");
                 }
 
                 // The expected total of bytes to read for the puzzle. This is the total number of cells (w * h), converted to bytes, rounded up
@@ -247,19 +242,14 @@ namespace Picross.Game
             {
                 throw new PuzzleDeserializationFailedException("The puzzle dimensions are too large!");
             }
-            finally
-            {
-                br.Close();
-                ms.Close();
-            }
         }
 
         /// <summary>
-        /// Validates the magic, i.e. the first x bytes taken by <c>MAGIC</c>. If this is not <c>MAGIC</c>, <paramref name="ms"/> and <paramref name="br"/> are closed.
+        /// Validates the magic, i.e. the first x bytes taken by <c>MAGIC</c>.
         /// </summary>
         /// <param name="ms">MemoryStream to read</param>
         /// <param name="br">BinaryReader of <paramref name="ms"/></param>
-        /// <returns>True if successfull. Otherwise, exceptions are thrown.</returns>
+        /// <returns>True if successful. Otherwise, exceptions are thrown.</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the magic is invalid</exception>
         private static bool ValidateMagic(MemoryStream ms, BinaryReader br)
         {
@@ -286,7 +276,7 @@ namespace Picross.Game
                     || e is IOException || e is ObjectDisposedException || e is ArgumentOutOfRangeException ||
                     e is EncoderFallbackException)
                 {
-                    throw new InvalidFileFormatException("The provided file is not supported");
+                    throw new InvalidFileFormatException("The provided file is not supported!");
                 }
                 else
                 {
