@@ -26,14 +26,37 @@ namespace Picross.Game
         // Bools take 1 bit, ints 32. Depending on the density and dimensions of the puzzle, one can be more optimal for storage space
         // but considering that usually >50% of cells are filled, storing the expected state of each cell is very defendable
 
+        /// <summary>
+        /// Creates a puzzle definition
+        /// </summary>
+        /// <param name="width">Width of the puzzle</param>
+        /// <param name="height">Height of the puzzle</param>
+        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, the array's element is true and false otherwise</param>
+        /// <param name="title">Optional title of the puzzle</param>
+        /// <exception cref="ArgumentException">Thrown when <code>solution.Length != width * height</code></exception>
+        /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
         internal PuzzleDefinition(int width, int height, bool[] solution, string? title = null)
         {
+            if (solution.Length != checked(width * height))
+            {
+                throw new ArgumentException("The length of solution must match the total number of cells (width * height)!");
+            }
+
             this.Width = width;
             this.Height = height;
             this.Solution = solution;
             this.Title = title;
         }
 
+        /// <summary>
+        /// Creates a puzzle definition
+        /// </summary>
+        /// <param name="width">Width of the puzzle</param>
+        /// <param name="height">Height of the puzzle</param>
+        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, there is a Point element in the list of the marked coordinates</param>
+        /// <param name="title">Optional title of the puzzle</param>
+        /// <exception cref="ArgumentException">Thrown when there are more filled cells in <paramref name="solution"/> than possible given <paramref name="width"/> and <paramref name="height"/></exception>
+        /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
         internal PuzzleDefinition(int width, int height, List<Point> solution, string? title = null) : 
             this(width, height, ConvertPointSolutionToBools(width, height, solution), title) { }
 
@@ -107,10 +130,6 @@ namespace Picross.Game
                 // Shouldn't happen, here for completeness
                 throw new PuzzleSerializationFailedException("Received a null argument!", e);
             }
-            catch (OverflowException)
-            {
-                throw new PuzzleSerializationFailedException("The puzzle dimensions are too large!");
-            }
             finally
             {
                 bw.Close();
@@ -124,7 +143,6 @@ namespace Picross.Game
         /// Converts the solution, in instance variable <see cref="Solution"/>, to bytes
         /// </summary>
         /// <returns>Byte array of the solution</returns>
-        /// <exception cref="OverflowException">The total number of cells, <code>Width * Height</code> is too big to multiple without overflow</exception>
         internal byte[] ConvertSolutionToBytes()
         {
             byte[] bytes = new byte[ConvertBitCountToByteCount(Solution.Length)];
