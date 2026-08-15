@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 
@@ -264,9 +263,6 @@ namespace Picross.Game
             }
             catch (Exception e)
             {
-                br.Close();
-                ms.Close();
-
                 if (e is InvalidFileFormatException)
                 {
                     throw;
@@ -416,95 +412,5 @@ namespace Picross.Game
         {
             return (int)Math.Ceiling((double)count / 8);
         }
-    }
-
-    [Serializable]
-    public class InvalidFileFormatException : Exception
-    {
-        public InvalidFileFormatException()
-        { }
-
-        public InvalidFileFormatException(string? message)
-            : base(message)
-        { }
-
-        public InvalidFileFormatException(string? message, Exception? innerException)
-            : base(message, innerException)
-        { }
-    }
-
-    [Serializable]
-    public class PuzzleDeserializationFailedException : Exception
-    {
-        public PuzzleDeserializationFailedException()
-        { }
-
-        public PuzzleDeserializationFailedException(string? message)
-            : base(message)
-        { }
-
-        public PuzzleDeserializationFailedException(string? message, Exception? innerException)
-            : base(message, innerException)
-        { }
-    }
-
-    [Serializable]
-    public class PuzzleSerializationFailedException : Exception
-    {
-        public PuzzleSerializationFailedException()
-        { }
-
-        public PuzzleSerializationFailedException(string? message)
-            : base(message)
-        { }
-
-        public PuzzleSerializationFailedException(string? message, Exception? innerException)
-            : base(message, innerException)
-        { }
-    }
-
-    [Serializable]
-    public class InvalidPuzzleException : Exception 
-    {
-        public InvalidPuzzleException()
-        { }
-
-        public InvalidPuzzleException(string? message)
-            : base(message)
-        { }
-
-        public InvalidPuzzleException(string? message, Exception? innerException)
-            : base(message, innerException)
-        { }
-    }
-
-    [Serializable]
-    public class PuzzleSavingFailedException : Exception
-    {
-        public PuzzleSavingFailedException()
-        { }
-
-        public PuzzleSavingFailedException(string? message)
-            : base(message)
-        { }
-
-        public PuzzleSavingFailedException(string? message, Exception? innerException)
-            : base(message, innerException)
-        { }
-    }
-
-    [Serializable]
-    public class PuzzleLoadingFailedException : Exception
-    {
-        public PuzzleLoadingFailedException()
-        { }
-
-        public PuzzleLoadingFailedException(string? message)
-            : base(message)
-        { }
-
-        public PuzzleLoadingFailedException(string? message, Exception? innerException)
-            : base(message, innerException)
-        { }
     }
 }

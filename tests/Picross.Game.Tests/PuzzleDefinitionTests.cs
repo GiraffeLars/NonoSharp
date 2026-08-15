@@ -140,12 +140,12 @@ namespace Picross.Game.Tests
         [Fact]
         public void TestDeserializeTitledPuzzle()
         {
-            PuzzleDefinition receivedDefinition = PuzzleDefinition.Deserialize(puzzle.Serialize());
+            PuzzleDefinition receivedDefinition = PuzzleDefinition.Deserialize(titledPuzzle.Serialize());
 
 
-            Assert.Equal(puzzle.Title, receivedDefinition.Title);
-            Assert.Equal(puzzle.Width, receivedDefinition.Width);
-            Assert.Equal(puzzle.Height, receivedDefinition.Height);
+            Assert.Equal(titledPuzzle.Title, receivedDefinition.Title);
+            Assert.Equal(titledPuzzle.Width, receivedDefinition.Width);
+            Assert.Equal(titledPuzzle.Height, receivedDefinition.Height);
             Assert.Equal(sol, receivedDefinition.Solution);
         }
 
@@ -246,7 +246,7 @@ namespace Picross.Game.Tests
         }
 
         [Fact]
-        public void TestDesrializeBytesTooLargeException()
+        public void TestDeserializeBytesTooLargeException()
         {
             byte[] serialized = puzzle.Serialize();
 
