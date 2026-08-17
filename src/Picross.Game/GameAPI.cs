@@ -410,6 +410,17 @@ namespace Picross.Game
             return new(grid);
         }
 
+        public static async Task<GameAPI> LoadFromSerializedAsync(byte[] serializedPuzzle)
+        {
+            PuzzleDefinition puzzle = PuzzleDefinition.Deserialize(serializedPuzzle); 
+            Grid grid = new Grid(puzzle.Width, puzzle.Height);
+
+            List<Point> solution = puzzle.ConvertBoolSolutionToPoints();
+
+            await Task.Run(() => grid.SetSolution(solution));
+            return new(grid);
+        }
+
         public override String ToString() { return grid.ToString(); }
     }
 }
