@@ -7,18 +7,10 @@ namespace Picross.Maui
 {
     internal partial class SelectionPage : ThemedPage
     {
-        int availablePuzzles;
         Grid menu;
 
         internal SelectionPage()
         {
-            //var puzzleDirStream = FileSystem.OpenAppPackageFileAsync("Puzzles").Result;
-            //var a = new StreamReader(puzzleDirStream);
-            //var b = a.
-
-            //var puzzleDir = Path.Combine(appDir, "Puzzles");
-            //availablePuzzles = Directory.GetFiles(dir, "*", SearchOption.TopDirectoryOnly).Length;
-
             menu = new()
             {
                 VerticalOptions = LayoutOptions.Center,
@@ -37,29 +29,41 @@ namespace Picross.Maui
 
                 RowDefinitions =
             {
-                new RowDefinition(),
-                new RowDefinition(),
-                new RowDefinition(),
-                new RowDefinition(),
-                new RowDefinition()
+                new RowDefinition() {Height = new GridLength(1, GridUnitType.Star)},
+                new RowDefinition() {Height = new GridLength(2, GridUnitType.Star)},
+                new RowDefinition() {Height = new GridLength(2, GridUnitType.Star)},
+                new RowDefinition() {Height = new GridLength(2, GridUnitType.Star)},
+                new RowDefinition() {Height = new GridLength(2, GridUnitType.Star)},
+                new RowDefinition() {Height = new GridLength(2, GridUnitType.Star)},
+                new RowDefinition() {Height = new GridLength(1, GridUnitType.Star)}
             }
             };
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < Task.Run(async () => await PuzzleLibrary.GetPuzzleTotalAsync()).Result; i++)
             {
                 Button button = new()
                 {
                     Text = $"{i + 1}",
-                    CommandParameter = i
+                    CommandParameter = i,
+                    HeightRequest=50
                 };
                 button.Clicked += async (s, e) =>
                 {
-                    var bytes = await LoadPuzzleAsync((int) button.CommandParameter);
+                    try
+                    {
+                        var bytes = await LoadPuzzleAsync((int) button.CommandParameter);
+                        await Navigation.PushAsync(new GamePage(await GameAPI.LoadFromSerializedAsync(bytes)));
+                    } catch (Exception exc)
+                    {
+                        await DisplayAlertAsync(
+                            "Puzzle unavailable",
+                            $"Failed to load puzzle {(int)button.CommandParameter + 1}. Try a different puzzle. Cause: {exc.GetType()}: {exc.Message}", 
+                            "CLOSE");
+                    }
 
-                    await Navigation.PushAsync(new GamePage(await GameAPI.LoadFromSerializedAsync(bytes)));
                 };
 
-                menu.Add(button, i % 5 + 1, i / 5);
+                menu.Add(button, i % 5 + 1, i / 5 + 1);
             }
 
             Content = menu;
@@ -67,7 +71,8 @@ namespace Picross.Maui
 
         private async Task<byte[]> LoadPuzzleAsync(int i)
         {
-            var puzzleStream = await FileSystem.OpenAppPackageFileAsync($"Puzzles/puzzle_{i}.ns");
+            string puzzleFilename = await PuzzleLibrary.GetPuzzleFilenameAsync(i);
+            var puzzleStream = await FileSystem.OpenAppPackageFileAsync($"Puzzles/{puzzleFilename}");
             using var ms = new MemoryStream();
             await puzzleStream.CopyToAsync(ms);
             puzzleStream.Close();
