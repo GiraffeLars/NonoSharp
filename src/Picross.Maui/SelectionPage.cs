@@ -32,7 +32,7 @@ namespace Picross.Maui
                 new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
                 new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
                 new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
             },
 
                 RowDefinitions =
@@ -45,7 +45,7 @@ namespace Picross.Maui
             }
             };
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 6; i++)
             {
                 Button button = new()
                 {
@@ -67,10 +67,12 @@ namespace Picross.Maui
 
         private async Task<byte[]> LoadPuzzleAsync(int i)
         {
-            var puzzleStream = await FileSystem.OpenAppPackageFileAsync($"Puzzles/puzzle{i}.ns");
+            var puzzleStream = await FileSystem.OpenAppPackageFileAsync($"Puzzles/puzzle_{i}.ns");
             using var ms = new MemoryStream();
             await puzzleStream.CopyToAsync(ms);
+            puzzleStream.Close();
             byte[] bytes = ms.ToArray();
+            ms.Close();
             return bytes;
         }
     }
