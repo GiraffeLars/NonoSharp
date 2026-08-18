@@ -87,7 +87,7 @@ public partial class MainPage : ThemedPage
             await Navigation.PushAsync(new SettingsPage());
         };
 
-        grid.Add(settings, 1, 3);
+        grid.Add(settings, 1, 4);
     }
 
     private async Task OnGeneratePuzzleButtonClicked(int size)
