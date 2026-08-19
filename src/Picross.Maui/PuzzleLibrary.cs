@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using System.Text.Json;
 
 namespace Picross.Maui
@@ -9,6 +7,7 @@ namespace Picross.Maui
     internal static class PuzzleLibrary
     {
         private static Dictionary<int, string>? libraryJson = null;
+        private static readonly SemaphoreSlim _loadSemaphore = new(1, 1);
 
         /// <summary>
         /// Gets the filename of the puzzle with id <paramref name="id"/>
@@ -17,7 +16,7 @@ namespace Picross.Maui
         /// <returns>The filename, usually as XXXX_TITLE.ns</returns>
         /// <exception cref="InvalidDataException">Thrown when the json library failed to properly load</exception>
         /// <exception cref="ArgumentException">Thrown when there is no puzzle with id <paramref name="id"/> in the library</exception>
-        public async static Task<string> GetPuzzleFilenameAsync(int id)
+        public static async Task<string> GetPuzzleFilenameAsync(int id)
         {
             await LoadLibraryAsync();
 
@@ -34,7 +33,7 @@ namespace Picross.Maui
         /// </summary>
         /// <returns>Total number of puzzles according to the library</returns>
         /// <exception cref="InvalidDataException">Thrown when the json library failed to properly load</exception>
-        public async static Task<int> GetPuzzleTotalAsync()
+        public static async Task<int> GetPuzzleTotalAsync()
         {
             await LoadLibraryAsync();
             return libraryJson!.Count;
@@ -46,20 +45,30 @@ namespace Picross.Maui
         /// <exception cref="InvalidDataException">Thrown when the json library failed to properly load</exception>
         private async static Task LoadLibraryAsync()
         {
-            if (libraryJson != null) return;
+            await _loadSemaphore.WaitAsync();
 
             try
             {
-                using var stream = await FileSystem.OpenAppPackageFileAsync("Puzzles/library.json");
+                if (libraryJson != null) return;
 
-                libraryJson = await JsonSerializer.DeserializeAsync<Dictionary<int, string>>(stream);
-            }
-            catch (Exception e)
+                try
+                {
+                    using var stream = await FileSystem.OpenAppPackageFileAsync("Puzzles/library.json");
+
+                    libraryJson = await JsonSerializer.DeserializeAsync<Dictionary<int, string>>(stream);
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidDataException("Failed to load the library JSON!", e);
+                }
+
+                if (libraryJson == null) { throw new InvalidDataException("Failed to load the library JSON!"); }
+            } 
+            finally
             {
-                throw new InvalidDataException("Failed to load the library JSON!", e);
+                _loadSemaphore.Release(); 
             }
 
-            if (libraryJson == null) { throw new InvalidDataException("Failed to load the library JSON!"); }
         }
     }
 }

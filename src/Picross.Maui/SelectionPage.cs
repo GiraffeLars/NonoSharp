@@ -1,7 +1,5 @@
 ﻿using Picross.Game;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Picross.Maui
 {
@@ -53,11 +51,11 @@ namespace Picross.Maui
                     {
                         var bytes = await LoadPuzzleAsync((int) button.CommandParameter);
                         await Navigation.PushAsync(new GamePage(await GameAPI.LoadFromSerializedAsync(bytes)));
-                    } catch (Exception exc)
+                    } catch (Exception)
                     {
                         await DisplayAlertAsync(
                             "Puzzle unavailable",
-                            $"Failed to load puzzle {(int)button.CommandParameter + 1}. Try a different puzzle. Cause: {exc.GetType()}: {exc.Message}", 
+                            $"Failed to load puzzle {(int)button.CommandParameter + 1}. Try a different puzzle.", 
                             "CLOSE");
                     }
 
