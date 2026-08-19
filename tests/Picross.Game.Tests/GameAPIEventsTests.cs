@@ -8,12 +8,6 @@ namespace Picross.Game.Tests
     public class GameAPIEventsTests
     {
         [Fact]
-        public void TestFail()
-        {
-            Assert.True(false);
-        }
-
-        [Fact]
         public async Task TestCellStateChangedEvent()
         {
             GameAPI api = new(new Grid(1, 1));
