@@ -348,28 +348,32 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) at <paramref name="path"/>.
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. If <paramref name="path"/> already exists,
+        /// it is overwritten.
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
+        /// <param name="title">Optional title to give the puzzle</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public void SaveAsFile(string path)
+        public void SaveAsFile(string path, string? title = null)
         {
-            PuzzleDefinition puzzle = new(Width, Height, grid.Solution);
+            PuzzleDefinition puzzle = new(Width, Height, grid.Solution, title);
             puzzle.SavePuzzle(path);
         }
 
         /// <summary>
-        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) at <paramref name="path"/>.
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. If <paramref name="path"/> already exists,
+        /// it is overwritten.
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
+        /// <param name="title">Optional title to give the puzzle</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public async Task SaveAsFileAsync(string path)
+        public async Task SaveAsFileAsync(string path, string? title = null)
         {
-            PuzzleDefinition puzzle = new PuzzleDefinition(Width, Height, grid.Solution);
+            PuzzleDefinition puzzle = new PuzzleDefinition(Width, Height, grid.Solution, title);
             await puzzle.SavePuzzleAsync(path);
         }
 
@@ -381,12 +385,27 @@ namespace Picross.Game
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public static GameAPI LoadFromFile(string path) 
+        public static GameAPI LoadPuzzle(string path) 
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
-            
-            Grid grid = new Grid(puzzle.Width, puzzle.Height);
-            grid.SetSolution(puzzle.ConvertBoolSolutionToPoints());
+
+            Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
+            return new(grid);
+        }
+
+        /// <summary>
+        /// Loads the puzzle in <paramref name="stream"/> and returns a new GameAPI instance. The stream is automatically closed.
+        /// </summary>
+        /// <param name="stream">Stream to read the puzzle from. 
+        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// <returns>GameAPI instance of the puzzle</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        public static GameAPI LoadPuzzle(Stream stream)
+        {
+            PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
+
+            Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
             return new(grid);
         }
 
@@ -398,27 +417,46 @@ namespace Picross.Game
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public static async Task<GameAPI> LoadFromFileAsync(string path)
+        public static async Task<GameAPI> LoadPuzzleAsync(string path)
         {
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
 
-            Grid grid = new Grid(puzzle.Width, puzzle.Height);
-
-            List<Point> solution = puzzle.ConvertBoolSolutionToPoints();
-
-            await Task.Run(() => grid.SetSolution(solution));
+            Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
             return new(grid);
         }
 
-        public static async Task<GameAPI> LoadFromSerializedAsync(byte[] serializedPuzzle)
+        /// <summary>
+        /// Loads the puzzle in <paramref name="stream"/> asynchronously. Contents of <paramref name="stream"/> are expected to be relatively small. Larger streams might cause noticeable blocking. 
+        /// The stream is automatically closed.
+        /// </summary>
+        /// <param name="stream">Stream to read the puzzle from. 
+        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// <returns>GameAPI instance of the puzzle located at the given path</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        public static async Task<GameAPI> LoadPuzzleAsync(Stream stream)
         {
-            PuzzleDefinition puzzle = PuzzleDefinition.Deserialize(serializedPuzzle); 
-            Grid grid = new Grid(puzzle.Width, puzzle.Height);
+            PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
-            List<Point> solution = puzzle.ConvertBoolSolutionToPoints();
+            Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
+            return new(grid);
+        }
+
+        private static Grid ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)
+        {
+            Grid grid = new Grid(definition.Width, definition.Height);
+            grid.SetSolution(definition.ConvertBoolSolutionToPoints());
+            return grid;
+        }
+
+        private static async Task<Grid> ConvertPuzzleDefinitionToGridAsync(PuzzleDefinition definition)
+        {
+            Grid grid = new Grid(definition.Width, definition.Height);
+
+            List<Point> solution = definition.ConvertBoolSolutionToPoints();
 
             await Task.Run(() => grid.SetSolution(solution));
-            return new(grid);
+            return grid;
         }
 
         public override String ToString() { return grid.ToString(); }

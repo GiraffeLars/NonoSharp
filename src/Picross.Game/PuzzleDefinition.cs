@@ -157,19 +157,18 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Deserializes <paramref name="serializedPuzzle"/> into a <c>PuzzleDefinition</c>
+        /// Deserializes <paramref name="stream"/> into a <c>PuzzleDefinition</c>
         /// </summary>
-        /// <param name="serializedPuzzle">Puzzle to deserialize</param>
-        /// <returns></returns>
+        /// <param name="stream">Stream to read</param>
+        /// <returns>PuzzleDefinition of <paramref name="stream"/></returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleDeserializationFailedException">Thrown when the file format is valid, but other issues occur. Usually, there is an
         /// inner exception giving more details.</exception>
-        public static PuzzleDefinition Deserialize(byte[] serializedPuzzle)
+        public static PuzzleDefinition Deserialize(Stream stream)
         {
-            using var ms = new MemoryStream(serializedPuzzle);
-            using var br = new BinaryReader(ms);
-            ValidateMagic(ms, br);
+            using var br = new BinaryReader(stream);
+            ValidateMagic(br);
 
             try
             {
@@ -195,7 +194,7 @@ namespace Picross.Game
 
                 if (readWidth <= 0 || readHeight <= 0)
                 {
-                    throw new InvalidFileFormatException("The provided file's puzzle dimension are invalid!");
+                    throw new InvalidFileFormatException("The provided file's puzzle dimensions are invalid!");
                 }
 
                 // The expected total of bytes to read for the puzzle. This is the total number of cells (w * h), converted to bytes, rounded up
@@ -204,7 +203,7 @@ namespace Picross.Game
                 // Read the bytes of the puzzle. These are the total number of cells converted to bytes, round up
                 byte[] remaining = br.ReadBytes(remainingByteCount);
 
-                if (ms.Position != ms.Length || remaining.Length < remainingByteCount)
+                if (br.BaseStream.Position != br.BaseStream.Length || remaining.Length < remainingByteCount)
                 {
                     // Check for extra or missing data after the file should have been fully read
                     // If that is the case, this is not a supported file as the dimensions do not match
@@ -244,13 +243,28 @@ namespace Picross.Game
         }
 
         /// <summary>
+        /// Deserializes <paramref name="serializedPuzzle"/> into a <c>PuzzleDefinition</c>
+        /// </summary>
+        /// <param name="serializedPuzzle">Puzzle to deserialize</param>
+        /// <returns>PuzzleDefinition of <paramref name="serializedPuzzle"/></returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the file format is valid, but other issues occur. Usually, there is an
+        /// inner exception giving more details.</exception>
+        public static PuzzleDefinition Deserialize(byte[] serializedPuzzle)
+        {
+            using var ms = new MemoryStream(serializedPuzzle);
+
+            return Deserialize(ms);
+        }
+
+        /// <summary>
         /// Validates the magic, i.e. the first x bytes taken by <c>MAGIC</c>.
         /// </summary>
-        /// <param name="ms">MemoryStream to read</param>
-        /// <param name="br">BinaryReader of <paramref name="ms"/></param>
+        /// <param name="br">BinaryReader to read</param>
         /// <returns>True if successful. Otherwise, exceptions are thrown.</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the magic is invalid</exception>
-        private static bool ValidateMagic(MemoryStream ms, BinaryReader br)
+        private static bool ValidateMagic(BinaryReader br)
         {
             try
             {
@@ -357,31 +371,52 @@ namespace Picross.Game
         }
 
         /// <summary>
+        /// Loads the puzzle contained in <paramref name="stream"/>. The stream is automatically closed.
+        /// </summary>
+        /// <param name="stream">Stream to read the puzzle from. 
+        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, such as one provided by <see cref="SavePuzzle(string)"/>.</param>
+        /// <returns><c>PuzzleDefinition</c> of the requested puzzle</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        public static PuzzleDefinition LoadPuzzle(Stream stream)
+        {
+            return Deserialize(stream);
+        }
+
+        /// <summary>
         /// Loads the puzzle located at <paramref name="path"/>
         /// </summary>
         /// <param name="path">Path of the puzzle to load</param>
-        /// <returns>A PuzzleDefinition of the requested puzzle, if available</returns>
+        /// <returns><c>PuzzleDefinition</c> of the requested puzzle</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
+        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading the file fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public static PuzzleDefinition LoadPuzzle(string path)
         {
-            byte[] serializedPuzzle;
-
+            FileStream fs;
             try
             {
-                serializedPuzzle = File.ReadAllBytes(path);
+                fs = File.OpenRead(path);
             }
             catch (Exception e)
             {
-                throw new PuzzleLoadingFailedException("Failed to load puzzle!", e);
+                throw new PuzzleLoadingFailedException($"Failed to open file {path}!", e);
             }
-            return Deserialize(serializedPuzzle);
+
+            try
+            {
+                PuzzleDefinition puzzle = LoadPuzzle(fs);
+                return puzzle;
+            }
+            finally
+            {
+                fs.Close();
+            }
         }
 
-
         /// <summary>
-        /// Loads the puzzle located at <paramref name="path"/> asynchronously
+        /// Loads the puzzle located at <paramref name="path"/> asynchronously. Contents of <paramref name="path"/> are expected to be relatively small. Larger files might cause noticeable blocking.
+        /// Asynchronous puzzle reading of a Stream is not supported. Use the synchronous <see cref="LoadPuzzle(Stream)"/> instead.
         /// </summary>
         /// <param name="path">Path of the puzzle to load</param>
         /// <returns>A PuzzleDefinition of the requested puzzle, if available</returns>
@@ -400,6 +435,13 @@ namespace Picross.Game
             {
                 throw new PuzzleLoadingFailedException("Failed to load puzzle!", e);
             }
+
+            /* As also noted on https://stackoverflow.com/questions/10315316/asynchronous-binaryreader-and-binarywriter-in-net
+             * content read/written using BinaryReader/Writer is usually very small. This is also the case for our puzzle format, each cell only taking 1 bit,
+             * plus some extra metadata. Loading the file can take longer, and is therefore loaded before hand using the async read.
+             * As the size of this is expected to be small, using blocking Deserialize is fine for now. But as larger files can cause the thread to be blocked, a disclaimer
+             * is added in the documentation above. 
+             * This is also why async reading from a stream is not supported, as we'd only make a call to a blocking method in an async method, which is silly */
             return Deserialize(serializedPuzzle);
         }
 
