@@ -6,7 +6,7 @@ namespace Picross.Maui
     internal partial class SelectionPage : ThemedPage
     {
         private int availablePuzzles;
-        Grid menu;
+        private Grid menu;
 
         internal SelectionPage()
         {
@@ -43,7 +43,18 @@ namespace Picross.Maui
 
         protected override async void OnAppearing()
         {
-            availablePuzzles = await PuzzleLibrary.GetPuzzleTotalAsync();
+            try
+            {
+                availablePuzzles = await PuzzleLibrary.GetPuzzleTotalAsync();
+            } catch (Exception)
+            {
+                await DisplayAlertAsync("Puzzle fetching failed",
+                    "Failed to fetch available puzzles. Returning to previous page.",
+                    "OK");
+                await Navigation.PopAsync();
+                return;
+            }
+
             await SetupButtons();
         }
 

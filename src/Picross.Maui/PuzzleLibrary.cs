@@ -14,7 +14,7 @@ namespace Picross.Maui
         /// </summary>
         /// <param name="id">ID of the puzzle</param>
         /// <returns>The filename, usually as XXXX_TITLE.ns</returns>
-        /// <exception cref="InvalidDataException">Thrown when the json library failed to properly load</exception>
+        /// <exception cref="InvalidDataException">Thrown when the json library failed to load</exception>
         /// <exception cref="ArgumentException">Thrown when there is no puzzle with id <paramref name="id"/> in the library</exception>
         public static async Task<string> GetPuzzleFilenameAsync(int id)
         {
@@ -23,7 +23,7 @@ namespace Picross.Maui
             var validID = libraryJson!.TryGetValue(id, out string? filename);
             if (!validID || filename == null)
             {
-                throw new ArgumentException("There is no puzzle with this ID!");
+                throw new ArgumentException($"There is no puzzle with ID {id}!");
             }
             return filename;
         }
@@ -32,7 +32,7 @@ namespace Picross.Maui
         /// Gets the total number of available puzzles
         /// </summary>
         /// <returns>Total number of puzzles according to the library</returns>
-        /// <exception cref="InvalidDataException">Thrown when the json library failed to properly load</exception>
+        /// <exception cref="InvalidDataException">Thrown when the json library failed to load</exception>
         public static async Task<int> GetPuzzleTotalAsync()
         {
             await LoadLibraryAsync();
@@ -42,7 +42,7 @@ namespace Picross.Maui
         /// <summary>
         /// Loads the library json located in Resources/Raw/Puzzles.
         /// </summary>
-        /// <exception cref="InvalidDataException">Thrown when the json library failed to properly load</exception>
+        /// <exception cref="InvalidDataException">Thrown when the json library failed to load</exception>
         private async static Task LoadLibraryAsync()
         {
             await _loadSemaphore.WaitAsync();
