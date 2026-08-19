@@ -5,6 +5,7 @@ namespace Picross.Maui
 {
     internal partial class SelectionPage : ThemedPage
     {
+        private int availablePuzzles;
         Grid menu;
 
         internal SelectionPage()
@@ -37,25 +38,37 @@ namespace Picross.Maui
             }
             };
 
-            for (int i = 0; i < Task.Run(async () => await PuzzleLibrary.GetPuzzleTotalAsync()).Result; i++)
+            Content = menu;
+        }
+
+        protected override async void OnAppearing()
+        {
+            availablePuzzles = await PuzzleLibrary.GetPuzzleTotalAsync();
+            await SetupButtons();
+        }
+
+        private async Task SetupButtons()
+        {
+            for (int i = 0; i < availablePuzzles; i++)
             {
                 Button button = new()
                 {
                     Text = $"{i + 1}",
                     CommandParameter = i,
-                    HeightRequest=50
+                    HeightRequest = 50
                 };
                 button.Clicked += async (s, e) =>
                 {
                     try
                     {
-                        var bytes = await LoadPuzzleAsync((int) button.CommandParameter);
+                        var bytes = await LoadPuzzleAsync((int)button.CommandParameter);
                         await Navigation.PushAsync(new GamePage(await GameAPI.LoadFromSerializedAsync(bytes)));
-                    } catch (Exception)
+                    }
+                    catch (Exception)
                     {
                         await DisplayAlertAsync(
                             "Puzzle unavailable",
-                            $"Failed to load puzzle {(int)button.CommandParameter + 1}. Try a different puzzle.", 
+                            $"Failed to load puzzle {(int)button.CommandParameter + 1}. Try a different puzzle.",
                             "CLOSE");
                     }
 
@@ -63,8 +76,6 @@ namespace Picross.Maui
 
                 menu.Add(button, i % 5 + 1, i / 5 + 1);
             }
-
-            Content = menu;
         }
 
         private async Task<byte[]> LoadPuzzleAsync(int i)
