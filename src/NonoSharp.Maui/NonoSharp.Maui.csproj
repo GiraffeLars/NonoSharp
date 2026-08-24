@@ -159,7 +159,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Picross.Game\Picross.Game.csproj" />
+	  <ProjectReference Include="..\NonoSharp\NonoSharp.csproj" />
 	</ItemGroup>
 
 	<Target Name="GeneratePuzzleLibrary" BeforeTargets="BeforeBuild">

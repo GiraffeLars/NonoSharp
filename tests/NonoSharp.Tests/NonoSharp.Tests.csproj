@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Picross.Game\Picross.Game.csproj" />
+    <ProjectReference Include="..\..\src\NonoSharp\NonoSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
