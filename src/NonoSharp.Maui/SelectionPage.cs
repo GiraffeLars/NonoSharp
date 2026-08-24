@@ -72,7 +72,7 @@ namespace NonoSharp.Maui
                     try
                     {
                         Stream stream = await GetPuzzleStreamAsync((int)button.CommandParameter);
-                        await Navigation.PushAsync(new GamePage(await GameAPI.LoadPuzzleAsync(stream)));
+                        await Navigation.PushAsync(new GamePage(await NonogramAPI.LoadPuzzleAsync(stream)));
                     }
                     catch (Exception)
                     {

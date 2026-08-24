@@ -7,7 +7,7 @@ namespace NonoSharp.Maui.Drawables
 {
     internal class columnHintsDrawable : IDrawable
     {
-        private readonly GameAPI game;
+        private readonly NonogramAPI game;
 
         // The total amount of space a number needs, includes the margin, like a box
         private float numberOffset = 22f;
@@ -15,7 +15,7 @@ namespace NonoSharp.Maui.Drawables
         // The required height needed for all the hints. When used in GamePage, this ensures the grid is centered
         internal float RequiredHeight { get; private set; }
 
-        internal columnHintsDrawable(GameAPI game)
+        internal columnHintsDrawable(NonogramAPI game)
         {
             this.game = game; 
         }

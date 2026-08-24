@@ -5,13 +5,13 @@ namespace NonoSharp.Maui.Drawables;
 
 internal class BoardDrawable : IDrawable
 {
-    private GameAPI game;
+    private NonogramAPI game;
     private float cellSize;
     internal FillType fillType = FillType.FILL;
     internal bool lockFillType = false;
     internal FillType OldFillType { get; set; } = FillType.FILL;
 
-    public BoardDrawable(GameAPI game)
+    public BoardDrawable(NonogramAPI game)
     {
         this.game = game;
     }

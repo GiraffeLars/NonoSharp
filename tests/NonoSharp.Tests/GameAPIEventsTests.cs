@@ -10,7 +10,7 @@ namespace NonoSharp.Tests
         [Fact]
         public async Task TestCellStateChangedEvent()
         {
-            GameAPI api = new(new Grid(1, 1));
+            NonogramAPI api = new(new Grid(1, 1));
             bool eventFired = false;
             object? sender = null;
             CellStateEventArgs? args = null;
@@ -41,7 +41,7 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 0) filled being correct
             Grid g = new(1, 1);
             g.SetSolution([new(0, 0)]);
-            GameAPI api = new(g);
+            NonogramAPI api = new(g);
 
             bool eventFired = false;
             object? sender = null;

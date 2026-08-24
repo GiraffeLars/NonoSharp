@@ -9,7 +9,7 @@ namespace NonoSharp.Maui;
 
 public partial class GamePage : ThemedPage
 {
-    private readonly GameAPI game;
+    private readonly NonogramAPI game;
     private BoardDrawable boardDrawable;
     private columnHintsDrawable columnHintsDrawable;
     private rowHintsDrawable rowHintsDrawable;
@@ -42,7 +42,7 @@ public partial class GamePage : ThemedPage
     private Microsoft.UI.Xaml.FrameworkElement? _nativeView = null;
 #endif
 
-    public GamePage(GameAPI gameAPI)
+    public GamePage(NonogramAPI gameAPI)
     {
         game = gameAPI;
 

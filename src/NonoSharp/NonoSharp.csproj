@@ -9,7 +9,7 @@
 	  <Version>0.1.0</Version>
 	  <Description>Nonogram API for .NET featuring randomly generated puzzles, custom puzzle file saving/loading and more</Description>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <RepositoryUrl>https://github.com/GiraffeLars/Picross/</RepositoryUrl>
+	  <RepositoryUrl>https://github.com/GiraffeLars/NonoSharp/</RepositoryUrl>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

@@ -7,7 +7,7 @@ namespace NonoSharp
     /// Class for the Nonogram API. Can be initialised with static methods such as 
     /// <see cref="CreateRandomPuzzle(int, int)"/> or <see cref="LoadPuzzle(string)"/>.
     /// </summary>
-    public class GameAPI
+    public class NonogramAPI
     {
         private Grid grid;
 
@@ -59,34 +59,34 @@ namespace NonoSharp
         public event EventHandler? PuzzleSolved;
 
         /// <summary>
-        /// Creates an API instance with a random puzzle. See <see cref="GameAPI.CreateRandomPuzzleAsync(int, int)"/> 
+        /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
-        /// <returns>GameAPI instance as described above</returns>
-        public static GameAPI CreateRandomPuzzle(int width, int height)
+        /// <returns>NonogramAPI instance as described above</returns>
+        public static NonogramAPI CreateRandomPuzzle(int width, int height)
         {
             // Generate solution using a task as generating a puzzle is expensive
             List<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
             Grid g = new(width, height, sol);
-            return new GameAPI(g);
+            return new NonogramAPI(g);
         }
 
         /// <summary>
         /// Creates an API instance with a random puzzle asynchronously by running 
-        /// <see cref="GameAPI.CreateRandomPuzzle(int, int)"/> on the ThreadPool
+        /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int)"/> on the ThreadPool
         /// as it is computionally expensive.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
-        /// <returns>GameAPI instance as described above</returns>
-        public async static Task<GameAPI> CreateRandomPuzzleAsync(int width, int height)
+        /// <returns>NonogramAPI instance as described above</returns>
+        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height)
         {
             return await Task.Run(() => CreateRandomPuzzle(width, height));
         }
 
-        internal GameAPI(Grid grid)
+        internal NonogramAPI(Grid grid)
         {
             this.grid = grid;
             undoStack = new LinkedList<ICommand>();
@@ -455,15 +455,15 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle at <paramref name="path"/> and returns a new GameAPI instance.
+        /// Loads the puzzle at <paramref name="path"/> and returns a new NonogramAPI instance.
         /// </summary>
         /// <param name="path">Puzzle to load</param>
-        /// <returns>GameAPI instance of the puzzle located at the given path</returns>
+        /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details</exception>
-        public static GameAPI LoadPuzzle(string path) 
+        public static NonogramAPI LoadPuzzle(string path) 
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
 
@@ -472,15 +472,15 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle in <paramref name="stream"/> and returns a new GameAPI instance. The stream is automatically closed.
+        /// Loads the puzzle in <paramref name="stream"/> and returns a new NonogramAPI instance. The stream is automatically closed.
         /// </summary>
         /// <param name="stream">Stream to read the puzzle from. 
         /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, 
         /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
-        /// <returns>GameAPI instance of the puzzle</returns>
+        /// <returns>NonogramAPI instance of the puzzle</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        public static GameAPI LoadPuzzle(Stream stream)
+        public static NonogramAPI LoadPuzzle(Stream stream)
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
@@ -489,15 +489,15 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle at <paramref name="path"/> asynchronously and returns a new GameAPI instance.
+        /// Loads the puzzle at <paramref name="path"/> asynchronously and returns a new NonogramAPI instance.
         /// </summary>
         /// <param name="path">Puzzle to load</param>
-        /// <returns>GameAPI instance of the puzzle located at the given path</returns>
+        /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
-        public static async Task<GameAPI> LoadPuzzleAsync(string path)
+        public static async Task<NonogramAPI> LoadPuzzleAsync(string path)
         {
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
 
@@ -514,10 +514,10 @@ namespace NonoSharp
         /// To avoid false positives on InvalidFileFormatException exceptions,
         /// the stream must consist of ONLY one valid puzzle, such as one provided by
         /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
-        /// <returns>GameAPI instance of the puzzle located at the given path</returns>
+        /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        public static async Task<GameAPI> LoadPuzzleAsync(Stream stream)
+        public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream)
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 

@@ -7,13 +7,13 @@ namespace NonoSharp.Tests
 {
     public class GameAPITests
     {
-        private readonly GameAPI api;
+        private readonly NonogramAPI api;
 
         public GameAPITests()
         {
             // API for a 15x15 grid with an empty solution.
             // Don't generate random solvable solutions as this increases test time.
-            api = new GameAPI(new Grid(15, 15));
+            api = new NonogramAPI(new Grid(15, 15));
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace NonoSharp.Tests
         public void TestAutoCross()
         {
             Grid g = new Grid(5, 1);
-            GameAPI autoCrossAPI = new(g);
+            NonogramAPI autoCrossAPI = new(g);
 
             // [O][X][O][O][X]
             List<int> solXCoords = new() { 0, 2, 3 };
