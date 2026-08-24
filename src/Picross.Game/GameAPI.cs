@@ -29,7 +29,8 @@ namespace Picross.Game
         public event EventHandler? PuzzleSolved;
 
         /// <summary>
-        /// Creates an API instance with a random puzzle. See <see cref="GameAPI.CreateRandomPuzzleAsync(int, int)"/> for the asynchronous method.
+        /// Creates an API instance with a random puzzle. See <see cref="GameAPI.CreateRandomPuzzleAsync(int, int)"/> 
+        /// for the asynchronous method.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
@@ -103,7 +104,8 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Executes the player's move. Changed (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newType"/> and handles auto-crosses.
+        /// Executes the player's move. Changes the cell at (<paramref name="x"/>, <paramref name="y"/>) to 
+        /// <paramref name="newType"/> and handles auto-crosses.
         /// The move is also appended to the undo-stack.
         /// </summary>
         /// <param name="x"></param>
@@ -357,7 +359,7 @@ namespace Picross.Game
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
         /// <param name="title">Optional title to give the puzzle</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. 
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed. 
         /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, 
@@ -374,7 +376,7 @@ namespace Picross.Game
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
         /// <param name="title">Optional title to give the puzzle</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. 
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed. 
         /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. 

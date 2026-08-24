@@ -49,7 +49,7 @@ namespace Picross.Game.Tests
         public void TestCross()
         {
             Assert.True(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellCrossed(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
             Assert.False(api.IsCellCrossed(0, 0));
 
             api.CrossCell(0, 0);
