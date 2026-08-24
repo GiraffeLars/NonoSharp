@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using Picross.Game;
 
@@ -121,7 +120,7 @@ namespace Picross.Game.Tests
 
             // [O][X][O][O][X]
             List<int> solXCoords = new() { 0, 2, 3 };
-            g.SetSolution(solXCoords.Select(x => new Point(x, 0)).ToList());
+            g.SetSolution(solXCoords.Select(x => new CellPosition(x, 0)).ToList());
             autoCrossAPI.FillCell(0, 0);
 
             // Check if auto cross didn't trigger

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Picross.Game
@@ -52,20 +51,21 @@ namespace Picross.Game
         /// </summary>
         /// <param name="width">Width of the puzzle</param>
         /// <param name="height">Height of the puzzle</param>
-        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, there is a Point element in the list of the marked coordinates</param>
+        /// <param name="solution">The solution, of length width * height,
+        /// where for each filled cell in the solution, there is a CellPosition element in the list of the marked coordinates</param>
         /// <param name="title">Optional title of the puzzle</param>
         /// <exception cref="ArgumentException">Thrown when there are more filled cells in <paramref name="solution"/> than possible given <paramref name="width"/> and <paramref name="height"/></exception>
         /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
-        internal PuzzleDefinition(int width, int height, List<Point> solution, string? title = null) : 
-            this(width, height, ConvertPointSolutionToBools(width, height, solution), title) { }
+        internal PuzzleDefinition(int width, int height, List<CellPosition> solution, string? title = null) : 
+            this(width, height, ConvertPositionSolutionToBools(width, height, solution), title) { }
 
-        public static bool[] ConvertPointSolutionToBools(int width, int height, List<Point> solution)
+        public static bool[] ConvertPositionSolutionToBools(int width, int height, List<CellPosition> solution)
         {
             bool[] boolSol = new bool[width * height];
 
-            foreach (Point p in solution)
+            foreach (CellPosition p in solution)
             {
-                // Set the corresponding location of the point in boolSol to true
+                // Set the corresponding location of the position in boolSol to true
                 int loc = p.X + p.Y * width;
                 boolSol[loc] = true;
             }
@@ -73,19 +73,19 @@ namespace Picross.Game
             return boolSol;
         }
 
-        internal List<Point> ConvertBoolSolutionToPoints()
+        internal List<CellPosition> ConvertBoolSolutionToPositions()
         { 
-            List<Point> points = new List<Point>();
+            List<CellPosition> positions = [];
             for (int i = 0; i < Solution.Length; i++)
             {
                 if (Solution[i])
                 {
                     int x = i % Width;
-                    int y = i / Height;
-                    points.Add(new(x, y));
+                    int y = i / Width;
+                    positions.Add(new(x, y));
                 }
             }
-            return points;
+            return positions;
         }
 
         /// <summary>

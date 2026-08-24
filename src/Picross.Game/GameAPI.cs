@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Drawing;
 using Picross.Game.Events;
 
 namespace Picross.Game
@@ -69,7 +68,7 @@ namespace Picross.Game
         public static GameAPI CreateRandomPuzzle(int width, int height)
         {
             // Generate solution using a task as generating a puzzle is expensive
-            List<Point> sol = SolutionHelper.GenerateRandomSolution(width, height);
+            List<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
             Grid g = new(width, height, sol);
             return new GameAPI(g);
         }
@@ -395,7 +394,7 @@ namespace Picross.Game
         /// <summary>
         /// Should be called when one or more cells have changed states
         /// </summary>
-        /// <param name="e">The event args corresponding to this event. Should contain the Points of all
+        /// <param name="e">The event args corresponding to this event. Should contain the CellPositions of all
         /// changed cells.</param>
         protected virtual void OnCellStateChanged(CellStateEventArgs e)
         {
@@ -529,7 +528,7 @@ namespace Picross.Game
         private static Grid ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)
         {
             Grid grid = new Grid(definition.Width, definition.Height);
-            grid.SetSolution(definition.ConvertBoolSolutionToPoints());
+            grid.SetSolution(definition.ConvertBoolSolutionToPositions());
             return grid;
         }
 
@@ -537,7 +536,7 @@ namespace Picross.Game
         {
             Grid grid = new Grid(definition.Width, definition.Height);
 
-            List<Point> solution = definition.ConvertBoolSolutionToPoints();
+            List<CellPosition> solution = definition.ConvertBoolSolutionToPositions();
 
             await Task.Run(() => grid.SetSolution(solution));
             return grid;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Picross.Game.Events
@@ -13,9 +12,9 @@ namespace Picross.Game.Events
         /// <summary>
         /// List of the cells that were changed
         /// </summary>
-        public List<Point> Cells { get; internal init; }
+        public List<CellPosition> Cells { get; internal init; }
 
-        internal CellStateEventArgs(List<Point> cells)
+        internal CellStateEventArgs(List<CellPosition> cells)
         {
             this.Cells = cells;
         }

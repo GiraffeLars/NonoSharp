@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Text;
 
 namespace Picross.Game
@@ -9,7 +8,7 @@ namespace Picross.Game
     internal class Grid : ICloneable
     {
         private readonly CellType[,] grid;
-        internal List<Point> Solution {get; private set; }
+        internal List<CellPosition> Solution {get; private set; }
         private int filled = 0;
         private int paddingString = 0;
 
@@ -26,7 +25,7 @@ namespace Picross.Game
         /// <param name="height">Height of the grid</param>
         /// <param name="solution">The solution for the grid</param>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
-        public Grid(int width, int height, List<Point> solution)
+        public Grid(int width, int height, List<CellPosition> solution)
         {
             if (width <= 0 || height <= 0)
             {
@@ -60,7 +59,7 @@ namespace Picross.Game
         /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
         /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
-        internal Grid(CellType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height)
+        internal Grid(CellType[,] grid, List<CellPosition> solution, int filled, int paddingString, int width, int height)
         {
             this.grid = grid;
             this.filled = filled;
@@ -77,12 +76,12 @@ namespace Picross.Game
         /// <summary>
         /// Makes the solution into a 2D array representation, just as <c>grid</c>
         /// </summary>
-        /// <returns>2D array of <c>CellType</c> where each point in the solution is <c>CellType.FILLED</c></returns>
+        /// <returns>2D array of <c>CellType</c> where each cell position in the solution is <c>CellType.FILLED</c></returns>
         private CellType[,] GridifySolution()
         {
             CellType[,] s = new CellType[Width, Height];
 
-            foreach (Point p in Solution)
+            foreach (CellPosition p in Solution)
             {
                 s[p.X, p.Y] = CellType.FILLED;
             }
@@ -95,7 +94,7 @@ namespace Picross.Game
         /// </summary>
         /// <param name="solution"></param>
         [MemberNotNull(nameof(Solution))]
-        internal void SetSolution(List<Point> solution)
+        internal void SetSolution(List<CellPosition> solution)
         { 
             this.Solution = solution;
             InitializeHints();
@@ -433,7 +432,7 @@ namespace Picross.Game
 
             for (int i = 0; i < Solution.Count(); i++)
             {
-                Point p = Solution[i];
+                CellPosition p = Solution[i];
                 if (grid[p.X, p.Y] != CellType.FILLED)
                 {
                     return false;
