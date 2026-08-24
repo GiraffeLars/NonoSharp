@@ -7,7 +7,7 @@ namespace Picross.Maui.Data
 {
     public class Database
     {
-        internal const string DatabaseFilename = "PicrossData.db3";
+        internal const string DatabaseFilename = "NonoSharpData.db3";
 
         internal const SQLite.SQLiteOpenFlags Flags =
         // open the database in read/write mode

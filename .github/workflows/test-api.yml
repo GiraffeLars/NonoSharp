@@ -10,9 +10,9 @@ on:
       branches: [ "main" ]
 
 env:
-  GAME_PROJECT: src/Picross.Game/Picross.Game.csproj
-  TEST_PROJECT: tests/Picross.Game.Tests/Picross.Game.Tests.csproj
-  MAUI_PROJECT: src/Picross.Maui/Picross.Maui.csproj
+  GAME_PROJECT: src/NonoSharp/NonoSharp.csproj
+  TEST_PROJECT: tests/NonoSharp.Tests/NonoSharp.Tests.csproj
+  MAUI_PROJECT: src/NonoSharp.Maui/NonoSharp.Maui.csproj
 
 jobs:
   build-and-test-api:
