@@ -43,7 +43,8 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Creates an API instance with a random puzzle asynchronously by running <see cref="GameAPI.CreateRandomPuzzle(int, int)"/> on the ThreadPool
+        /// Creates an API instance with a random puzzle asynchronously by running 
+        /// <see cref="GameAPI.CreateRandomPuzzle(int, int)"/> on the ThreadPool
         /// as it is computionally expensive.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
@@ -70,10 +71,11 @@ namespace Picross.Game
         /// </summary>
         /// <param name="x">x-coordinate of the cell, zero-indexed from the left.</param>
         /// <param name="y">y-coordinate of the cell, zero-indexed from the top.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> falls outside the bounds of the grid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or 
+        /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void FillCell(int x, int y)
         {
-            DoMove(x, y, SquareType.FILLED);
+            DoMove(x, y, CellType.FILLED);
         }
 
         /// <summary>
@@ -81,10 +83,11 @@ namespace Picross.Game
         /// </summary>
         /// <param name="x">x-coordinate of the cell, zero-indexed from the left.</param>
         /// <param name="y">y-coordinate of the cell, zero-indexed from the top.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> falls outside the bounds of the grid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or
+        /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void CrossCell(int x, int y)
         {
-            DoMove(x, y, SquareType.CROSS);
+            DoMove(x, y, CellType.CROSS);
         }
 
         /// <summary>
@@ -92,10 +95,11 @@ namespace Picross.Game
         /// </summary>
         /// <param name="x">x-coordinate of the cell, zero-indexed from the left.</param>
         /// <param name="y">y-coordinate of the cell, zero-indexed from the top.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> falls outside the bounds of the grid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or 
+        /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void EmptyCell(int x, int y)
         {
-            DoMove(x, y, SquareType.BLANK);
+            DoMove(x, y, CellType.BLANK);
         }
 
         /// <summary>
@@ -105,10 +109,10 @@ namespace Picross.Game
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="newType"></param>
-        private void DoMove(int x, int y, SquareType newType)
+        private void DoMove(int x, int y, CellType newType)
         {
-            // Check if auto-crosses are possible (i.e. a square goes to filled or from filled)
-            bool mightAutoCross = newType == SquareType.FILLED || grid.GetCell(x, y) == SquareType.FILLED;
+            // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
+            bool mightAutoCross = newType == CellType.FILLED || grid.GetCell(x, y) == CellType.FILLED;
 
             CellCommand initialCommand = CreateCellCommand(x, y, newType);
 
@@ -174,13 +178,13 @@ namespace Picross.Game
 
             foreach (int i in GetColumnAutoCross(x))
             {
-                ICommand cmd = CreateCellCommand(x, i, SquareType.CROSS);
+                ICommand cmd = CreateCellCommand(x, i, CellType.CROSS);
                 autoCrossCommands.AddLast(cmd);
             }
 
             foreach (int i in GetRowAutoCross(y))
             {
-                ICommand cmd = CreateCellCommand(i, y, SquareType.CROSS);
+                ICommand cmd = CreateCellCommand(i, y, CellType.CROSS);
                 autoCrossCommands.AddLast(cmd);
             }
 
@@ -197,11 +201,11 @@ namespace Picross.Game
 
             if (groupsMatchHints)
             {
-                SquareType[] column = grid.GetColumnArray(col);
+                CellType[] column = grid.GetColumnArray(col);
 
                 for (int i = 0; i < column.Length; i++)
                 {
-                    if (column[i] == SquareType.BLANK)
+                    if (column[i] == CellType.BLANK)
                     {
                         posToCross.Add(i);
                     }
@@ -221,10 +225,10 @@ namespace Picross.Game
 
             if (groupsMatchHints)
             {
-                SquareType[] rowCells = grid.GetRowArray(row);
+                CellType[] rowCells = grid.GetRowArray(row);
                 for (int i = 0; i < rowCells.Length; i++)
                 {
-                    if (rowCells[i] == SquareType.BLANK)
+                    if (rowCells[i] == CellType.BLANK)
                     {
                         posToCross.Add(i);
                     }
@@ -269,9 +273,9 @@ namespace Picross.Game
             return groupsMatchHints;
         }
 
-        private CellCommand CreateCellCommand(int x, int y, SquareType newType)
+        private CellCommand CreateCellCommand(int x, int y, CellType newType)
         {
-            SquareType oldType = grid.GetCell(x, y);
+            CellType oldType = grid.GetCell(x, y);
             CellCommand c = new(x, y, grid, newType, oldType);
             return c;
         }
@@ -306,19 +310,19 @@ namespace Picross.Game
             OnCellStateChanged(new([.. c.GetChanges()]));
         }
 
-        public bool IsSquareEmpty(int x, int y)
+        public bool IsCellEmpty(int x, int y)
         {
-            return grid.GetCell(x, y) == SquareType.BLANK;
+            return grid.GetCell(x, y) == CellType.BLANK;
         }
 
-        public bool IsSquareFilled(int x, int y)
+        public bool IsCellFilled(int x, int y)
         {
-            return grid.GetCell(x, y) == SquareType.FILLED;
+            return grid.GetCell(x, y) == CellType.FILLED;
         }
 
-        public bool IsSquareCrossed(int x, int y)
+        public bool IsCellCrossed(int x, int y)
         {
-            return grid.GetCell(x, y) == SquareType.CROSS;
+            return grid.GetCell(x, y) == CellType.CROSS;
         }
 
         public bool IsPuzzleSolved()
@@ -348,14 +352,16 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. If <paramref name="path"/> already exists,
-        /// it is overwritten.
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. 
+        /// If <paramref name="path"/> already exists, it is overwritten.
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
         /// <param name="title">Optional title to give the puzzle</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. 
+        /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
-        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, 
+        /// e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public void SaveAsFile(string path, string? title = null)
         {
             PuzzleDefinition puzzle = new(Width, Height, grid.Solution, title);
@@ -363,14 +369,16 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. If <paramref name="path"/> already exists,
-        /// it is overwritten.
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. 
+        /// If <paramref name="path"/> already exists, it is overwritten.
         /// </summary>
         /// <param name="path">Path to save the puzzle at</param>
         /// <param name="title">Optional title to give the puzzle</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. 
+        /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
-        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. 
+        /// See the inner exception for more details</exception>
         public async Task SaveAsFileAsync(string path, string? title = null)
         {
             PuzzleDefinition puzzle = new PuzzleDefinition(Width, Height, grid.Solution, title);
@@ -384,7 +392,8 @@ namespace Picross.Game
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
+        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
+        /// See the inner exception for more details</exception>
         public static GameAPI LoadPuzzle(string path) 
         {
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
@@ -397,7 +406,8 @@ namespace Picross.Game
         /// Loads the puzzle in <paramref name="stream"/> and returns a new GameAPI instance. The stream is automatically closed.
         /// </summary>
         /// <param name="stream">Stream to read the puzzle from. 
-        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, 
+        /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
         /// <returns>GameAPI instance of the puzzle</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
@@ -416,7 +426,8 @@ namespace Picross.Game
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
+        /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
+        /// See the inner exception for more details</exception>
         public static async Task<GameAPI> LoadPuzzleAsync(string path)
         {
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
@@ -426,11 +437,14 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Loads the puzzle in <paramref name="stream"/> asynchronously. Contents of <paramref name="stream"/> are expected to be relatively small. Larger streams might cause noticeable blocking. 
+        /// Loads the puzzle in <paramref name="stream"/> asynchronously. Contents of <paramref name="stream"/> 
+        /// are expected to be relatively small. Larger streams might cause noticeable blocking. 
         /// The stream is automatically closed.
         /// </summary>
         /// <param name="stream">Stream to read the puzzle from. 
-        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// To avoid false positives on InvalidFileFormatException exceptions,
+        /// the stream must consist of ONLY one valid puzzle, such as one provided by
+        /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
         /// <returns>GameAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>

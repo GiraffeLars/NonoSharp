@@ -65,7 +65,7 @@ namespace Picross.Game
 
         /// <summary>
         /// Resets the all hints by setting their completed status to false.
-        /// Also resets how many squares we have not handled yet.
+        /// Also resets how many cells we have not handled yet.
         /// </summary>
         internal void Reset()
         {
@@ -78,8 +78,8 @@ namespace Picross.Game
         internal void DoCompletion(Grid grid) {
             if (hints.Count == 0) return;
             Reset();
-            LinkedList<SquareType> line = isColumnHints ? grid.GetColumn(position) : grid.GetRow(position);
-            LinkedListNode<SquareType>? node = line.First;
+            LinkedList<CellType> line = isColumnHints ? grid.GetColumn(position) : grid.GetRow(position);
+            LinkedListNode<CellType>? node = line.First;
 
             int leftOffAt = DoCompletionForward(line);
             DoCompletionBackward(line, leftOffAt);
@@ -87,17 +87,17 @@ namespace Picross.Game
             SetFullyCompleted();
         }
 
-        internal void DoCompletion(SquareType[] line)
+        internal void DoCompletion(CellType[] line)
         {
             if (hints.Count == 0) return;
             Reset();
-            LinkedList<SquareType> linked = new();
-            foreach(SquareType cell in line)
+            LinkedList<CellType> linked = new();
+            foreach(CellType cell in line)
             {
                 linked.AddLast(cell);
             }
 
-            LinkedListNode<SquareType>? node = linked.First;
+            LinkedListNode<CellType>? node = linked.First;
 
             int leftOffAt = DoCompletionForward(linked);
             DoCompletionBackward(linked, leftOffAt);
@@ -108,35 +108,35 @@ namespace Picross.Game
         /// </summary>
         /// <param name="line">The row/column to check</param>
         /// <returns>The final hint which was marked as completed</returns>
-        /// <seealso cref="DoCompletionBackward(LinkedList{SquareType}, int)"/>
-        private int DoCompletionForward(LinkedList<SquareType> line)
+        /// <seealso cref="DoCompletionBackward(LinkedList{CellType}, int)"/>
+        private int DoCompletionForward(LinkedList<CellType> line)
         {
-            LinkedListNode<SquareType>? node = line.First;
-            bool startedFromFirst = true; // Whether we started from the first square in the current iteration of checking
+            LinkedListNode<CellType>? node = line.First;
+            bool startedFromFirst = true; // Whether we started from the first cell in the current iteration of checking
             int hintIndex = 0;
-            int squaresFound = 0; // The total squares we have found that are filled in for this hint
+            int cellsFound = 0; // The total cells we have found that are filled in for this hint
 
             while (node != null && hintIndex < hints.Count)
             {
-                if (node.Value == SquareType.CROSS && startedFromFirst && squaresFound == 0)
+                if (node.Value == CellType.CROSS && startedFromFirst && cellsFound == 0)
                 {
                     // The player knows that all cells from the start should not be filled, then we treat this
-                    // as if the first square is placed at the first cell
+                    // as if the first cell is placed at the first cell
                     node = node.Next;
                     continue;
                 }
 
                 // Check if we are allowed to mark this hint as completed
-                // A hint is allowed to be completed if it started from the first possible square in the grid
+                // A hint is allowed to be completed if it started from the first possible cell in the grid
                 // Or it has a cross
-                bool firstGroupCompleteFollowedByBlank = node.Value == SquareType.BLANK && startedFromFirst;
-                if (node.Value == SquareType.CROSS || firstGroupCompleteFollowedByBlank)
+                bool firstGroupCompleteFollowedByBlank = node.Value == CellType.BLANK && startedFromFirst;
+                if (node.Value == CellType.CROSS || firstGroupCompleteFollowedByBlank)
                 {
-                    if (squaresFound == hints[hintIndex].Number)
+                    if (cellsFound == hints[hintIndex].Number)
                     {
                         hints[hintIndex]._completed = true;
                     }
-                    else if (node.Value == SquareType.CROSS && squaresFound == 0)
+                    else if (node.Value == CellType.CROSS && cellsFound == 0)
                     {
                         // Check if this is a cross while we have not yet started processing a new hint, then this can still be completed,
                         // As we have not invalidated any hint since crosses are like blank spaces
@@ -159,28 +159,28 @@ namespace Picross.Game
                     // Reset variables for next iteration
                     startedFromFirst = false;
                     node = node.Next;
-                    squaresFound = 0;
+                    cellsFound = 0;
                     hintIndex++;
                     continue;
                 }
 
-                if (node.Value == SquareType.BLANK && !startedFromFirst)
+                if (node.Value == CellType.BLANK && !startedFromFirst)
                 {
                     // Now, we do not know whether the player knows that these hints are correct or not,
-                    // as we require crosses between squares for squares not starting at the first index
+                    // as we require crosses between cells for cells not starting at the first index
                     // We return as we have no other garauntees on other hints
                     return hintIndex - 1;
                 }
 
-                // This square is filled in and should be correct, do the proper variable increments
+                // This cell is filled in and should be correct, do the proper variable increments
                 node = node.Next;
-                squaresFound++;
+                cellsFound++;
             }
 
 
             // We can reach a situation where the hint is completed at the end of the grid (i.e. all hints are correct)
             // Then, we should do a final check whether this hint is completed
-            if (hintIndex <  hints.Count && hints[hintIndex].Number == squaresFound)
+            if (hintIndex <  hints.Count && hints[hintIndex].Number == cellsFound)
             {
                 hints[hintIndex]._completed = true;
                 hintIndex++; // Increase hint index as this hint is completed
@@ -193,34 +193,34 @@ namespace Picross.Game
         /// </summary>
         /// <param name="line">The row/column to check</param>
         /// <param name="forwardsFinalCheck">The last hint index which <c>DoCompletionForward</c> left off at</param>
-        /// <seealso cref="DoCompletionBackward(LinkedList{SquareType})"/>
-        private void DoCompletionBackward(LinkedList<SquareType> line, int forwardsFinalCheck)
+        /// <seealso cref="DoCompletionBackward(LinkedList{CellType})"/>
+        private void DoCompletionBackward(LinkedList<CellType> line, int forwardsFinalCheck)
         {
-            LinkedListNode<SquareType>? node = line.Last;
-            bool startedFromFirst = true; // Whether we started from the first square in the current iteration of checking
+            LinkedListNode<CellType>? node = line.Last;
+            bool startedFromFirst = true; // Whether we started from the first cell in the current iteration of checking
             int hintIndex = hints.Count - 1;
-            int squaresFound = 0; // The total squares we have found that are filled in for this hint   
+            int cellsFound = 0; // The total cells we have found that are filled in for this hint   
 
             while (node != null && hintIndex >= 0 && hintIndex > forwardsFinalCheck)
             {
-                if (node.Value == SquareType.CROSS && startedFromFirst && squaresFound == 0)
+                if (node.Value == CellType.CROSS && startedFromFirst && cellsFound == 0)
                 {
                     // The player knows that all cells from the start should not be filled, then we treat this
-                    // as if the first square is placed at the first cell
+                    // as if the first cell is placed at the first cell
                     node = node.Previous;
                     continue;
                 }
 
                 // Check if we are allowed to mark this hint as completed
-                // A hint is allowed to be completed if it started from the first possible square in the grid
+                // A hint is allowed to be completed if it started from the first possible cell in the grid
                 // Or it has a cross
-                if (node.Value == SquareType.CROSS || (node.Value == SquareType.BLANK && startedFromFirst))
+                if (node.Value == CellType.CROSS || (node.Value == CellType.BLANK && startedFromFirst))
                 {
-                    if (squaresFound == hints[hintIndex].Number)
+                    if (cellsFound == hints[hintIndex].Number)
                     {
                         hints[hintIndex]._completed = true;
                     }
-                    else if (node.Value == SquareType.CROSS && squaresFound == 0)
+                    else if (node.Value == CellType.CROSS && cellsFound == 0)
                     {
                         // Check if this is a cross while we have not yet started processing a new hint, then this can still be completed,
                         // As we have not invalidated any hint since crosses are like blank spaces
@@ -237,28 +237,28 @@ namespace Picross.Game
                     // Reset variables for next iteration
                     startedFromFirst = false;
                     node = node.Previous;
-                    squaresFound = 0;
+                    cellsFound = 0;
                     hintIndex--;
                     continue;
                 }
 
-                if (node.Value == SquareType.BLANK)
+                if (node.Value == CellType.BLANK)
                 {
                     // Now, we do not know whether the player knows that these hints are correct or not,
-                    // as we require crosses between squares for squares not starting at the first index
+                    // as we require crosses between cells for cells not starting at the first index
                     // We return as we have no other guarantees on other hints. If this was the first checked hint,
                     // we still return to avoid unintuitively marking following hints as complete
                     return;
                 }
 
-                // This square is filled in and should be correct, do the proper variable increments
+                // This cell is filled in and should be correct, do the proper variable increments
                 node = node.Previous;
-                squaresFound++;
+                cellsFound++;
             }
 
             // We can reach a situation where the hint is completed at the end of the grid (i.e. all hints are correct)
             // Then, we should do a final check whether this hint is completed
-            if (hintIndex >= 0 && hintIndex > forwardsFinalCheck && hints[hintIndex].Number == squaresFound)
+            if (hintIndex >= 0 && hintIndex > forwardsFinalCheck && hints[hintIndex].Number == cellsFound)
             {
                 hints[hintIndex]._completed = true;
             }

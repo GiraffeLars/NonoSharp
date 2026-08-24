@@ -16,15 +16,15 @@ namespace Picross.Game.Tests
             Hints hints = new(false, 0, [new(1), new(1), new(1)]);
 
             // Setup a mock line
-            SquareType[] line = new SquareType[6];
+            CellType[] line = new CellType[6];
 
             // Check that no hints are completed
             hints.DoCompletion(line);
             Assert.DoesNotContain(hints, h => h.Completed);
 
             // Fill in the cells to test the described test case. Here, we do that by settings the 0th and 2nd cell as filled
-            line[0] = SquareType.FILLED;
-            line[2] = SquareType.FILLED;
+            line[0] = CellType.FILLED;
+            line[2] = CellType.FILLED;
 
             // Now, only 0 should be completed, as we do not require a cross for the first group
             hints.DoCompletion(line);
@@ -32,7 +32,7 @@ namespace Picross.Game.Tests
             Assert.True(hints[0].Completed);
 
             // Finally, check if adding a cross after the second group does not change the 2nd groups completed state
-            line[3] = SquareType.CROSS;
+            line[3] = CellType.CROSS;
             hints.DoCompletion(line);
 
             Assert.Single(hints, h => h.Completed);
