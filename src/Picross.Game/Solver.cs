@@ -19,7 +19,7 @@ namespace Picross.Game
         // TODO replace the Solvable algorithm with a backtracking/dynamic programming aproach for better performance
         // TODO also consider applying logical deductions, allowing for more difficult puzzles
 
-        private static readonly SquareType[] typesToCheck = [SquareType.FILLED, SquareType.CROSS];
+        private static readonly CellType[] typesToCheck = [CellType.FILLED, CellType.CROSS];
 
         /// <summary>
         /// Solves <paramref name="grid"/>.
@@ -36,7 +36,7 @@ namespace Picross.Game
                 // Loop through columns and improve where possible
                 for (int i = 0; i < grid.Width; i++)
                 {
-                    SquareType[] line = grid.GetColumnArray(i);
+                    CellType[] line = grid.GetColumnArray(i);
                     bool changedCells = ImproveLine(line, grid.ColumnHints[i]);
 
                     if (changedCells)
@@ -49,7 +49,7 @@ namespace Picross.Game
                 // Loop through rows and improve where possible
                 for (int i = 0; i < grid.Height; i++)
                 {
-                    SquareType[] line = grid.GetRowArray(i);
+                    CellType[] line = grid.GetRowArray(i);
 
                     bool changedCells = ImproveLine(line, grid.RowHints[i]);
 
@@ -88,15 +88,15 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Tries to improve <paramref name="line"/> by determining which squares must be crosses or filled.
-        /// Will modify <paramref name="line"/> by setting the squaretypes after improving. Skips non-empty cells.
+        /// Tries to improve <paramref name="line"/> by determining which cells must be crosses or filled.
+        /// Will modify <paramref name="line"/> by setting the celltypes after improving. Skips non-empty cells.
         /// </summary>
         /// <param name="line">The line to improve. Improved cells will be changed in the array.</param>
         /// <param name="hints">The hints to base the improvement on</param>
         /// <returns>True if any cells were changed, false otherwise</returns>
-        internal static bool ImproveLine(SquareType[] line, Hints hints)
+        internal static bool ImproveLine(CellType[] line, Hints hints)
         {
-            List<SquareType[]> validPermutations = [];
+            List<CellType[]> validPermutations = [];
             ComputePermutations(line, hints, 0, validPermutations);
 
             if (validPermutations.Count == 0)
@@ -109,15 +109,15 @@ namespace Picross.Game
             for (int i = 0; i < line.Length; i++)
             {
                 // Already placed tile, this one does not count for improvement
-                if (line[i] != SquareType.BLANK)
+                if (line[i] != CellType.BLANK)
                 {
                     continue;
                 }
 
-                SquareType firstPermutationType = validPermutations[0][i];
+                CellType firstPermutationType = validPermutations[0][i];
                 int j;
                 
-                if (firstPermutationType == SquareType.BLANK)
+                if (firstPermutationType == CellType.BLANK)
                 {
                     Debug.WriteLine("Found blank, very bad!!!!");
                 }
@@ -145,42 +145,42 @@ namespace Picross.Game
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
-        private static void ComputePermutations(SquareType[] line, Hints hints, int index, List<SquareType[]> currentlyFound)
+        private static void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
         {
             if (index >= line.Length)
             {
                 if (IsValidPermutation(line, hints))
                 { 
-                    SquareType[] clone = (SquareType[])line.Clone();
+                    CellType[] clone = (CellType[])line.Clone();
                     currentlyFound.Add(clone);
                 }
                 return;
             }
 
             // Player placed tile, continue immediately
-            if (line[index] != SquareType.BLANK)
+            if (line[index] != CellType.BLANK)
             {
                 ComputePermutations(line, hints, index + 1, currentlyFound);
                 return;
             }
 
             // Check all possible combinations
-            foreach (SquareType type in typesToCheck)
+            foreach (CellType type in typesToCheck)
             {
                 line[index] = type;
                 ComputePermutations(line, hints, index + 1, currentlyFound);
             }
 
-            line[index] = SquareType.BLANK;
+            line[index] = CellType.BLANK;
         }
 
-        private static bool IsValidPermutation(SquareType[] permutation, Hints hints)
+        private static bool IsValidPermutation(CellType[] permutation, Hints hints)
         {
-            /* Hints are marked as completed, even if there are still other squares in the row, i.e. more filled in squares than 
+            /* Hints are marked as completed, even if there are still other cells in the row, i.e. more filled in cells than 
                the hint requires.
-               This is intentional behaviour, but means we must check if the total of squares filled in match the hints
+               This is intentional behaviour, but means we must check if the total of cells filled in match the hints
             */
-            int filledIn = permutation.Count(cell => cell == SquareType.FILLED);
+            int filledIn = permutation.Count(cell => cell == CellType.FILLED);
             if (filledIn != hints.TotalCellsInHints)
             {
                 return false;

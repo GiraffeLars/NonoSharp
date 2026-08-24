@@ -21,10 +21,10 @@ namespace Picross.Game
         public readonly int x;
         public readonly int y;
         private Grid grid;
-        public readonly SquareType newType;
-        public readonly SquareType oldType;
+        public readonly CellType newType;
+        public readonly CellType oldType;
 
-        public CellCommand(int x, int y, Grid g, SquareType newType, SquareType oldType)
+        public CellCommand(int x, int y, Grid g, CellType newType, CellType oldType)
         {
             this.x = x;
             this.y = y;

@@ -8,7 +8,7 @@ namespace Picross.Game
 {
     internal class Grid : ICloneable
     {
-        private readonly SquareType[,] grid;
+        private readonly CellType[,] grid;
         internal List<Point> Solution {get; private set; }
         private int filled = 0;
         private int paddingString = 0;
@@ -36,7 +36,7 @@ namespace Picross.Game
             this.Width = width;
             this.Height = height;
 
-            grid = new SquareType[width, height];
+            grid = new CellType[width, height];
 
             ColumnHints = new Hints[width];
             RowHints = new Hints[height];
@@ -54,13 +54,13 @@ namespace Picross.Game
         /// <summary>
         /// Creates a full custom Grid
         /// </summary>
-        /// <param name="grid">List of SquareType, with data of filled in squares, etc.</param>
+        /// <param name="grid">List of CellType, with data of filled in cells, etc.</param>
         /// <param name="solution">Solution to this grid</param>
-        /// <param name="filled">How many squares are filled in. Should be consistent with <paramref name="grid"/>.</param>
+        /// <param name="filled">How many cells are filled in. Should be consistent with <paramref name="grid"/>.</param>
         /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
         /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
-        internal Grid(SquareType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height)
+        internal Grid(CellType[,] grid, List<Point> solution, int filled, int paddingString, int width, int height)
         {
             this.grid = grid;
             this.filled = filled;
@@ -77,14 +77,14 @@ namespace Picross.Game
         /// <summary>
         /// Makes the solution into a 2D array representation, just as <c>grid</c>
         /// </summary>
-        /// <returns>2D array of <c>SquareType</c> where each point in the solution is <c>SquareType.FILLED</c></returns>
-        private SquareType[,] GridifySolution()
+        /// <returns>2D array of <c>CellType</c> where each point in the solution is <c>CellType.FILLED</c></returns>
+        private CellType[,] GridifySolution()
         {
-            SquareType[,] s = new SquareType[Width, Height];
+            CellType[,] s = new CellType[Width, Height];
 
             foreach (Point p in Solution)
             {
-                s[p.X, p.Y] = SquareType.FILLED;
+                s[p.X, p.Y] = CellType.FILLED;
             }
 
             return s;
@@ -128,19 +128,19 @@ namespace Picross.Game
             int xLimit = isColumn ? Width : Height;
             int yLimit = isColumn ? Height : Width;
 
-            SquareType[,] gridSol = GridifySolution();
+            CellType[,] gridSol = GridifySolution();
             for (int x = 0; x < xLimit; x++)
             {
                 int count = 0;
                 for (int y = 0; y < yLimit; y++)
                 {
-                    SquareType cell = isColumn ? gridSol[x, y] : gridSol[y, x];
+                    CellType cell = isColumn ? gridSol[x, y] : gridSol[y, x];
 
-                    // If this is not a filled square
-                    if (cell != SquareType.FILLED)
+                    // If this is not a filled cell
+                    if (cell != CellType.FILLED)
                     {
                         // Add the new hint to the list
-                        AddHint(hints, x, count); // TODO if squares are split (i.e. empty between two patches), separate them with a 0
+                        AddHint(hints, x, count); // TODO if cells are split (i.e. empty between two patches), separate them with a 0
                         count = 0;
                         continue;
                     }
@@ -148,10 +148,10 @@ namespace Picross.Game
                     count++;
                 }
 
-                // Do final hint adding in case the last square is filled
+                // Do final hint adding in case the last cell is filled
                 // Count minus 1 as it is increased by one even if unfilled
-                SquareType lastCell = isColumn ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
-                if (count > 0 && lastCell == SquareType.FILLED)
+                CellType lastCell = isColumn ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
+                if (count > 0 && lastCell == CellType.FILLED)
                 {
                     AddHint(hints, x, count);
                 }
@@ -192,18 +192,18 @@ namespace Picross.Game
         /// <param name="y">y-coordinate of cell to set</param>
         /// <param name="value">New value of cell</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
-        public void SetCell(int x, int y, SquareType value)
+        public void SetCell(int x, int y, CellType value)
         {
             if (x < 0 || x >= Width || y < 0 || y >= Height)
             {
                 throw new ArgumentOutOfRangeException("Cell coordinates are out of bounds.");
             }
 
-            if (grid[x, y] != SquareType.FILLED && value == SquareType.FILLED)
+            if (grid[x, y] != CellType.FILLED && value == CellType.FILLED)
             {
-                filled++; // Keeps track of whether the same amount of squares are filled as the solution for efficiency
+                filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
             }
-            else if (grid[x, y] == SquareType.FILLED && value != SquareType.FILLED)
+            else if (grid[x, y] == CellType.FILLED && value != CellType.FILLED)
             {
                 filled--;
             }
@@ -220,9 +220,9 @@ namespace Picross.Game
         /// </summary>
         /// <param name="x">x-coordinate of the cell</param>
         /// <param name="y">y-coordinate of the cell</param>
-        /// <returns><c>SquareType</c> of the requested cell</returns>
+        /// <returns><c>CellType</c> of the requested cell</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
-        public SquareType GetCell(int x, int y)
+        public CellType GetCell(int x, int y)
         {
             if (x < 0 || x >= Width || y < 0 || y >= Height)
             {
@@ -236,18 +236,18 @@ namespace Picross.Game
         /// Get the current column data as a LinkedList. For an array representation, see <seealso cref="GetColumnArray(int)"/>.
         /// </summary>
         /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
-        /// <returns>LinkedList of cells and their associated SquareType data</returns>
+        /// <returns>LinkedList of cells and their associated CellType data</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>column</c> is not a valid column, i.e. out of range of the grid width.</exception>
-        internal LinkedList<SquareType> GetColumn(int column)
+        internal LinkedList<CellType> GetColumn(int column)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(column);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
 
-            LinkedList<SquareType> list = new LinkedList<SquareType>();
+            LinkedList<CellType> list = new LinkedList<CellType>();
 
             for (int i = 0; i < Height; i++)
             {
-                SquareType type = grid[column, i];
+                CellType type = grid[column, i];
                 list.AddLast(type);
             }
             return list;
@@ -257,18 +257,18 @@ namespace Picross.Game
         /// Get the current column data as an array. For an LinkedList representation, see <seealso cref="GetColumn(int)(int)"/>.
         /// </summary>
         /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
-        /// <returns>Array of SquareType corresponding to the cells in the column</returns>
+        /// <returns>Array of CellType corresponding to the cells in the column</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>column</c> is not a valid column, i.e. out of range of the grid width.</exception>
-        internal SquareType[] GetColumnArray(int column)
+        internal CellType[] GetColumnArray(int column)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(column);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
 
-            SquareType[] cells = new SquareType[Height];
+            CellType[] cells = new CellType[Height];
 
             for (int i = 0; i < Height; i++)
             {
-                SquareType type = grid[column, i];
+                CellType type = grid[column, i];
                 cells[i] = type;
             }
             return cells;
@@ -278,18 +278,18 @@ namespace Picross.Game
         /// Get the current row data as a LinkedList. For an array representation, see <seealso cref="GetRowArray(int)"/>.
         /// </summary>
         /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
-        /// <returns>LinkedList of cells and their associated SquareType data</returns>
+        /// <returns>LinkedList of cells and their associated CellType data</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
-        internal LinkedList<SquareType> GetRow(int row)
+        internal LinkedList<CellType> GetRow(int row)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
 
-            LinkedList<SquareType> list = new LinkedList<SquareType>();
+            LinkedList<CellType> list = new LinkedList<CellType>();
 
             for (int i = 0; i < Width; i++)
             {
-                SquareType type = grid[i, row];
+                CellType type = grid[i, row];
                 list.AddLast(type);
             }
             return list;
@@ -299,18 +299,18 @@ namespace Picross.Game
         /// Get the current row data as an array. For an LinkedList representation, see <seealso cref="GetRow(int)"/>.
         /// </summary>
         /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
-        /// <returns>Array of SquareType corresponding to the cells in the row</returns>
+        /// <returns>Array of CellType corresponding to the cells in the row</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
-        internal SquareType[] GetRowArray(int row) 
+        internal CellType[] GetRowArray(int row) 
         {
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
 
-            SquareType[] cells = new SquareType[Width];
+            CellType[] cells = new CellType[Width];
 
             for (int i = 0; i < Width; i++)
             {
-                SquareType type = grid[i, row];
+                CellType type = grid[i, row];
                 cells[i] = type;
             }
             return cells;
@@ -323,7 +323,7 @@ namespace Picross.Game
         /// <param name="newRow">New row</param>
         /// <exception cref="ArgumentException">Thrown when dimensions of <c>newRow</c> do not match the grid</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row</exception>
-        internal void SetRow(int row, SquareType[] newRow)
+        internal void SetRow(int row, CellType[] newRow)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
@@ -342,7 +342,7 @@ namespace Picross.Game
             }
         }
 
-        internal void SetColumn(int column, SquareType[] newColumn)
+        internal void SetColumn(int column, CellType[] newColumn)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(column);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
@@ -362,22 +362,22 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive filled in squares.  
+        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive filled in cells.  
         /// </summary>
         /// <param name="line">The line to determine groups from</param>
         /// <returns>A <c>LinkedList of int</c> where each entry is a separate group and each value is the total number of cells filled in this group</returns>
-        private static LinkedList<int> GetGroups(SquareType[] line)
+        private static LinkedList<int> GetGroups(CellType[] line)
         {
             LinkedList<int> groups = new();
             int groupSize = 0;
 
-            foreach (SquareType cell in line)
+            foreach (CellType cell in line)
             {
-                if (groupSize == 0 && cell != SquareType.FILLED)
+                if (groupSize == 0 && cell != CellType.FILLED)
                 {
                     continue;
                 }
-                else if (cell != SquareType.FILLED)
+                else if (cell != CellType.FILLED)
                 {
                     // groupSize > 0, group ends here
                     groups.AddLast(groupSize);
@@ -390,7 +390,7 @@ namespace Picross.Game
                 }
             }
 
-            // Check if we ended on a filled square in which case
+            // Check if we ended on a filled cell in which case
             // groupSize > 0 and thus still needs to be added
             if (groupSize > 0)
             {
@@ -402,25 +402,25 @@ namespace Picross.Game
 
         /// <summary>
         /// Returns a linked list of each group present in row <paramref name="row"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in squares. See also <seealso cref="GetGroupsInColumn(int)(int)"/>.
+        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in cells. See also <seealso cref="GetGroupsInColumn(int)(int)"/>.
         /// </summary>
         /// <param name="row">The row in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>
         internal LinkedList<int> GetGroupsInRow(int row)
         {
-            SquareType[] line = GetRowArray(row);
+            CellType[] line = GetRowArray(row);
             return GetGroups(line);
         }
 
         /// <summary>
         /// Returns a linked list of each group present in column <paramref name="col"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in squares. See also <seealso cref="GetGroupsInRow(int)"/>.
+        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in cells. See also <seealso cref="GetGroupsInRow(int)"/>.
         /// </summary>
         /// <param name="col">The column in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>
         internal LinkedList<int> GetGroupsInColumn(int col)
         {
-            SquareType[] line = GetColumnArray(col);
+            CellType[] line = GetColumnArray(col);
             return GetGroups(line);
         }
 
@@ -434,7 +434,7 @@ namespace Picross.Game
             for (int i = 0; i < Solution.Count(); i++)
             {
                 Point p = Solution[i];
-                if (grid[p.X, p.Y] != SquareType.FILLED)
+                if (grid[p.X, p.Y] != CellType.FILLED)
                 {
                     return false;
                 }
@@ -460,13 +460,13 @@ namespace Picross.Game
                     char c = ' ';
                     switch (GetCell(x, y))
                     {
-                        case SquareType.FILLED:
+                        case CellType.FILLED:
                             c = 'O';
                             break;
-                        case SquareType.BLANK:
+                        case CellType.BLANK:
                             c = ' ';
                             break;
-                        case SquareType.CROSS:
+                        case CellType.CROSS:
                             c = 'X';
                             break;
                         
@@ -555,7 +555,7 @@ namespace Picross.Game
         public object Clone()
         {
             return new Grid(
-                (SquareType[,]) grid.Clone(),
+                (CellType[,]) grid.Clone(),
                 Solution,
                 filled,
                 paddingString,

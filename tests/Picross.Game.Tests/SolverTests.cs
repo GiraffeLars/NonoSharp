@@ -8,9 +8,9 @@ namespace Picross.Game.Tests
     public class SolverTests
     {
         [Fact]
-        public void TestOneSquareSolvable()
+        public void TestOneCellSolvable()
         {
-            // Basic solvable test, where grid is just one square empty/filled
+            // Basic solvable test, where grid is just one cell empty/filled
             Grid grid = new Grid(1, 1);
 
             // Empty grid
@@ -23,7 +23,7 @@ namespace Picross.Game.Tests
             Assert.True(Solver.IsSolvable(grid));
 
             // Check if the puzzle is still solvable after the user mistakingly placed a cross
-            grid.SetCell(0, 0, SquareType.CROSS);
+            grid.SetCell(0, 0, CellType.CROSS);
             Assert.False(Solver.IsSolvable(grid));
         }
 
@@ -94,7 +94,7 @@ namespace Picross.Game.Tests
         public void TestEdgeFilledSolvability()
         {
             // A line where, without extra information the solve is impossible, but with an already
-            // placed square at the edge, it is possible.
+            // placed cell at the edge, it is possible.
 
             // [ ][O][O][O]
             Grid grid = new Grid(4, 1);
@@ -106,28 +106,28 @@ namespace Picross.Game.Tests
             // To make sure that the info from the other hints are not used, we test ImproveLine
 
             // Copy to avoid changing the grid unintentionally
-            SquareType[] line = (SquareType[]) grid.GetRowArray(0).Clone();
+            CellType[] line = (CellType[]) grid.GetRowArray(0).Clone();
             Solver.ImproveLine(line, grid.RowHints[0]);
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
-            Assert.NotEqual(SquareType.FILLED, line[0]);
-            Assert.Equal(SquareType.FILLED, line[1]);
-            Assert.Equal(SquareType.FILLED, line[2]);
-            Assert.NotEqual(SquareType.FILLED, line[3]);
+            Assert.NotEqual(CellType.FILLED, line[0]);
+            Assert.Equal(CellType.FILLED, line[1]);
+            Assert.Equal(CellType.FILLED, line[2]);
+            Assert.NotEqual(CellType.FILLED, line[3]);
 
             // Now check if the line can correctly be solved with extra information
-            grid.SetCell(3, 0, SquareType.FILLED);
-            line = (SquareType[])grid.GetRowArray(0).Clone();
+            grid.SetCell(3, 0, CellType.FILLED);
+            line = (CellType[])grid.GetRowArray(0).Clone();
             Solver.ImproveLine(line, grid.RowHints[0]);
 
             // Check if 0th cell is not filled
-            Assert.NotEqual(SquareType.FILLED, line[0]);
+            Assert.NotEqual(CellType.FILLED, line[0]);
 
             // Check if others are filled
             for (int i = 1; i < line.Length; i++)
             {
-                Assert.Equal(SquareType.FILLED, line[i]);
+                Assert.Equal(CellType.FILLED, line[i]);
             }
         }
 

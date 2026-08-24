@@ -24,9 +24,9 @@ namespace Picross.Game.Tests
             {
                 for (int j = 0; j < api.Height; j++)
                 {
-                    Assert.False(api.IsSquareFilled(i, j));
-                    Assert.False(api.IsSquareCrossed(i, j));
-                    Assert.True(api.IsSquareEmpty(i, j));
+                    Assert.False(api.IsCellFilled(i, j));
+                    Assert.False(api.IsCellCrossed(i, j));
+                    Assert.True(api.IsCellEmpty(i, j));
                 }
             }
         }
@@ -34,49 +34,49 @@ namespace Picross.Game.Tests
         [Fact]
         public void TestFill()
         {
-            Assert.True(api.IsSquareEmpty(0, 0));
-            Assert.False(api.IsSquareFilled(0, 0));
-            Assert.False(api.IsSquareCrossed(0, 0));
+            Assert.True(api.IsCellEmpty(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
+            Assert.False(api.IsCellCrossed(0, 0));
 
             api.FillCell(0, 0);
 
-            Assert.False(api.IsSquareEmpty(0, 0));
-            Assert.True(api.IsSquareFilled(0, 0));
-            Assert.False(api.IsSquareCrossed(0, 0));
+            Assert.False(api.IsCellEmpty(0, 0));
+            Assert.True(api.IsCellFilled(0, 0));
+            Assert.False(api.IsCellCrossed(0, 0));
         }
 
         [Fact]
         public void TestCross()
         {
-            Assert.True(api.IsSquareEmpty(0, 0));
-            Assert.False(api.IsSquareCrossed(0, 0));
-            Assert.False(api.IsSquareCrossed(0, 0));
+            Assert.True(api.IsCellEmpty(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
+            Assert.False(api.IsCellCrossed(0, 0));
 
             api.CrossCell(0, 0);
 
-            Assert.False(api.IsSquareEmpty(0, 0));
-            Assert.False(api.IsSquareFilled(0, 0));
-            Assert.True(api.IsSquareCrossed(0, 0));
+            Assert.False(api.IsCellEmpty(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
+            Assert.True(api.IsCellCrossed(0, 0));
         }
 
         [Fact]
         public void TestEmpty()
         {
-            Assert.True(api.IsSquareEmpty(0, 0));
-            Assert.False(api.IsSquareFilled(0, 0));
-            Assert.False(api.IsSquareCrossed(0, 0));
+            Assert.True(api.IsCellEmpty(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
+            Assert.False(api.IsCellCrossed(0, 0));
 
             api.EmptyCell(0, 0);
 
-            Assert.True(api.IsSquareEmpty(0, 0));
-            Assert.False(api.IsSquareFilled(0, 0));
-            Assert.False(api.IsSquareCrossed(0, 0));
+            Assert.True(api.IsCellEmpty(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
+            Assert.False(api.IsCellCrossed(0, 0));
 
-            // Also check that square is empty after it was filled in
+            // Also check that cell is empty after it was filled in
             api.FillCell(0, 0);
-            Assert.False(api.IsSquareEmpty(0, 0));
+            Assert.False(api.IsCellEmpty(0, 0));
             api.EmptyCell(0, 0);
-            Assert.True(api.IsSquareEmpty(0, 0));
+            Assert.True(api.IsCellEmpty(0, 0));
         }
 
         [Fact]
@@ -91,8 +91,8 @@ namespace Picross.Game.Tests
 
             // Check if move successfully undone, i.e. filled in cell is now empty again
             Assert.False(api.CanUndo);
-            Assert.True(api.IsSquareEmpty(0, 0));
-            Assert.False(api.IsSquareFilled(0, 0));
+            Assert.True(api.IsCellEmpty(0, 0));
+            Assert.False(api.IsCellFilled(0, 0));
         }
 
         [Fact]
@@ -109,8 +109,8 @@ namespace Picross.Game.Tests
 
             // Check if redo successfully undid the undo, i.e. change the now empty cell back to filled
             Assert.False(api.CanRedo);
-            Assert.True(api.IsSquareFilled(0, 0));
-            Assert.False(api.IsSquareEmpty(0, 0));
+            Assert.True(api.IsCellFilled(0, 0));
+            Assert.False(api.IsCellEmpty(0, 0));
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace Picross.Game.Tests
             // Check if auto cross didn't trigger
             for (int i = 1; i < 5; i++)
             {
-                Assert.True(autoCrossAPI.IsSquareEmpty(i, 0));
+                Assert.True(autoCrossAPI.IsCellEmpty(i, 0));
             }
 
             // Set rest of solution, and check for only blank space to be crossed
@@ -136,11 +136,11 @@ namespace Picross.Game.Tests
             {
                 if (solXCoords.Contains(i))
                 {
-                    Assert.True(autoCrossAPI.IsSquareFilled(i, 0));
+                    Assert.True(autoCrossAPI.IsCellFilled(i, 0));
                 }
                 else
                 {
-                    Assert.True(autoCrossAPI.IsSquareCrossed(i, 0));
+                    Assert.True(autoCrossAPI.IsCellCrossed(i, 0));
                 }
             }
         }
