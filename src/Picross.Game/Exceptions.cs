@@ -4,77 +4,92 @@ using System.Text;
 
 namespace Picross.Game
 {
+    /// <summary>
+    /// Raised when a given file was not of the expected format and is thus incompatible.
+    /// </summary>
     [Serializable]
     public class InvalidFileFormatException : Exception
     {
-        public InvalidFileFormatException()
+        internal InvalidFileFormatException()
         { }
 
-        public InvalidFileFormatException(string? message)
+        internal InvalidFileFormatException(string? message)
             : base(message)
         { }
 
-        public InvalidFileFormatException(string? message, Exception? innerException)
+        internal InvalidFileFormatException(string? message, Exception? innerException)
             : base(message, innerException)
         { }
     }
 
+    /// <summary>
+    /// Thrown when deserialization of a puzzle fails.
+    /// </summary>
     [Serializable]
     public class PuzzleDeserializationFailedException : Exception
     {
-        public PuzzleDeserializationFailedException()
+        internal PuzzleDeserializationFailedException()
         { }
 
-        public PuzzleDeserializationFailedException(string? message)
+        internal PuzzleDeserializationFailedException(string? message)
             : base(message)
         { }
 
-        public PuzzleDeserializationFailedException(string? message, Exception? innerException)
+        internal PuzzleDeserializationFailedException(string? message, Exception? innerException)
             : base(message, innerException)
         { }
     }
 
+    /// <summary>
+    /// Thrown when serialization of a puzzle fails.
+    /// </summary>
     [Serializable]
     public class PuzzleSerializationFailedException : Exception
     {
-        public PuzzleSerializationFailedException()
+        internal PuzzleSerializationFailedException()
         { }
 
-        public PuzzleSerializationFailedException(string? message)
+        internal PuzzleSerializationFailedException(string? message)
             : base(message)
         { }
 
-        public PuzzleSerializationFailedException(string? message, Exception? innerException)
+        internal PuzzleSerializationFailedException(string? message, Exception? innerException)
             : base(message, innerException)
         { }
     }
 
+    /// <summary>
+    /// Thrown when a puzzle could not be saved to a file.
+    /// </summary>
     [Serializable]
     public class PuzzleSavingFailedException : Exception
     {
-        public PuzzleSavingFailedException()
+        internal PuzzleSavingFailedException()
         { }
 
-        public PuzzleSavingFailedException(string? message)
+        internal PuzzleSavingFailedException(string? message)
             : base(message)
         { }
 
-        public PuzzleSavingFailedException(string? message, Exception? innerException)
+        internal PuzzleSavingFailedException(string? message, Exception? innerException)
             : base(message, innerException)
         { }
     }
 
+    /// <summary>
+    /// Thrown when the puzzle could not be loaded from e.g. a file.
+    /// </summary>
     [Serializable]
     public class PuzzleLoadingFailedException : Exception
     {
-        public PuzzleLoadingFailedException()
+        internal PuzzleLoadingFailedException()
         { }
 
-        public PuzzleLoadingFailedException(string? message)
+        internal PuzzleLoadingFailedException(string? message)
             : base(message)
         { }
 
-        public PuzzleLoadingFailedException(string? message, Exception? innerException)
+        internal PuzzleLoadingFailedException(string? message, Exception? innerException)
             : base(message, innerException)
         { }
     }

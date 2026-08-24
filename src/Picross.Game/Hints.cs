@@ -22,6 +22,9 @@ namespace Picross.Game
         /// </summary>
         public bool FullyCompleted { get; private set; }
 
+        /// <summary>
+        /// The total number of <see cref="Hint"/> instances contained in this Hints instance
+        /// </summary>
         public int Count { get { return hints.Count; } }
 
         internal Hints(bool isColumnHints, int position)
@@ -48,19 +51,6 @@ namespace Picross.Game
         {
             hints.Add(hint);
             TotalCellsInHints += hint.Number;
-        }
-
-        /// <summary>
-        /// GetHint has been deprecated. Use the index operator, e.g. <c>Hints h[i]</c>, instead.<br/>
-        /// Gets Hint at <paramref name="position"/>.
-        /// </summary>
-        /// <param name="position">Position of requested Hint</param>
-        /// <returns></returns>
-        [Obsolete("GetHint has been deprecated. Use the index operator, e.g. Hints h[i], instead.")]
-        public Hint GetHint(int position) 
-        {
-            
-            return hints[position]; 
         }
 
         /// <summary>
@@ -193,7 +183,7 @@ namespace Picross.Game
         /// </summary>
         /// <param name="line">The row/column to check</param>
         /// <param name="forwardsFinalCheck">The last hint index which <c>DoCompletionForward</c> left off at</param>
-        /// <seealso cref="DoCompletionBackward(LinkedList{CellType})"/>
+        /// <seealso cref="DoCompletionForward(LinkedList{CellType})"/>
         private void DoCompletionBackward(LinkedList<CellType> line, int forwardsFinalCheck)
         {
             LinkedListNode<CellType>? node = line.Last;
@@ -278,6 +268,10 @@ namespace Picross.Game
             FullyCompleted = true;
         }
 
+        /// <summary>
+        /// Deep copies this Hints instance.
+        /// </summary>
+        /// <returns>Deep copy of this instance</returns>
         public object Clone()
         {
             var hintCopy = new List<Hint>();
@@ -290,7 +284,11 @@ namespace Picross.Game
 
             return new Hints(isColumnHints, position, hintCopy);
         }
-
+        
+        /// <summary>
+        /// Gets the Enumerator over the <see cref="Hint"/> instances contained in this instance.
+        /// </summary>
+        /// <returns>Enumerator as above</returns>
         public IEnumerator<Hint> GetEnumerator()
         {
             for (int i = 0; i < hints.Count; i++)
@@ -304,6 +302,11 @@ namespace Picross.Game
             return GetEnumerator();
         }
 
+        /// <summary>
+        /// Gets the <see cref="Hint"/> instance located at position <paramref name="index"/> in this instance.
+        /// </summary>
+        /// <param name="index">Hint to get</param>
+        /// <returns><see cref="Hint"/> instance at <paramref name="index"/></returns>
         public Hint this[int index]
         {
             get

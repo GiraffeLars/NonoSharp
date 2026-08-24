@@ -141,10 +141,15 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="hints"/>. Takes a brute force approach.
+        /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="hints"/>, 
+        /// all non-empty cells remain as they were.
         /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
+        /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells</param>
+        /// <param name="hints">Hints instance corresponding to <paramref name="line"/></param>
+        /// <param name="index">Current index of iteration, should be initially called as 0</param>
+        /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
+        /// and already non-empty cells. This List will be modified by adding the found permutations</param>
+        /// <returns>Nothing, <paramref name="currentlyFound"/> is updated.</returns>
         private static void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
         {
             if (index >= line.Length)

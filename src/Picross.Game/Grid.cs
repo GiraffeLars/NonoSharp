@@ -254,7 +254,7 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Get the current column data as an array. For an LinkedList representation, see <seealso cref="GetColumn(int)(int)"/>.
+        /// Get the current column data as an array. For an LinkedList representation, see <seealso cref="GetColumn(int)"/>.
         /// </summary>
         /// <param name="column">The column of the board to get. Must be between 0 and Width</param>
         /// <returns>Array of CellType corresponding to the cells in the column</returns>
@@ -402,7 +402,7 @@ namespace Picross.Game
 
         /// <summary>
         /// Returns a linked list of each group present in row <paramref name="row"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in cells. See also <seealso cref="GetGroupsInColumn(int)(int)"/>.
+        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in cells. See also <seealso cref="GetGroupsInColumn(int)"/>.
         /// </summary>
         /// <param name="row">The row in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>
@@ -496,7 +496,7 @@ namespace Picross.Game
                     {
                         // Add spaces for all columns with no hints until this column
                         sb.Append(new string(' ', (x - lastFilled) * 3));
-                        sb.Append($" {hints[y]} ");
+                        sb.Append($" {hints[y].Number} ");
                         
                         newStringRow = true;
                         lastFilled = x + 1;
@@ -525,7 +525,7 @@ namespace Picross.Game
 
                 for (x = 0; x < hints.Count; x++)
                 {
-                    sb.Append($"{hints[x]} ");
+                    sb.Append($"{hints[x].Number} ");
                 }
 
                 sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));

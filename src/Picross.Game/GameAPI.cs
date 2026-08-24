@@ -4,14 +4,45 @@ using Picross.Game.Events;
 
 namespace Picross.Game
 {
+    /// <summary>
+    /// Class for the Nonogram API. Can be initialised with static methods such as 
+    /// <see cref="CreateRandomPuzzle(int, int)"/> or <see cref="LoadPuzzle(string)"/>.
+    /// </summary>
     public class GameAPI
     {
         private Grid grid;
+
+        /// <summary>
+        /// The width of the game grid
+        /// </summary>
         public int Width { get { return grid.Width; } }
+
+        /// <summary>
+        /// The height of the game grid
+        /// </summary>
         public int Height { get { return grid.Height; } }
+
+        /// <summary>
+        /// The hints, i.e. the numbers on the side of a grid, for the columns of the grid.
+        /// In Nonogram puzzles these are usually shown at the top of the grid.
+        /// </summary>
         public Hints[] ColumnHints { get { return grid.ColumnHints; } }
+
+
+        /// <summary>
+        /// The hints, i.e. the numbers on the side of a grid, for the rows of the grid.
+        /// In Nonogram puzzles these are usually shown at the left side of the grid.
+        /// </summary>
         public Hints[] RowHints { get { return grid.RowHints; } }
+
+        /// <summary>
+        /// A boolean indicating whether an undo via <see cref="Undo"/> is possible.
+        /// </summary>
         public bool CanUndo { get { return undoStack.Count != 0; } }
+
+        /// <summary>
+        /// A boolean indicating whether a redo via <see cref="Redo"/> is possible.
+        /// </summary>
         public bool CanRedo { get { return redoStack.Count != 0; } }
 
         private readonly LinkedList<ICommand> undoStack;
@@ -149,7 +180,7 @@ namespace Picross.Game
         }
 
         /// <summary>
-        /// Executes <paramref name="command"/> and pushes it onto the undoStack. See also <seealso cref="PushCellCommand(ICommand)"/>.
+        /// Executes <paramref name="command"/> and pushes it onto the undoStack. See also <seealso cref="PushCommand(ICommand)"/>.
         /// </summary>
         /// <param name="command">Command to execute and push</param>
         private void ExecuteCommand(ICommand command)
@@ -312,31 +343,68 @@ namespace Picross.Game
             OnCellStateChanged(new([.. c.GetChanges()]));
         }
 
+        /// <summary>
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is empty
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to check</param>
+        /// <param name="y">y-coordinate of cell to check</param>
+        /// <returns>True if the cell is empty, false otherwise</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
+        /// of bounds of the grid</exception>
         public bool IsCellEmpty(int x, int y)
         {
             return grid.GetCell(x, y) == CellType.BLANK;
         }
 
+        /// <summary>
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is filled
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to check</param>
+        /// <param name="y">y-coordinate of cell to check</param>
+        /// <returns>True if the cell is filled, false otherwise</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
+        /// of bounds of the grid</exception>
         public bool IsCellFilled(int x, int y)
         {
             return grid.GetCell(x, y) == CellType.FILLED;
         }
 
+
+        /// <summary>
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is crossed
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to check</param>
+        /// <param name="y">y-coordinate of cell to check</param>
+        /// <returns>True if the cell is crossed, false otherwise</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
+        /// of bounds of the grid</exception>
         public bool IsCellCrossed(int x, int y)
         {
             return grid.GetCell(x, y) == CellType.CROSS;
         }
 
+        /// <summary>
+        /// Determines whether the puzzle is solved, i.e. the filled cells match the solution exactly.
+        /// </summary>
+        /// <returns>True if the puzzle is solved, false otherwise</returns>
         public bool IsPuzzleSolved()
         {
             return grid.IsSolved();
         }
 
+        /// <summary>
+        /// Should be called when one or more cells have changed states
+        /// </summary>
+        /// <param name="e">The event args corresponding to this event. Should contain the Points of all
+        /// changed cells.</param>
         protected virtual void OnCellStateChanged(CellStateEventArgs e)
         {
             CellStateChanged?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Should be called when the puzzle has been solved in current move
+        /// </summary>
         protected virtual void OnPuzzleSolved()
         {
             PuzzleSolved?.Invoke(this, EventArgs.Empty);
@@ -475,6 +543,11 @@ namespace Picross.Game
             return grid;
         }
 
+        /// <summary>
+        /// Converts this instance into a nice string representation of the grid. This includes all cells and
+        /// their respective states and the hints at the sides.
+        /// </summary>
+        /// <returns>A string showing the current state of the game</returns>
         public override String ToString() { return grid.ToString(); }
     }
 }
