@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Picross.Game
@@ -15,11 +14,11 @@ namespace Picross.Game
         /// </summary>
         /// <param name="width">Width of the grid on which the puzzle is to be solved</param>
         /// <param name="height">Height of the grid on which the puzzle is to be solved</param>
-        /// <returns>List of Points containing the coordinates of cells that must be filled</returns>
-        public static List<Point> GenerateRandomSolution(int width, int height)
+        /// <returns>List of CellPositions containing the coordinates of cells that must be filled</returns>
+        public static List<CellPosition> GenerateRandomSolution(int width, int height)
         {
 
-            List<Point> solution = GetRandomSolution(width, height);
+            List<CellPosition> solution = GetRandomSolution(width, height);
             Grid g = new(width, height, solution);
 
             while (!Solver.IsSolvable(g))
@@ -31,24 +30,24 @@ namespace Picross.Game
             return solution;
         }
 
-        internal static List<Point> GetRandomSolution(int width, int height)
+        internal static List<CellPosition> GetRandomSolution(int width, int height)
         {
             var random = new Random();
-            List<Point> points = new List<Point>();
+            List<CellPosition> positions = new List<CellPosition>();
 
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (random.NextInt64() % 2 == 0)
+                    if (random.Next(2) == 0)
                     {
-                        Point p = new Point(x, y);
-                        points.Add(p);
+                        CellPosition p = new(x, y);
+                        positions.Add(p);
                     }
                 }
             }
 
-            return points;
+            return positions;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Picross.Game
@@ -13,7 +12,7 @@ namespace Picross.Game
         /// <summary>
         /// The changed cells.
         /// </summary>
-        IEnumerable<Point> GetChanges();
+        IEnumerable<CellPosition> GetChanges();
     }
 
     internal class CellCommand : ICommand
@@ -43,9 +42,9 @@ namespace Picross.Game
             grid.SetCell(x, y, oldType);
         }
 
-        public IEnumerable<Point> GetChanges()
+        public IEnumerable<CellPosition> GetChanges()
         {
-            return [new Point(x, y)];
+            return [new CellPosition(x, y)];
         }
     }
 
@@ -88,9 +87,9 @@ namespace Picross.Game
             }
         }
 
-        public IEnumerable<Point> GetChanges()
+        public IEnumerable<CellPosition> GetChanges()
         {
-            List<Point> changes = [];
+            List<CellPosition> changes = [];
 
             foreach(ICommand command in commands)
             {
