@@ -1,7 +1,7 @@
-﻿using Picross.Game;
+﻿using NonoSharp;
 using System.Diagnostics;
 
-namespace Picross.Game.Tests
+namespace NonoSharp.Tests
 {
     public class GridTests
     {

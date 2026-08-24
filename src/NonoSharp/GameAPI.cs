@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using Picross.Game.Events;
+using NonoSharp.Events;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// Class for the Nonogram API. Can be initialised with static methods such as 

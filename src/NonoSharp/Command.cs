@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     internal interface ICommand
     {

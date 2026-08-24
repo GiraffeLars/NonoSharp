@@ -25,7 +25,7 @@ jobs:
         with:
           filters: |
             maui:
-              - 'src/Picross.Maui/**'
+              - 'src/NonoSharp.Maui/**'
 
   build-maui-windows:
     needs:

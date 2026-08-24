@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using SQLite;
 
-namespace Picross.Maui.Data
+namespace NonoSharp.Maui.Data
 {
     public class Database
     {

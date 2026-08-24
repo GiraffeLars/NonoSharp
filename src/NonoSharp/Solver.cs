@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// Helper class to determine whether a puzzle can be solved,

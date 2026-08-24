@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Picross.Game;
+using NonoSharp;
 
-namespace Picross.Game.Tests
+namespace NonoSharp.Tests
 {
     public class GameAPITests
     {

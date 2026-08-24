@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// The hints of a line. Each Hint in Hints can be accessed by using the indexer.

@@ -1,9 +1,9 @@
-﻿using Picross.Game;
+﻿using NonoSharp;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Maui.Drawables
+namespace NonoSharp.Maui.Drawables
 {
     internal class rowHintsDrawable : IDrawable
     {

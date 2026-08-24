@@ -1,11 +1,11 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
-using Picross.Game;
-using Picross.Maui.Drawables;
+using NonoSharp;
+using NonoSharp.Maui.Drawables;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Picross.Maui;
+namespace NonoSharp.Maui;
 
 public partial class GamePage : ThemedPage
 {

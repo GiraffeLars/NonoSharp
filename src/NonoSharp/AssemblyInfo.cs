@@ -18,4 +18,4 @@ using System.Runtime.CompilerServices;
 [assembly: Guid("9b5e1c84-de02-4f78-b73e-ead56484f191")]
 
 // For testing purposes, allow the unit tests access to internals
-[assembly: InternalsVisibleTo("Picross.Game.Tests")]
+[assembly: InternalsVisibleTo("NonoSharp.Tests")]

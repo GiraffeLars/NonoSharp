@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// A singular hint, usually part of a group of multiple Hint instances contained in <see cref="Hints"/>

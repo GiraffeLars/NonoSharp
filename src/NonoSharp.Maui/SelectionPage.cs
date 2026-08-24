@@ -1,6 +1,6 @@
-﻿using Picross.Game;
+﻿using NonoSharp;
 
-namespace Picross.Maui
+namespace NonoSharp.Maui
 {
     internal partial class SelectionPage : ThemedPage
     {

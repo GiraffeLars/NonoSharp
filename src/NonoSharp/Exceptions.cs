@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// Raised when a given file was not of the expected format and is thus incompatible.

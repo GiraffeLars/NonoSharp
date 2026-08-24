@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// Helper class to create a random solution and to later help with pre-defined, custom solutions

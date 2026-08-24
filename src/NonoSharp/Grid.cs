@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     internal class Grid : ICloneable
     {

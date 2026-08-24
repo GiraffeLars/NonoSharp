@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Game
+namespace NonoSharp
 {
     /// <summary>
     /// A record containing a cell's position

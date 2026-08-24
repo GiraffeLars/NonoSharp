@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Picross.Game.Events
+namespace NonoSharp.Events
 {
     /// <summary>
     /// The arguments for the cell state event.
