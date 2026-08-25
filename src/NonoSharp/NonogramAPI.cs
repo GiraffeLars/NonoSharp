@@ -431,8 +431,10 @@ namespace NonoSharp
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, 
         /// e.g. because of an I/O Exception. See the inner exception for more details</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
         public void SaveAsFile(string path, string? title = null)
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = new(Width, Height, grid.Solution, title);
             puzzle.SavePuzzle(path);
         }
@@ -448,8 +450,10 @@ namespace NonoSharp
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
         public async Task SaveAsFileAsync(string path, string? title = null)
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = new PuzzleDefinition(Width, Height, grid.Solution, title);
             await puzzle.SavePuzzleAsync(path);
         }
@@ -463,8 +467,10 @@ namespace NonoSharp
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
         public static NonogramAPI LoadPuzzle(string path) 
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
 
             Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
@@ -480,8 +486,10 @@ namespace NonoSharp
         /// <returns>NonogramAPI instance of the puzzle</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
         public static NonogramAPI LoadPuzzle(Stream stream)
         {
+            ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
             Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
@@ -497,8 +505,10 @@ namespace NonoSharp
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
         public static async Task<NonogramAPI> LoadPuzzleAsync(string path)
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
 
             Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
@@ -517,8 +527,10 @@ namespace NonoSharp
         /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
         public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream)
         {
+            ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
             Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);

@@ -27,11 +27,10 @@ namespace NonoSharp
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
         public Grid(int width, int height, List<CellPosition> solution)
         {
-            if (width <= 0 || height <= 0)
-            {
-                throw new ArgumentException("Width and height must be positive integers.");
-            }
-
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0);
+            ArgumentNullException.ThrowIfNull(solution);
+            
             this.Width = width;
             this.Height = height;
 
@@ -193,10 +192,7 @@ namespace NonoSharp
         /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
         public void SetCell(int x, int y, CellType value)
         {
-            if (x < 0 || x >= Width || y < 0 || y >= Height)
-            {
-                throw new ArgumentOutOfRangeException("Cell coordinates are out of bounds.");
-            }
+            ValidateInputCoordinates(x, y);
 
             if (grid[x, y] != CellType.FILLED && value == CellType.FILLED)
             {
@@ -223,12 +219,28 @@ namespace NonoSharp
         /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
         public CellType GetCell(int x, int y)
         {
-            if (x < 0 || x >= Width || y < 0 || y >= Height)
-            {
-                throw new ArgumentOutOfRangeException("Cell coordinates are out of bounds.");
-            }
+            ValidateInputCoordinates(x, y);
 
             return grid[x, y];
+        }
+
+        /// <summary>
+        /// Validates whether x and y are within the grid bounds
+        /// </summary>
+        /// <param name="x">x input to check</param>
+        /// <param name="y">y input to check</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when either x or y is out of bounds</exception>
+        private void ValidateInputCoordinates(int x, int y)
+        {
+            if (x < 0 || x >= Width)
+            {
+                throw new ArgumentOutOfRangeException(nameof(x), x, $"x must be between 0 and {Width - 1}!");
+            }
+
+            if (y < 0 || y >= Height)
+            {
+                throw new ArgumentOutOfRangeException(nameof(y), y, $"y must be between 0 and {Height - 1}!");
+            }
         }
 
         /// <summary>
