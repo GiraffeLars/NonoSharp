@@ -3,7 +3,8 @@ name: Update Documentation Site
 
 on:
   push:
-    branches: [ "main" ]
+    tags: 
+      - "v*.*.*"
 
 permissions:
   contents: read

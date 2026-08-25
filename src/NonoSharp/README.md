@@ -11,6 +11,7 @@ By filling the grid one cell at a time, eventually you reach the solution.
 - **A fully functional Nonogram game**, complete with hint checking
 - An **API** allowing for game logic to be reused in other projects
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
+- **Saving and loading solutions** to/from custom file format
 
 ## The API
 ### Supported features
@@ -22,6 +23,10 @@ Currently supported functions include:
 - Events for cells changing states and the puzzle being solved correctly
 - Generating random uniquely solvable puzzles
 - Loading and saving puzzles to a custom file type
+
+## Documentation
+Documentation for the API is found on GitHub pages for the corresponding repo, 
+[here](https://giraffelars.github.io/NonoSharp/).
 
 ### Example usage
 ```csharp
