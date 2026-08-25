@@ -13,7 +13,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>GiraffeLars</Authors>
 		<PackageTags>nonogram;picross;puzzle</PackageTags>
-		<PackageProjectUrl>https://github.com/GiraffeLars/NonoSharp/</PackageProjectUrl>
+		<PackageProjectUrl>https://giraffelars.github.io/NonoSharp/index.html</PackageProjectUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

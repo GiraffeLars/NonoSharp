@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using NonoSharp.Events;
+using NonoSharp.Exceptions;
 
 namespace NonoSharp
 {
