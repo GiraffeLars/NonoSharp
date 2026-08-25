@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NonoSharp.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +11,19 @@ namespace NonoSharp.Tests
         public PuzzleBuilderTests()
         {
             builder = new(5, 5);
+        }
+
+        private void CreateUnsolvablePuzzle()
+        {
+            builder.FillCell(0, 0); builder.FillCell(3, 0);
+
+            builder.FillCell(1, 1); builder.FillCell(4, 1);
+
+            builder.FillCell(0, 2); builder.FillCell(2, 2);
+
+            builder.FillCell(1, 3); builder.FillCell(3, 3);
+
+            builder.FillCell(2, 4); builder.FillCell(4, 4);
         }
 
         [Fact]
@@ -85,5 +99,45 @@ namespace NonoSharp.Tests
             Assert.True(builder.IsCellEmpty(0, 0));
         }
 
+        [Fact]
+        public void TestSolvablePuzzleConversion()
+        {
+            // Fill 1 cell to check if solution matches instead of using empty puzzle
+            builder.FillCell(1, 1);
+            var api = builder.GetNonogramAPI();
+
+            Assert.Equal(builder.Width, api.Width);
+            Assert.Equal(builder.Height, api.Height);
+
+            api.FillCell(1, 1);
+            Assert.True(api.IsPuzzleSolved());
+        }
+
+        [Fact]
+        public async Task TestSolvablePuzzleConversionAsync()
+        {
+            builder.FillCell(1, 1);
+            var api = await builder.GetNonogramAPIAsync();
+
+            Assert.Equal(builder.Width, api.Width);
+            Assert.Equal(builder.Height, api.Height);
+
+            api.FillCell(1, 1);
+            Assert.True(api.IsPuzzleSolved());
+        }
+
+        [Fact]
+        public void TestUnsolvablePuzzleConversionException()
+        {
+            CreateUnsolvablePuzzle();
+            Assert.Throws<PuzzleNotSolvableException>(() => builder.GetNonogramAPI());
+        }
+
+        [Fact]
+        public async Task TestUnsolvablePuzzleConversionExceptionAsync()
+        {
+            CreateUnsolvablePuzzle();
+            await Assert.ThrowsAsync<PuzzleNotSolvableException>(async () => await builder.GetNonogramAPIAsync());
+        }
     }
 }
