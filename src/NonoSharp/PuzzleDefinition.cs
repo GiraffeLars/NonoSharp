@@ -13,7 +13,7 @@ namespace NonoSharp
         /// <summary>
         /// Title of the puzzle
         /// </summary>
-        public string? Title { get; private set; }
+        public string? Title { get; internal set; }
         public const int MAX_TITLE_LENGTH = 100;
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -30,7 +30,8 @@ namespace NonoSharp
         /// </summary>
         /// <param name="width">Width of the puzzle</param>
         /// <param name="height">Height of the puzzle</param>
-        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, the array's element is true and false otherwise</param>
+        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, 
+        /// the array's element is true and false otherwise</param>
         /// <param name="title">Optional title of the puzzle</param>
         /// <exception cref="ArgumentException">Thrown when <code>solution.Length != width * height</code></exception>
         /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
@@ -45,6 +46,26 @@ namespace NonoSharp
             this.Height = height;
             this.Solution = solution;
             this.Title = title;
+        }
+
+        /// <summary>
+        /// Creates a puzzle definition with an empty solution
+        /// </summary>
+        /// <param name="width">Width of the puzzle</param>
+        /// <param name="height">Height of the puzzle</param>
+        /// <param name="title">Optional title of the puzzle</param>
+        /// <exception cref="ArgumentException">Thrown when width or height &lt;= 0</exception>
+        /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
+
+        internal PuzzleDefinition(int width, int height, string? title = null)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0, nameof(width));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0, nameof(height));
+
+            Width = width;
+            Height = height;
+            Title = title;
+            Solution = new bool[checked(width * height)];
         }
 
         /// <summary>
@@ -87,6 +108,46 @@ namespace NonoSharp
                 }
             }
             return positions;
+        }
+
+        internal bool GetSolutionAt(int x, int y)
+        {
+            return Solution[x + y * Width];
+        }
+
+        internal void SetSolutionAt(int x, int y, bool filled)
+        {
+            Solution[x + y * Width] = filled;
+        }
+
+        /// <summary>
+        /// Sets the dimensions of this puzzle definition. This is done by adding new empty cells to the right and bottom.
+        /// Cannot shrink the puzzle.
+        /// </summary>
+        /// <param name="width">New width for the puzzle</param>
+        /// <param name="height">New height for the puzzle</param>
+        /// <exception cref="OverflowException">When <paramref name="width"/> * <paramref name="height"/> causes overflow</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> are
+        /// less than their respective old value</exception>
+        /// <exception cref="ArgumentException">When <paramref name="width"/> is less than the old width or <paramref name="height"/>
+        /// is less than the old height</exception>
+        internal void SetDimensions(int width, int height)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(width, Width, nameof(width));
+            ArgumentOutOfRangeException.ThrowIfLessThan(height, Height, nameof(height));
+
+            if (width == Width && height == Height) return;
+
+            int newTotal = checked(width * height);
+
+            bool[] newSolution = new bool[newTotal];
+
+            int extraWidth = width - Width;
+
+            for (int i = 0; i < Solution.Length; i++)
+            {
+                newSolution[i % Width + (Width + extraWidth) + i / Width] = true;
+            }
         }
 
         /// <summary>
