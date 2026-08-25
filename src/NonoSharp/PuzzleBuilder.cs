@@ -111,7 +111,7 @@ namespace NonoSharp
 
         /// <summary>
         /// Updates the value in <c>this.isSolvable</c> and updates cache status.
-        /// To avoid race conditions, first lock  <c>_solvableSemaphore</c>
+        /// To avoid race conditions, first lock <c>_solvableSemaphore</c>
         /// </summary>
         /// <param name="newSolvableValue">New value for isSolvable</param>
         private void UpdateSolvable(bool newSolvableValue)
@@ -228,7 +228,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) to be expected to be filled in the solution
+        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) as expected to be filled in the solution
         /// </summary>
         /// <param name="x">x-coordinate of cell to fill</param>
         /// <param name="y">y-coordinate of cell to fill</param>
@@ -240,7 +240,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at <paramref name="position"/> to be expected to be filled in the solution
+        /// Marks the cell at <paramref name="position"/> as expected to be filled in the solution
         /// </summary>
         /// <param name="position">Position of cell to fill</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
@@ -252,7 +252,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) to be expected to be empty in the solution
+        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) as expected to be empty in the solution
         /// </summary>
         /// <param name="x">x-coordinate of cell to mark as empty</param>
         /// <param name="y">y-coordinate of cell to mark as empty</param>
@@ -264,7 +264,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at <paramref name="position"/> to be expected to be empty in the solution
+        /// Marks the cell at <paramref name="position"/> as expected to be empty in the solution
         /// </summary>
         /// <param name="position">Position of cell to mark as empty</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
