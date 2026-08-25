@@ -121,6 +121,36 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Sets the dimensions of this puzzle definition. This is done by adding new empty cells to the right and bottom.
+        /// Cannot shrink the puzzle.
+        /// </summary>
+        /// <param name="width">New width for the puzzle</param>
+        /// <param name="height">New height for the puzzle</param>
+        /// <exception cref="OverflowException">When <paramref name="width"/> * <paramref name="height"/> causes overflow</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> are
+        /// less than their respective old value</exception>
+        /// <exception cref="ArgumentException">When <paramref name="width"/> is less than the old width or <paramref name="height"/>
+        /// is less than the old height</exception>
+        internal void SetDimensions(int width, int height)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(width, Width, nameof(width));
+            ArgumentOutOfRangeException.ThrowIfLessThan(height, Height, nameof(height));
+
+            if (width == Width && height == Height) return;
+
+            int newTotal = checked(width * height);
+
+            bool[] newSolution = new bool[newTotal];
+
+            int extraWidth = width - Width;
+
+            for (int i = 0; i < Solution.Length; i++)
+            {
+                newSolution[i % Width + (Width + extraWidth) + i / Width] = true;
+            }
+        }
+
+        /// <summary>
         /// Serializes this instance
         /// </summary>
         /// <returns>Array of bytes which represent a serialized PuzzleDefinition and can be reconstructed to be equal to this instance</returns>

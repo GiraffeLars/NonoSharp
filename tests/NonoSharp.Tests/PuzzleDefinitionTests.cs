@@ -258,5 +258,39 @@ namespace NonoSharp.Tests
             void act() => PuzzleDefinition.Deserialize(truncated);
             Assert.Throws<InvalidFileFormatException>(act);
         }
+
+        [Fact]
+        public void TestSetDimensionsInvalidException()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => puzzle.SetDimensions(0, puzzle.Height));
+            Assert.Throws<ArgumentOutOfRangeException>(() => puzzle.SetDimensions(puzzle.Width, 0));
+        }
+
+        public void TestSetDimensions()
+        {
+            int oldWidth = puzzle.Width;
+            int oldHeight = puzzle.Height;
+
+            PuzzleDefinition newPuzzle = new(oldWidth, oldHeight, puzzle.Solution, puzzle.Title);
+            newPuzzle.SetDimensions(oldWidth + 9, oldHeight + 42);
+
+            // Compare if the new puzzle solution is still the same as in the old one
+            for (int x = 0; x < oldWidth; x++)
+            {
+                for (int y = 0; y < oldHeight; y++)
+                {
+                    Assert.Equal(puzzle.GetSolutionAt(x, y), puzzle.GetSolutionAt(x, y));
+                }
+            }
+
+            // Check if all added cells are empty
+            for (int x = oldWidth;  x < newPuzzle.Width; x++)
+            {
+                for (int y = oldHeight; y < newPuzzle.Height; y++)
+                {
+                    Assert.False(newPuzzle.GetSolutionAt(x, y));
+                }
+            }
+        }
     }
 }

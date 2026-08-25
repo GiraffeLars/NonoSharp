@@ -6,6 +6,12 @@ namespace NonoSharp.Tests
 {
     public class PuzzleBuilderTests
     {
+        PuzzleBuilder builder;
+        public PuzzleBuilderTests()
+        {
+            builder = new(5, 5);
+        }
+
         [Fact]
         public void TestInitInvalidDimensionsException()
         {
@@ -25,10 +31,9 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestInitiallyAllEmpty()
         {
-            PuzzleBuilder builder = new(5, 5);
-            for (int x = 0; x < 5; x++)
+            for (int x = 0; x < builder.Width; x++)
             {
-                for (int y = 0; y < 5; y++)
+                for (int y = 0; y < builder.Height; y++)
                 {
                     Assert.False(builder.IsCellFilled(x, y));
                     Assert.True(builder.IsCellEmpty(x, y));
@@ -39,12 +44,46 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestInvalidCoordinatesException()
         {
-            PuzzleBuilder builder = new(5, 5);
-            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(-1, 4));
-            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(0, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(-1, builder.Height-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(0, builder.Height));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(-1, 4));
-            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(0, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(-1, builder.Height-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(0, builder.Height));
         }
+
+        [Fact]
+        public void TestFillCell()
+        {
+            builder.FillCell(0, 0);
+            Assert.True(builder.GetCell(0, 0));
+        }
+
+        [Fact]
+        public void TestEmptyCell()
+        {
+            // Assume fill cell works as intended, is also tested
+            builder.FillCell(0, 0);
+            builder.EmptyCell(0, 0);
+            Assert.False(builder.GetCell(0, 0));
+        }
+
+        [Fact]
+        public void TestIsCellFilled()
+        {
+            builder.FillCell(0, 0);
+            Assert.True(builder.IsCellFilled(0, 0));
+            builder.EmptyCell(0, 0);
+            Assert.False(builder.IsCellFilled(0, 0));
+        }
+
+        [Fact]
+        public void TestIsCellEmpty()
+        {
+            builder.FillCell(0, 0);
+            Assert.False(builder.IsCellEmpty(0, 0));
+            builder.EmptyCell(0, 0);
+            Assert.True(builder.IsCellEmpty(0, 0));
+        }
+
     }
 }
