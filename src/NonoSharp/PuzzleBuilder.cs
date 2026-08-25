@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NonoSharp.Exceptions;
 
 namespace NonoSharp
 {
@@ -19,6 +20,14 @@ namespace NonoSharp
         /// Height of the puzzle that is being created
         /// </summary>
         public int Height { get; private set; }
+
+        /// <summary>
+        /// Title of the puzzle. A null value means this puzzle has no title
+        /// </summary>
+        public string? Title {
+            get { return puzzle.Title; }
+            set { puzzle.Title = value; }
+        }
 
         private bool isSolvable = false;
         private bool isSolvableDirty = true;
@@ -42,7 +51,7 @@ namespace NonoSharp
             Height = height;
 
             bool[] solution = new bool[width * height];
-            puzzle = new PuzzleDefinition(width, height, solution);
+            puzzle = new PuzzleDefinition(width, height, solution, title);
         }
 
         /// <summary>
@@ -109,6 +118,77 @@ namespace NonoSharp
         {
             isSolvable = newSolvableValue;
             isSolvableDirty = false;
+        }
+
+        /// <summary>
+        /// Converts this puzzle into a playable <see cref="NonogramAPI"/>
+        /// </summary>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        public NonogramAPI GetNonogramAPI()
+        {
+            if (!IsSolvable())
+            {
+                throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
+            }
+
+            return new(ConvertToGrid());
+        }
+
+
+        /// <summary>
+        /// Converts this puzzle into a playable <see cref="NonogramAPI"/> asynchronously
+        /// </summary>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        public async Task<NonogramAPI> GetNonogramAPIAsync()
+        {
+            if (!await IsSolvableAsync())
+            {
+                throw new PuzzleNotSolvableException("This puzzle is not uniquely solvable!");
+            }
+
+            return new(ConvertToGrid());                                                                             
+        }
+
+        /// <summary>
+        /// Saves the built puzzle at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
+        /// The puzzle must be uniquely solvable.
+        /// </summary>
+        /// <param name="path">The path to save the puzzle to</param>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, 
+        /// when the given title is too long, or an I/O exception occurs.
+        /// Usually, there is an inner exception giving more details.</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
+        /// See the inner exception for more details</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        public void SaveAsFile(string path)
+        {
+            if (!IsSolvable())
+            {
+                throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
+            }
+
+            puzzle.SavePuzzle(path);
+        }
+
+
+        /// <summary>
+        /// Saves this puzzle asynchronously at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
+        /// </summary>
+        /// <param name="path">The path to save the puzzle to</param>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example,
+        /// when the given title is too long, or an I/O exception occurs.
+        /// Usually, there is an inner exception giving more details.</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
+        /// See the inner exception for more details</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        public async Task SavePuzzleAsync(string path)
+        {
+            if (!await IsSolvableAsync())
+            {
+                throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
+            }
+            
+            await puzzle.SavePuzzleAsync(path);
         }
 
         /// <summary>

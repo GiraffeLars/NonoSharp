@@ -13,7 +13,7 @@ namespace NonoSharp
         /// <summary>
         /// Title of the puzzle
         /// </summary>
-        public string? Title { get; private set; }
+        public string? Title { get; internal set; }
         public const int MAX_TITLE_LENGTH = 100;
         public int Width { get; private set; }
         public int Height { get; private set; }
