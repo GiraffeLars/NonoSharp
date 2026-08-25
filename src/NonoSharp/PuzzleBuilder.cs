@@ -20,6 +20,11 @@ namespace NonoSharp
         /// </summary>
         public int Height { get; private set; }
 
+        private bool isSolvable = false;
+        private bool isSolvableDirty = true;
+
+        private static readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
+
         private readonly PuzzleDefinition puzzle;
 
         /// <summary>
@@ -38,6 +43,72 @@ namespace NonoSharp
 
             bool[] solution = new bool[width * height];
             puzzle = new PuzzleDefinition(width, height, solution);
+        }
+
+        /// <summary>
+        /// Converts this puzzle to a Grid
+        /// </summary>
+        /// <returns>Grid with solution and dimensions corresponding to this builder</returns>
+        private Grid ConvertToGrid()
+        {
+            Grid g = new(Width, Height, puzzle.ConvertBoolSolutionToPositions());
+            return g;
+        }
+
+        /// <summary>
+        /// Determines whether the built puzzle is uniquely solvable
+        /// </summary>
+        /// <returns>True if it is uniquely solvable, false otherwise</returns>
+        public bool IsSolvable()
+        {
+            try
+            {
+                _solvableSemaphore.Wait();
+                if (!isSolvableDirty) return isSolvable;
+
+                bool solvable = Solver.IsSolvable(ConvertToGrid());
+
+                UpdateSolvable(solvable);
+                
+                return solvable;
+            }
+            finally 
+            {
+                _solvableSemaphore.Release(); 
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the built puzzle is uniquely solvable
+        /// </summary>
+        /// <returns>True if it is uniquely solvable, false otherwise</returns>
+
+        public async Task<bool> IsSolvableAsync()
+        {
+            try
+            {
+                await _solvableSemaphore.WaitAsync();
+                bool solvable = await Task.Run(() => Solver.IsSolvable(ConvertToGrid()));
+
+                UpdateSolvable(solvable);
+                return solvable;
+            }
+            finally
+            {
+                _solvableSemaphore.Release();
+            }
+        }
+
+
+        /// <summary>
+        /// Updates the value in <c>this.isSolvable</c> and updates cache status.
+        /// To avoid race conditions, first lock  <c>_solvableSemaphore</c>
+        /// </summary>
+        /// <param name="newSolvableValue">New value for isSolvable</param>
+        private void UpdateSolvable(bool newSolvableValue)
+        {
+            isSolvable = newSolvableValue;
+            isSolvableDirty = false;
         }
 
         /// <summary>
@@ -71,6 +142,8 @@ namespace NonoSharp
         private void SetCell(int x, int y, bool newValue)
         {
             ValidateCoordinates(x, y);
+
+            isSolvableDirty = true;
             puzzle.SetSolutionAt(x, y, newValue);
         }
 
