@@ -1,0 +1,48 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "src/NonoSharp/",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**",
+          "**/README.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**",
+          "docs/**.ns"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "NonoSharp",
+      "_appTitle": "NonoSharp",
+      "_enableSearch": true,
+      "pdf": false
+    }
+  }
+}
