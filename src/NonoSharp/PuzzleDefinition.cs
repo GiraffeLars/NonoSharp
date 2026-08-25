@@ -30,7 +30,8 @@ namespace NonoSharp
         /// </summary>
         /// <param name="width">Width of the puzzle</param>
         /// <param name="height">Height of the puzzle</param>
-        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, the array's element is true and false otherwise</param>
+        /// <param name="solution">The solution, of length width * height, where for each filled cell in the solution, 
+        /// the array's element is true and false otherwise</param>
         /// <param name="title">Optional title of the puzzle</param>
         /// <exception cref="ArgumentException">Thrown when <code>solution.Length != width * height</code></exception>
         /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
@@ -45,6 +46,26 @@ namespace NonoSharp
             this.Height = height;
             this.Solution = solution;
             this.Title = title;
+        }
+
+        /// <summary>
+        /// Creates a puzzle definition with an empty solution
+        /// </summary>
+        /// <param name="width">Width of the puzzle</param>
+        /// <param name="height">Height of the puzzle</param>
+        /// <param name="title">Optional title of the puzzle</param>
+        /// <exception cref="ArgumentException">Thrown when width or height &lt;= 0</exception>
+        /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
+
+        internal PuzzleDefinition(int width, int height, string? title = null)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0, nameof(width));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0, nameof(height));
+
+            Width = width;
+            Height = height;
+            Title = title;
+            Solution = new bool[checked(width * height)];
         }
 
         /// <summary>
@@ -87,6 +108,16 @@ namespace NonoSharp
                 }
             }
             return positions;
+        }
+
+        internal bool GetSolutionAt(int x, int y)
+        {
+            return Solution[x + y * Width];
+        }
+
+        internal void SetSolutionAt(int x, int y, bool filled)
+        {
+            Solution[x + y * Width] = filled;
         }
 
         /// <summary>
