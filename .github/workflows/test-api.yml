@@ -12,7 +12,6 @@ on:
 env:
   GAME_PROJECT: src/NonoSharp/NonoSharp.csproj
   TEST_PROJECT: tests/NonoSharp.Tests/NonoSharp.Tests.csproj
-  MAUI_PROJECT: src/NonoSharp.Maui/NonoSharp.Maui.csproj
 
 jobs:
   build-and-test-api:

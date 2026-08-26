@@ -8,7 +8,6 @@ on:
 env:
   API_PROJECT: src/NonoSharp/NonoSharp.csproj
   TEST_PROJECT: tests/NonoSharp.Tests/NonoSharp.Tests.csproj
-  MAUI_PROJECT: src/NonoSharp.Maui/NonoSharp.Maui.csproj
 
 jobs:
   build-and-test-api:
@@ -73,34 +72,30 @@ jobs:
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
 
-
-  release-maui:
-    needs: [build-and-test-api, version]
-    runs-on: windows-latest
+  build-and-publish-docs:
+    # https://dotnet.github.io/docfx/index.html#publish-to-github-pages
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    needs: build-and-test-api
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
-    - name: Install .NET MAUI workload
-      run: dotnet workload install maui
-    - name: Publish Windows build
-      run: dotnet publish ${{ env.MAUI_PROJECT }} -c Release
-           -f net10.0-windows10.0.19041.0
-           -p:PublishSingleFile=true -p:SelfContained=true
-           -p:ApplicationDisplayVersion=${{ needs.version.outputs.version }}
-           -o ./publish
-
-    - name: Zip exe
-      run: |
-        $zipName = "NonoSharp-v${{ needs.version.outputs.version }}-win-x64.zip"
-        Compress-Archive -Path ./publish/*.exe -Destination $zipName
-
-    - name: Release on GitHub
-      uses: softprops/action-gh-release@v2
-      with:
-        files: NonoSharp-v${{ needs.version.outputs.version }}-win-x64.zip
-        generate_release_notes: true
+      - uses: actions/checkout@v4
+      - name: Setup .NET10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install DocFX
+        run: dotnet tool update -g docfx
+      - name: Build Docs
+        run: docfx docfx.json
+      - name: Upload Docs
+        uses: actions/upload-pages-artifact@v3
+        with: 
+          path: _site
+      - name: Deploy Docs to GitHub Pages
+        uses: actions/deploy-pages@v4

@@ -22,7 +22,9 @@ Currently supported functions include:
 - Loading and saving puzzles to a custom file type
 
 ## Full repo
-The full repo can be found on [GitHub](https://github.com/GiraffeLars/NonoSharp), together with an example consumer built on top of .NET MAUI.
+The full repo can be found on [GitHub](https://github.com/GiraffeLars/NonoSharp).
+NonoSharp is paired with an example UI consumer built on top of .NET MAUI, 
+found on [the GitHub NonoSharp-Maui repo](https://github.com/GiraffeLars/NonoSharp).
 
 ## License
 This project is licensed under the **MIT License**. See the `LICENSE` file on the GitHub repo for more information.

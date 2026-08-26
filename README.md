@@ -1,17 +1,20 @@
 # NonoSharp
 [![NuGet Version](https://img.shields.io/nuget/vpre/NonoSharp?label=NuGet)](https://www.nuget.org/packages/NonoSharp/)
-[![Build and Test API project](https://github.com/GiraffeLars/NonoSharp/actions/workflows/test-api.yml/badge.svg)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/test-api.yml)
+[![NuGet Download](https://github.com/GiraffeLars/NonoSharp-Maui)](https://www.nuget.org/packages/NonoSharp/)
+[![Build and Test API project (latest commit)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/test-api.yml/badge.svg)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/test-api.yml)
 [![Build MAUI project](https://github.com/GiraffeLars/NonoSharp/actions/workflows/build-windows.yml/badge.svg)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/build-windows.yml)
 
-A cross-platform Nonogram game built with C# and .NET MAUI, featuring pre-made and randomly generated puzzles together with a reusable game logic API.
+A Nonogram API built with C# featuring support for randomly generated puzzles and saving/loading pre-made puzzle solutions.
 
-> Status: Currently in-development. A beta build is available in [Releases](https://github.com/GiraffeLars/NonoSharp/releases).
+> Status: Published on [NuGet](https://www.nuget.org/packages/NonoSharp/) as an initial development release (v0.\*.\*).
 
-<img src="docs/PicrossGame.png" alt="Nonogram Puzzle being solved" width="500"/>
-
+<p>
+    <img src="docs/PicrossGame.png" alt="Nonogram Puzzle being solved" width="500"/>
+    <em>Example of a project built on top of NonoSharp, <a href="https://github.com/GiraffeLars/NonoSharp-Maui">NonoSharp-Maui</a>. </em>
+</p>
 
 ## What is NonoSharp?
-NonoSharp is an API for C#, together with an example UI consumer, allowing for easy creation and playing of [Nonogram](https://en.wikipedia.org/wiki/Nonogram) (also known as Picross) puzzles.
+NonoSharp is an API for C#, together with an [example UI consumer](https://github.com/GiraffeLars/NonoSharp-Maui), allowing for easy creation and playing of [Nonogram](https://en.wikipedia.org/wiki/Nonogram) (also known as Picross) puzzles.
 Nonograms are Japanese puzzles where you fill in a picture based on hints given to you.
 The hints, either on the left-side or top-side of the grid, show how many groups there are in a given row/column and show how many cells each group consists of.
 By filling the grid one cell at a time, eventually you reach the solution.
@@ -92,36 +95,24 @@ game.CellStateChanged += (s, e) => {
 
 ## Getting Started
 ### Playing
-To play the game build upon the API, install the beta release in the [Releases](https://github.com/GiraffeLars/NonoSharp/releases) tab.
-Currently, only a build for Windows is available. If you wish to play on a different platform, see the section below.
+To play a Nonogram game built on top of NonoSharp, install the beta release for Windows in the [Releases](https://github.com/GiraffeLars/NonoSharp-Maui) tab of the [NonoSharp-Maui GitHub Repo](https://github.com/GiraffeLars/NonoSharp-Maui), or create your own!
 
 ### Contributing
-To contribute, clone the project and open it in your prefered IDE, such as Visual Studio. The project makes use of [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), [MAUI](https://dotnet.microsoft.com/en-us/apps/maui) and [sqlite-net-pcl](https://www.nuget.org/packages/sqlite-net-pcl/).
-> **Note:** I cannot guarantee (full) functionality on operating systems other than Windows or Android. While other MAUI platforms are supported, they may contain unexpected issues. 
-> Some features may not be available on all operating systems due to MAUI limitations.
+To contribute, clone the project and open it in your prefered IDE, such as Visual Studio. The project makes use of [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
-### Installing dependencies
-In order to build the project, you will need, as mentioned above, .NET 10.0, .NET MAUI and sqlite-net-pcl. To install the .NET MAUI workload, run the following command in your terminal
-```
-dotnet workload install maui
-```
-Alternatively, it is also possible to automatically install the workload when installing Visual Studio by selecting the corresponding option in the installer.
-
-After .NET MAUI has successfully installed, clone the project and open it in your IDE. Before building the project, run the following command. This will install required dependencies, such as sqlite-net-pcl and fix other possible issues. 
-```
-dotnet restore
-```
 ### Building the project
-After setting everything up, you can build the MAUI project with
+After setting everything up, you can follow the regular workflow for building .NET projects:
 ```
-dotnet build src/NonoSharp.Maui/NonoSharp.Maui.csproj
+dotnet build
 ```
-Similarly, if you wish to build just the API, run
+This will build the API project and the unit tests.
+
+If you wish to build just the API, run
 ```
 dotnet build src/NonoSharp/NonoSharp.csproj
 ```
 
-Of course, you are also welcome to use your IDE's debugger to build the project and/or play it.
+Of course, you are also welcome to use your IDE's debugger to build the project.
 
 ### Unit tests
 The API project is paired with a test suite found in `tests/NonoSharp.Tests`. To run the tests, either use your IDE's unit testing features or run the following:
@@ -134,12 +125,10 @@ When contributing, please ensure that the unit tests all pass. These will also b
 Features that are currently planned to be added *(in no particular order)*:
 - [x] Random puzzle generation that have a guaranteed solution
 - [x] Automatically cross the remaining blank cells upon line completion
-- [x] Dark mode support
 - [x] Support for pre-made puzzles
-- [ ] Improve player controls on PC
-- [ ] Player statistics
-- [ ] UI improvements
-- [ ] Player-created puzzles and puzzle creator
+- [x] Player-created puzzles and puzzle creator
+- [ ] Optimise Solver used for random puzzle generation and make it available publicly
+- [ ] Settings for consumers, such as toggling auto crosses or enabling automatic correction when a cell was filled incorrectly
 
 ## Contribution guidelines
 This project started as a solo learning project, but contributions are welcome. Please open a PR or an issue if you wish to contribute. 

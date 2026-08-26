@@ -8,8 +8,4 @@
     <Build Solution="Release|*" Project="false" />
   </Project>
   <Project Path="src/NonoSharp/NonoSharp.csproj" />
-  <Project Path="src/NonoSharp.Maui/NonoSharp.Maui.csproj" Id="f8824bdc-dee1-44fd-ac95-243e1e9242bc">
-    <Build Solution="Tests|*" Project="false" />
-    <Deploy />
-  </Project>
 </Solution>
