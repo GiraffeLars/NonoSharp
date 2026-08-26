@@ -168,6 +168,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="DimensionsPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="GiveTitlePopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

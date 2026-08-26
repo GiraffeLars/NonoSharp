@@ -1,3 +1,5 @@
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
 using NonoSharp;
 using NonoSharp.Maui.Data;
 using System.Diagnostics;
@@ -85,7 +87,7 @@ public partial class MainPage : ThemedPage
         Button creator = new() { Text = "Create a puzzle", Margin  = margin, HeightRequest = height };
         creator.Clicked += async (s, e) =>
         {
-            await Navigation.PushAsync(new NonogramBuilderPage(new(10, 10)));
+            await OnCreateButtonClicked();
         };
         grid.Add(creator, 1, 4);
 
@@ -115,6 +117,24 @@ public partial class MainPage : ThemedPage
             indicator.IsRunning = false;
             indicator.IsEnabled = false;
             // Ensure the menu is enabled and buttons can be pressed once the user returns
+            menu.IsEnabled = true;
+        }
+    }
+
+    private async Task OnCreateButtonClicked()
+    {
+        try
+        {
+            menu.IsEnabled = false;
+
+            IPopupResult<Int32> sizeResult = await this.ShowPopupAsync<Int32>(new DimensionsPopup());
+            if (sizeResult.WasDismissedByTappingOutsideOfPopup) return;
+
+            int size = sizeResult.Result;
+            await Navigation.PushAsync(new NonogramBuilderPage(new(size, size)));
+        }
+        finally
+        {
             menu.IsEnabled = true;
         }
     }
