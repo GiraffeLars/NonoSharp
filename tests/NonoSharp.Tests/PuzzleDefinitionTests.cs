@@ -266,6 +266,7 @@ namespace NonoSharp.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => puzzle.SetDimensions(puzzle.Width, 0));
         }
 
+        [Fact]
         public void TestSetDimensions()
         {
             int oldWidth = puzzle.Width;

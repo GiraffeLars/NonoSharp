@@ -1,8 +1,8 @@
 # NonoSharp
 [![NuGet Version](https://img.shields.io/nuget/vpre/NonoSharp?label=NuGet)](https://www.nuget.org/packages/NonoSharp/)
-[![NuGet Download](https://github.com/GiraffeLars/NonoSharp-Maui)](https://www.nuget.org/packages/NonoSharp/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/NonoSharp?label=NuGet%20Downloads
+)](https://www.nuget.org/packages/NonoSharp/)
 [![Build and Test API project (latest commit)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/test-api.yml/badge.svg)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/test-api.yml)
-[![Build MAUI project](https://github.com/GiraffeLars/NonoSharp/actions/workflows/build-windows.yml/badge.svg)](https://github.com/GiraffeLars/NonoSharp/actions/workflows/build-windows.yml)
 
 A Nonogram API built with C# featuring support for randomly generated puzzles and saving/loading pre-made puzzle solutions.
 
@@ -10,7 +10,7 @@ A Nonogram API built with C# featuring support for randomly generated puzzles an
 
 <p>
     <img src="docs/PicrossGame.png" alt="Nonogram Puzzle being solved" width="500"/>
-    <em>Example of a project built on top of NonoSharp, <a href="https://github.com/GiraffeLars/NonoSharp-Maui">NonoSharp-Maui</a>. </em>
+    <em><br>Example of a project built on top of NonoSharp, <a href="https://github.com/GiraffeLars/NonoSharp-Maui">NonoSharp-Maui</a>. </em>
 </p>
 
 ## What is NonoSharp?
