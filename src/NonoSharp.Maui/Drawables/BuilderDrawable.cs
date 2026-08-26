@@ -87,6 +87,11 @@ namespace NonoSharp.Maui.Drawables
             int x = (int) Math.Floor(touch.X / cellSize);
             int y = (int) Math.Floor(touch.Y / cellSize);
 
+            if (x < 0 || y < 0 || x >= builder.Width || y >= builder.Height)
+            {
+                return;
+            }
+
             if (builder.IsCellFilled(x, y))
             {
                 builder.EmptyCell(x, y);

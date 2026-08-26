@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Extensions;
+﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
 using NonoSharp.Exceptions;
 using NonoSharp.Maui.Drawables;
 using System;
@@ -43,13 +44,21 @@ namespace NonoSharp.Maui
             };
             builderView.StartInteraction += OnTouchStart;
 
-            //GraphicsView builderView = new GraphicsView() { Drawable = drawable };
-
             Button titleButton = new Button() { Text = "Set puzzle title", Margin = 10 };
             titleButton.Clicked += async (s, e) =>
             {
-                var popup = new GiveTitlePopup();
-                await this.ShowPopupAsync(popup);
+                try
+                {
+                    menu.IsEnabled = false;
+                    var popup = new GiveTitlePopup(builder.Title);
+                    IPopupResult<String?> result = await this.ShowPopupAsync<String?>(popup);
+
+                    if (result.WasDismissedByTappingOutsideOfPopup) return;
+                    builder.Title = result.Result;
+                } finally
+                {
+                    menu.IsEnabled = true;
+                }
             };
 
             Button saveButton = new Button() { Text = "Save to file", Margin = 10 };
