@@ -31,9 +31,19 @@ jobs:
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal ${{ env.TEST_PROJECT }}  
 
+  # Extracts version from tag
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
   publish-nuget:
     # https://learn.microsoft.com/en-gb/nuget/nuget-org/trusted-publishing
-    needs: build-and-test-api
+    needs: [build-and-test-api, version]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -43,14 +53,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Extract version
-        id: version
-        run: echo "version=${github_ref_name#v}" >> "$GITHUB_OUTPUT"
-
       - name: Pack API
         run: |
           dotnet pack ${{ env.API_PROJECT }} -c Release \
-          -p:Version=${{ steps.version.outputs.version }} \
+          -p:Version=${{ needs.version.outputs.version }} \
           -o ./nupkgs
 
       # Gets API key
@@ -63,14 +69,16 @@ jobs:
 
       - name: NuGet push
         run: |
-          dotnet nuget push ./nupkgs/.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} \
+          dotnet nuget push ./nupkgs/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} \
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
 
 
   release-maui:
-    needs: test
+    needs: [build-and-test-api, version]
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -83,6 +91,7 @@ jobs:
       run: dotnet publish ${{ env.MAUI_PROJECT }} -c Release
            -f net10.0-windows10.0.19041.0
            -p:PublishSingleFile=true -p:SelfContained=true
+           -p:ApplicationDisplayVersion=${{ needs.version.outputs.version }}
            -o ./publish
     - name: Release on GitHub
       uses: softprops/action-gh-release@v2
