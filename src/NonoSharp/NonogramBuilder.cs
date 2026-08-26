@@ -32,7 +32,7 @@ namespace NonoSharp
         private bool isSolvable = false;
         private bool isSolvableDirty = true;
 
-        private static readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
+        private readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
 
         private readonly PuzzleDefinition puzzle;
 
