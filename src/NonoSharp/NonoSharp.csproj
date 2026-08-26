@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Configurations>Debug;Release;Tests</Configurations>
 		<PackageId>NonoSharp</PackageId>
-		<Version>0.1.0</Version>
+		<Version>0.2.0</Version>
 		<Description>Nonogram API for .NET10.0 featuring randomly generated puzzles, custom puzzle file saving/loading and more</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/GiraffeLars/NonoSharp/</RepositoryUrl>
