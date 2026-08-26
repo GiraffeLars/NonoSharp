@@ -5,10 +5,10 @@ using System.Text;
 
 namespace NonoSharp.Tests
 {
-    public class PuzzleBuilderTests
+    public class NonogramBuilderTests
     {
-        PuzzleBuilder builder;
-        public PuzzleBuilderTests()
+        NonogramBuilder builder;
+        public NonogramBuilderTests()
         {
             builder = new(5, 5);
         }
@@ -29,7 +29,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestInitInvalidDimensionsException()
         {
-            PuzzleBuilder builder;
+            NonogramBuilder builder;
             Assert.Throws<ArgumentOutOfRangeException>(() => builder = new(-1, 5));
             Assert.Throws<ArgumentOutOfRangeException>(() => builder = new(5, -1));
         }
@@ -37,7 +37,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestInitValidDimensions()
         {
-            PuzzleBuilder builder = new(1, 2);
+            NonogramBuilder builder = new(1, 2);
             Assert.Equal(1, builder.Width);
             Assert.Equal(2, builder.Height);
         }

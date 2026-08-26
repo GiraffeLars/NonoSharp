@@ -9,7 +9,7 @@ namespace NonoSharp
     /// Builder class to create a custom Nonogram puzzle, and can at the final stage
     /// be obtained as a <see cref="NonogramAPI"/> instance or be saved to a file.
     /// </summary>
-    public class PuzzleBuilder
+    public class NonogramBuilder
     {
         /// <summary>
         /// Height of the grid that is being created
@@ -44,7 +44,7 @@ namespace NonoSharp
         /// <param name="title">Optional title to give the puzzle</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="width"/> or <paramref name="height"/>
         /// is non-positive (&lt;= 0)</exception>
-        public PuzzleBuilder(int width, int height, string? title = null)
+        public NonogramBuilder(int width, int height, string? title = null)
         {
             ValidateDimensions(width, height);
             Width = width;
@@ -181,7 +181,7 @@ namespace NonoSharp
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
-        public async Task SavePuzzleAsync(string path)
+        public async Task SaveAsFileAsync(string path)
         {
             if (!await IsSolvableAsync())
             {
