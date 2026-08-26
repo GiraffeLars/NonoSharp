@@ -29,6 +29,7 @@ public partial class MainPage : ThemedPage
                 new RowDefinition(),
                 new RowDefinition(),
                 new RowDefinition(),
+                new RowDefinition(),
                 new RowDefinition()
             }
         };
@@ -81,13 +82,20 @@ public partial class MainPage : ThemedPage
             grid.Add(but, 1, i+1);
         }
 
+        Button creator = new() { Text = "Create a puzzle", Margin  = margin, HeightRequest = height };
+        creator.Clicked += async (s, e) =>
+        {
+            await Navigation.PushAsync(new NonogramBuilderPage(new(10, 10)));
+        };
+        grid.Add(creator, 1, 4);
+
         Button settings = new() { Text = "Settings", Margin = margin, HeightRequest = height };
         settings.Clicked += async (s, e) =>
         {
             await Navigation.PushAsync(new SettingsPage());
         };
 
-        grid.Add(settings, 1, 4);
+        grid.Add(settings, 1, 5);
     }
 
     private async Task OnGeneratePuzzleButtonClicked(int size)

@@ -81,5 +81,19 @@ namespace NonoSharp.Maui.Drawables
                 canvas.DrawLine(0, y * cellSize, builder.Width * cellSize, y * cellSize);
             }
         }
+
+        internal void HandleTouch(PointF touch)
+        {
+            int x = (int) Math.Floor(touch.X / cellSize);
+            int y = (int) Math.Floor(touch.Y / cellSize);
+
+            if (builder.IsCellFilled(x, y))
+            {
+                builder.EmptyCell(x, y);
+            } else
+            {
+                builder.FillCell(x, y);
+            }
+        }
     }
 }
