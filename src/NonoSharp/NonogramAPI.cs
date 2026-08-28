@@ -5,7 +5,7 @@ namespace NonoSharp
 {
     /// <summary>
     /// Class for the Nonogram API. Can be initialised with static methods such as 
-    /// <see cref="CreateRandomPuzzle(int, int, bool)"/> or <see cref="LoadPuzzle(string)"/>.
+    /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string, NonogramOptions)"/>.
     /// </summary>
     public class NonogramAPI
     {
@@ -57,10 +57,9 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Whether to automatically correct cells that are changed incorrectly according to the solution.
-        /// <c>false</c> by default.
+        /// The <see cref="NonogramOptions"/> for this instance
         /// </summary>
-        public bool EnableAutoCorrection { get; set; } = false;
+        public NonogramOptions Options { get; set; } = new NonogramOptions();
 
         private readonly LinkedList<ICommand> undoStack;
         private readonly LinkedList<ICommand> redoStack;
@@ -82,33 +81,35 @@ namespace NonoSharp
         public event EventHandler<CorrectionEventArgs>? CellCorrected;
 
         /// <summary>
-        /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int, bool)"/> 
+        /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
-        /// <param name="enableAutoCorrect">Whether to enable automatic correction of incorrect cells</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance as described above</returns>
-        public static NonogramAPI CreateRandomPuzzle(int width, int height, bool enableAutoCorrect = false)
+        public static NonogramAPI CreateRandomPuzzle(int width, int height, NonogramOptions? options = null)
         {
             // Generate solution using a task as generating a puzzle is expensive
             HashSet<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
             Grid g = new(width, height, sol);
-            return new NonogramAPI(g) { EnableAutoCorrection = enableAutoCorrect};
+
+            options ??= new NonogramOptions();
+            return new NonogramAPI(g) { Options = options};
         }
 
         /// <summary>
         /// Creates an API instance with a random puzzle asynchronously by running 
-        /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int, bool)"/> on the ThreadPool
+        /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int, NonogramOptions)"/> on the ThreadPool
         /// as it is computionally expensive.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
-        /// <param name="enableAutoCorrect">Whether to enable automatic correction of incorrect cells</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance as described above</returns>
-        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, bool enableAutoCorrect = false)
+        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
         {
-            return await Task.Run(() => CreateRandomPuzzle(width, height, enableAutoCorrect));
+            return await Task.Run(() => CreateRandomPuzzle(width, height, options));
         }
 
         internal NonogramAPI(Grid grid)
@@ -116,7 +117,7 @@ namespace NonoSharp
             this.grid = grid;
             undoStack = new LinkedList<ICommand>();
             redoStack = new LinkedList<ICommand>();
-
+            
             // The puzzle can switch between solved and unsolved when a cell changes state.
             // Thus, we can handle sending the puzzle solved event after a cell changes state.
             CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
@@ -168,7 +169,7 @@ namespace NonoSharp
         /// <param name="newType"></param>
         private void DoMove(int x, int y, CellType newType)
         {
-            newType = DoAutoCorrection(x, y, newType);
+            newType = DoAutoCorrect(x, y, newType);
             // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
             bool mightAutoCross = newType == CellType.FILLED || grid.GetCell(x, y) == CellType.FILLED;
 
@@ -177,7 +178,7 @@ namespace NonoSharp
             // Execute the command before determining auto-crosses
             initialCommand.Execute();
 
-            if (!mightAutoCross)
+            if (!Options.EnableAutoCross || !mightAutoCross)
             {
                 // Only push this command and send event if auto-cross is not possible and return
                 PushCommand(initialCommand);
@@ -205,15 +206,15 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Handles auto-correction
+        /// Handles auto-correct
         /// </summary>
         /// <param name="x">x-coordinate of cell changed</param>
         /// <param name="y">y-coordinate of cell changed</param>
         /// <param name="typeCellChangedTo">New type of cell</param>
-        /// <returns>Corrected cell type if auto correction is enabled, <paramref name="typeCellChangedTo"/> otherwise</returns>
-        private CellType DoAutoCorrection(int x, int y, CellType typeCellChangedTo)
+        /// <returns>Corrected cell type if auto correct is enabled, <paramref name="typeCellChangedTo"/> otherwise</returns>
+        private CellType DoAutoCorrect(int x, int y, CellType typeCellChangedTo)
         {
-            if (!EnableAutoCorrection)
+            if (!Options.EnableAutoCorrect)
             {
                 return typeCellChangedTo;
             }
@@ -447,6 +448,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="e">The event args corresponding to this event. Should contain the CellPositions of all
         /// changed cells.</param>
+        /// <exclude />
         protected internal virtual void OnCellStateChanged(CellStateEventArgs e)
         {
             CellStateChanged?.Invoke(this, e);
@@ -455,6 +457,7 @@ namespace NonoSharp
         /// <summary>
         /// Should be called when the puzzle has been solved in current move.
         /// </summary>
+        /// <exclude />
         protected internal virtual void OnPuzzleSolved()
         {
             PuzzleSolved?.Invoke(this, EventArgs.Empty);
@@ -464,6 +467,7 @@ namespace NonoSharp
         /// Should be called when a cell was corrected to the expected type found in the solution.
         /// </summary>
         /// <param name="e">Event args containing the changed cell, the requested state to change to and the corrected cell type</param>
+        /// <exclude />
         protected internal virtual void OnCellCorrected(CorrectionEventArgs e)
         {
             CellCorrected?.Invoke(this, e);
@@ -522,19 +526,20 @@ namespace NonoSharp
         /// Loads the puzzle at <paramref name="path"/> and returns a new NonogramAPI instance.
         /// </summary>
         /// <param name="path">Puzzle to load</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
-        public static NonogramAPI LoadPuzzle(string path) 
+        public static NonogramAPI LoadPuzzle(string path, NonogramOptions? options = null) 
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
 
             Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
-            return new(grid);
+            return new(grid) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -544,35 +549,37 @@ namespace NonoSharp
         /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, 
         /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
         /// <returns>NonogramAPI instance of the puzzle</returns>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
-        public static NonogramAPI LoadPuzzle(Stream stream)
+        public static NonogramAPI LoadPuzzle(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
             Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
-            return new(grid);
+            return new(grid) { Options = options ?? new()};
         }
 
         /// <summary>
         /// Loads the puzzle at <paramref name="path"/> asynchronously and returns a new NonogramAPI instance.
         /// </summary>
         /// <param name="path">Puzzle to load</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
-        public static async Task<NonogramAPI> LoadPuzzleAsync(string path)
+        public static async Task<NonogramAPI> LoadPuzzleAsync(string path, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
 
             Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
-            return new(grid);
+            return new(grid) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -584,17 +591,18 @@ namespace NonoSharp
         /// To avoid false positives on InvalidFileFormatException exceptions,
         /// the stream must consist of ONLY one valid puzzle, such as one provided by
         /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
-        public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream)
+        public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
             Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
-            return new(grid);
+            return new(grid) { Options = options ?? new() };
         }
 
         private static Grid ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)

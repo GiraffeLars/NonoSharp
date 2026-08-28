@@ -7,6 +7,8 @@ namespace NonoSharp.Tests
 {
     public class NonogramAPIEventsTests
     {
+        private NonogramOptions optsAutoCorrect = new() { EnableAutoCorrect = true };
+
         [Fact]
         public void TestCellStateChangedEvent()
         {
@@ -65,7 +67,8 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 1) filled being correct
             Grid g = new(1, 2);
             g.SetSolution([new(0, 1)]);
-            NonogramAPI api = new(g) { EnableAutoCorrection = true };
+
+            NonogramAPI api = new(g) { Options = optsAutoCorrect };
 
             bool eventFired = false;
             object? sender = null;
@@ -97,7 +100,8 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 1) filled being correct
             Grid g = new(2, 2);
             g.SetSolution([new(1, 1)]);
-            NonogramAPI api = new(g) { EnableAutoCorrection = true };
+
+            NonogramAPI api = new(g) { Options = optsAutoCorrect };
 
             bool eventFired = false;
             object? sender = null;
@@ -131,7 +135,7 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 1) filled being correct
             Grid g = new(1, 2);
             g.SetSolution([new(0, 1)]);
-            NonogramAPI api = new(g) { EnableAutoCorrection = true };
+            NonogramAPI api = new(g) { Options = optsAutoCorrect };
 
             bool eventFired = false;
 
@@ -150,7 +154,7 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 1) filled being correct
             Grid g = new(1, 2);
             g.SetSolution([new(0, 1)]);
-            NonogramAPI api = new(g) { EnableAutoCorrection = false };
+            NonogramAPI api = new(g) { Options = new() { EnableAutoCross = false } };
 
             bool eventFired = false;
 
