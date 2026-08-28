@@ -59,3 +59,24 @@ api = NonogramAPI.LoadPuzzle("example_puzzle.ns");
 Console.WriteLine("Successfully loaded puzzle!");
 // Once again, do not forget to catch thrown exceptions.
 ```
+
+## Using NonogramBuilder
+With @"NonoSharp.NonogramBuilder", you can create your own puzzles and convert them to a @"NonoSharp.NonogramAPI" instance
+or save them to disk! The example below creates a 5×5 puzzle with a smiley face as solution and saves it to a file.
+```csharp
+using NonoSharp;
+NonogramBuilder builder = new(5, 5);
+
+// Construct custom solution
+builder.FillCell(1, 0); builder.FillCell(3, 0);
+
+builder.FillCell(1, 1); builder.FillCell(3, 1);
+
+builder.FillCell(0, 3); builder.FillCell(4, 3);
+
+builder.FillCell(0, 4); builder.FillCell(1, 4); builder.FillCell(2, 4); 
+builder.FillCell(3, 4); builder.FillCell(4, 4);
+
+// Save the constructed solution. Do not forget to catch the exceptions!
+builder.SaveAsFile("builder_example.ns");
+```
