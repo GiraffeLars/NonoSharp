@@ -5,7 +5,7 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
-    /// A singular hint, usually part of a group of multiple Hint instances contained in <see cref="Hints"/>
+    /// A singular hint, usually part of a group of multiple Hint instances contained in <see cref="Hints"/>.
     /// </summary>
     public class Hint : ICloneable
     {
@@ -14,7 +14,7 @@ namespace NonoSharp
         /// </summary>
         public int Number { get; }
         /// <summary>
-        /// Whether this hint is marked as complete, i.e. this hint's corresponding cell group is correct
+        /// Whether this hint is marked as complete, i.e. this hint's corresponding cell group is correct.
         /// </summary>
         public bool Completed { get { return _completed; } }
         internal bool _completed;
@@ -39,7 +39,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Deep copies this instance
+        /// Deep copies this instance.
         /// </summary>
         /// <returns>New, deep-copied instance of this instance</returns>
         public object Clone()

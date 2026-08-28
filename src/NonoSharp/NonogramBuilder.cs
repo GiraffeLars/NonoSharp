@@ -37,7 +37,8 @@ namespace NonoSharp
         private readonly PuzzleDefinition puzzle;
 
         /// <summary>
-        /// Creates a new PuzzleBuilder
+        /// Creates a new PuzzleBuilder instance with a width of <paramref name="width"/> and a height of
+        /// <paramref name="height"/>.
         /// </summary>
         /// <param name="width">Width for the puzzle to create with this PuzzleBuilder</param>
         /// <param name="height">Height for the puzzle to create with this PuzzleBuilder</param>
@@ -65,7 +66,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether the built puzzle is uniquely solvable
+        /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
         /// <returns>True if it is uniquely solvable, false otherwise</returns>
         public bool IsSolvable()
@@ -88,7 +89,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether the built puzzle is uniquely solvable
+        /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
         /// <returns>True if it is uniquely solvable, false otherwise</returns>
 
@@ -121,7 +122,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Converts this puzzle into a playable <see cref="NonogramAPI"/>
+        /// Converts this puzzle into a playable <see cref="NonogramAPI"/>.
         /// </summary>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
         public NonogramAPI GetNonogramAPI()
@@ -136,7 +137,7 @@ namespace NonoSharp
 
 
         /// <summary>
-        /// Converts this puzzle into a playable <see cref="NonogramAPI"/> asynchronously
+        /// Converts this puzzle into a playable <see cref="NonogramAPI"/> asynchronously.
         /// </summary>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
         public async Task<NonogramAPI> GetNonogramAPIAsync()
@@ -154,7 +155,7 @@ namespace NonoSharp
         /// The puzzle must be uniquely solvable.
         /// </summary>
         /// <param name="path">The path to save the puzzle to</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, 
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, 
         /// when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
@@ -175,7 +176,7 @@ namespace NonoSharp
         /// Saves this puzzle asynchronously at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
         /// </summary>
         /// <param name="path">The path to save the puzzle to</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example,
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example,
         /// when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
@@ -192,7 +193,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Sets the dimensions of this puzzle definition. This is done by adding new empty cells to the right and bottom.
+        /// Sets the dimensions of this PuzzleBuilder. This is done by adding new empty cells to the right and bottom.
         /// Cannot shrink the puzzle.
         /// </summary>
         /// <param name="newWidth">New width for the puzzle</param>
@@ -212,7 +213,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Sets the cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newValue"/>
+        /// Sets the cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newValue"/>.
         /// </summary>
         /// <param name="x">x-coordinate of cell to set</param>
         /// <param name="y">y-coordinate of cell to set</param>
@@ -228,7 +229,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) as expected to be filled in the solution
+        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) as expected to be filled in the solution.
         /// </summary>
         /// <param name="x">x-coordinate of cell to fill</param>
         /// <param name="y">y-coordinate of cell to fill</param>
@@ -240,7 +241,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at <paramref name="position"/> as expected to be filled in the solution
+        /// Marks the cell at <paramref name="position"/> as expected to be filled in the solution.
         /// </summary>
         /// <param name="position">Position of cell to fill</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
@@ -252,7 +253,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) as expected to be empty in the solution
+        /// Marks the cell at (<paramref name="x"/>, <paramref name="y"/>) as expected to be empty in the solution.
         /// </summary>
         /// <param name="x">x-coordinate of cell to mark as empty</param>
         /// <param name="y">y-coordinate of cell to mark as empty</param>
@@ -264,7 +265,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Marks the cell at <paramref name="position"/> as expected to be empty in the solution
+        /// Marks the cell at <paramref name="position"/> as expected to be empty in the solution.
         /// </summary>
         /// <param name="position">Position of cell to mark as empty</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
@@ -291,7 +292,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks if Cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be filled in the solution
+        /// Checks if Cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be filled in the solution.
         /// </summary>
         /// <param name="x">x-coordinate of cell to check</param>
         /// <param name="y">y-coordinate of cell to check</param>
@@ -304,7 +305,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks if Cell at <paramref name="position"/> is expected to be filled in the solution
+        /// Checks if Cell at <paramref name="position"/> is expected to be filled in the solution.
         /// </summary>
         /// <param name="position">CellPosition to check</param>
         /// <returns>True if the cell is expected to be filled, false otherwise</returns>
@@ -316,7 +317,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks if Cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be empty in the solution
+        /// Checks if Cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be empty in the solution.
         /// </summary>
         /// <param name="x">x-coordinate of cell to check</param>
         /// <param name="y">y-coordinate of cell to check</param>
@@ -329,10 +330,10 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks if Cell at <paramref name="position"/> is expected to be filled in the solution
+        /// Checks if Cell at <paramref name="position"/> is expected to be empty in the solution.
         /// </summary>
         /// <param name="position">CellPosition to check</param>
-        /// <returns>True if the cell is expected to be filled, false otherwise</returns>
+        /// <returns>True if the cell is expected to be empty, false otherwise</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinates of <paramref name="position"/> are not within the
         /// puzzle bounds </exception>
         public bool IsCellEmpty(CellPosition position)
@@ -341,7 +342,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Validates the dimensions given by checking if this will construct a valid puzzle grid (i.e. dimensions are positive)
+        /// Validates the dimensions given by checking if this will construct a valid puzzle grid (i.e. dimensions are positive).
         /// </summary>
         /// <param name="width">Width to check</param>
         /// <param name="height">Height to check</param>
@@ -354,7 +355,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Validates whether x and y are in bounds
+        /// Validates whether x and y are in bounds.
         /// </summary>
         /// <param name="x">x-coordinate to check</param>
         /// <param name="y">y-coordinate to check</param>

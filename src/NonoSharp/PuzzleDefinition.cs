@@ -154,7 +154,7 @@ namespace NonoSharp
         /// Serializes this instance
         /// </summary>
         /// <returns>Array of bytes which represent a serialized PuzzleDefinition and can be reconstructed to be equal to this instance</returns>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs</exception>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, when the given title is too long, or an I/O exception occurs</exception>
         public byte[] Serialize()
         {
             using var ms = new MemoryStream();
@@ -390,7 +390,7 @@ namespace NonoSharp
         /// See also <seealso cref="File.WriteAllBytes(string, byte[])"/>.
         /// </summary>
         /// <param name="path">The path to save the puzzle to</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public void SavePuzzle(string path)
@@ -413,7 +413,7 @@ namespace NonoSharp
         /// See also <seealso cref="File.WriteAllBytesAsync(string, byte[], CancellationToken)"/>.
         /// </summary>
         /// <param name="path">The path to save the puzzle to</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization is fails. For example, when the given title is too long, or an I/O exception occurs.
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
         public async Task SavePuzzleAsync(string path)

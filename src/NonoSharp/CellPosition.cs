@@ -5,21 +5,21 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
-    /// A record containing a cell's position
+    /// A record containing a cell's position.
     /// </summary>
     public readonly record struct CellPosition
     {
         /// <summary>
-        /// X-coordinate of a cell on the puzzle grid
+        /// X-coordinate of a cell on the puzzle grid.
         /// </summary>
         public readonly int X;
         /// <summary>
-        /// Y-coordinate of a cell on the puzzle grid
+        /// Y-coordinate of a cell on the puzzle grid.
         /// </summary>
         public readonly int Y;
 
         /// <summary>
-        /// Creates a CellPosition with the given coordinates
+        /// Creates a CellPosition with the given coordinates.
         /// </summary>
         /// <param name="x">X-coordinate of the cell</param>
         /// <param name="y">Y-coordinate of the cell</param>
@@ -29,7 +29,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Returns a string in the form of "(X, Y)"
+        /// Returns a string in the form of "(X, Y)".
         /// </summary>
         /// <returns>String as above</returns>
         public override string ToString()

@@ -123,7 +123,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Fills the cell at (<paramref name="x"/>, <paramref name="y"/>)
+        /// Fills the cell at (<paramref name="x"/>, <paramref name="y"/>).
         /// </summary>
         /// <param name="x">x-coordinate of the cell, zero-indexed from the left.</param>
         /// <param name="y">y-coordinate of the cell, zero-indexed from the top.</param>
@@ -394,7 +394,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is empty
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is empty.
         /// </summary>
         /// <param name="x">x-coordinate of cell to check</param>
         /// <param name="y">y-coordinate of cell to check</param>
@@ -407,7 +407,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is filled
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is filled.
         /// </summary>
         /// <param name="x">x-coordinate of cell to check</param>
         /// <param name="y">y-coordinate of cell to check</param>
@@ -421,7 +421,7 @@ namespace NonoSharp
 
 
         /// <summary>
-        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is crossed
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is crossed.
         /// </summary>
         /// <param name="x">x-coordinate of cell to check</param>
         /// <param name="y">y-coordinate of cell to check</param>
@@ -443,7 +443,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Should be called when one or more cells have changed states
+        /// Should be called when one or more cells have changed states.
         /// </summary>
         /// <param name="e">The event args corresponding to this event. Should contain the CellPositions of all
         /// changed cells.</param>
@@ -453,7 +453,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Should be called when the puzzle has been solved in current move
+        /// Should be called when the puzzle has been solved in current move.
         /// </summary>
         protected internal virtual void OnPuzzleSolved()
         {
@@ -461,7 +461,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Should be called when a cell was corrected to the expected type found in the solution
+        /// Should be called when a cell was corrected to the expected type found in the solution.
         /// </summary>
         /// <param name="e">Event args containing the changed cell, the requested state to change to and the corrected cell type</param>
         protected internal virtual void OnCellCorrected(CorrectionEventArgs e)

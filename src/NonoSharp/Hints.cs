@@ -4,7 +4,7 @@ namespace NonoSharp
 {
     /// <summary>
     /// The hints of a line. Each Hint in Hints can be accessed by using the indexer.
-    /// E.g.: Hint hintAtI = (Hints) hints[i]
+    /// E.g.: Hint hintAtI = (Hints) hints[i].
     /// </summary>
     public class Hints : ICloneable, IEnumerable<Hint>
     {
@@ -13,17 +13,17 @@ namespace NonoSharp
         private int position;
 
         /// <summary>
-        /// The total amount of filled cells these hints concern
+        /// The total amount of filled cells these hints concern.
         /// </summary>
         public int TotalCellsInHints {  get; private set; }
 
         /// <summary>
-        /// Whether this line of Hints is fully completed (i.e. all hints are completed)
+        /// Whether this line of Hints is fully completed (i.e. all hints are completed).
         /// </summary>
         public bool FullyCompleted { get; private set; }
 
         /// <summary>
-        /// The total number of <see cref="Hint"/> instances contained in this Hints instance
+        /// The total number of <see cref="Hint"/> instances contained in this Hints instance.
         /// </summary>
         public int Count { get { return hints.Count; } }
 
