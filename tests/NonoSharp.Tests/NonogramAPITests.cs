@@ -119,7 +119,7 @@ namespace NonoSharp.Tests
             NonogramAPI autoCrossAPI = new(g);
 
             // [O][X][O][O][X]
-            List<int> solXCoords = [0, 2, 3];
+            HashSet<int> solXCoords = [0, 2, 3];
             g.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
             autoCrossAPI.FillCell(0, 0);
 
@@ -140,6 +140,34 @@ namespace NonoSharp.Tests
                 else
                 {
                     Assert.True(autoCrossAPI.IsCellCrossed(i, 0));
+                }
+            }
+        }
+
+        [Fact]
+        public void TestAutoCrossDisabled()
+        {
+            Grid g = new Grid(5, 1);
+
+            NonogramOptions opts = new() { EnableAutoCorrection = false };
+            NonogramAPI autoCrossAPI = new(g) { Options = opts };
+
+            // [O][X][O][O][X]
+            HashSet<int> solXCoords = [0, 2, 3];
+            g.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
+            autoCrossAPI.FillCell(0, 0);
+            autoCrossAPI.FillCell(2, 0); autoCrossAPI.FillCell(3, 0);
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (solXCoords.Contains(i))
+                {
+                    Assert.True(autoCrossAPI.IsCellFilled(i, 0));
+                }
+                else
+                {
+                    // Checks if autocross successfully did not trigger
+                    Assert.True(autoCrossAPI.IsCellEmpty(i, 0));
                 }
             }
         }
