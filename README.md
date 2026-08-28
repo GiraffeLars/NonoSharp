@@ -127,8 +127,10 @@ Features that are currently planned to be added *(in no particular order)*:
 - [x] Automatically cross the remaining blank cells upon line completion
 - [x] Support for pre-made puzzles
 - [x] Player-created puzzles and puzzle creator
+- [x] Settings for consumers, such as toggling auto crosses or enabling automatic correction when a cell was filled incorrectly
 - [ ] Optimise Solver used for random puzzle generation and make it available publicly
-- [ ] Settings for consumers, such as toggling auto crosses or enabling automatic correction when a cell was filled incorrectly
+- [ ] Convert pictures to Nonograms
+- [ ] Getting hints when stuck solving a puzzle
 
 ## Contribution guidelines
 This project started as a solo learning project, but contributions are welcome. Please open a PR or an issue if you wish to contribute. 

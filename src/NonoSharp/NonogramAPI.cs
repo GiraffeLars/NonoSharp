@@ -448,6 +448,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="e">The event args corresponding to this event. Should contain the CellPositions of all
         /// changed cells.</param>
+        /// <exclude />
         protected internal virtual void OnCellStateChanged(CellStateEventArgs e)
         {
             CellStateChanged?.Invoke(this, e);
@@ -456,6 +457,7 @@ namespace NonoSharp
         /// <summary>
         /// Should be called when the puzzle has been solved in current move
         /// </summary>
+        /// <exclude />
         protected internal virtual void OnPuzzleSolved()
         {
             PuzzleSolved?.Invoke(this, EventArgs.Empty);
@@ -465,6 +467,7 @@ namespace NonoSharp
         /// Should be called when a cell was corrected to the expected type found in the solution
         /// </summary>
         /// <param name="e">Event args containing the changed cell, the requested state to change to and the corrected cell type</param>
+        /// <exclude />
         protected internal virtual void OnCellCorrected(CorrectionEventArgs e)
         {
             CellCorrected?.Invoke(this, e);
