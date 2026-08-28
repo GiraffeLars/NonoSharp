@@ -48,9 +48,9 @@ namespace NonoSharp
         /// The solution for the current puzzle, i.e. the cells (and only those cells) that must be filled
         /// for the puzzle to be solved.
         /// </summary>
-        public List<CellPosition> Solution { 
+        public HashSet<CellPosition> Solution { 
             get {
-                // CellPositions coordinates are readonly, we can just make a new list and return that,
+                // CellPositions coordinates are readonly, we can just make a new hashset and return that,
                 // avoids users modifying the solution
                 return [.. grid.Solution]; 
             } 
