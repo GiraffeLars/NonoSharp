@@ -218,9 +218,6 @@ namespace NonoSharp
                 return typeCellChangedTo;
             }
 
-            // TODO: Optimise the way we check if the solution contains the changed cell
-            // Unfortunately, this requires a refactorisation of Grid, either changing from a List of CellPosition solution to
-            // a bool array solution, making checking if the puzzle is solved more expensive or using both, taking up more memory
             bool solutionHasCell = grid.Solution.Contains(new(x, y));
             if ((solutionHasCell && typeCellChangedTo == CellType.CROSS) || (!solutionHasCell && typeCellChangedTo == CellType.FILLED))
             {
