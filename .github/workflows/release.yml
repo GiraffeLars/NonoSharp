@@ -101,6 +101,10 @@ jobs:
         run: dotnet tool update -g docfx
       - name: Build Docs
         run: docfx docfx.json
+      - name: Inject Google Search Tag
+        run: |
+            META_TAG='<meta name="google-site-verification" content="${{ secrets.GOOGLE_TAG }}" />'
+            find ./_site -name "*.html" -exec sudo sed -i "s|</head>|$META_TAG\n</head>|g" {} +
       - name: Upload Docs
         uses: actions/upload-pages-artifact@v3
         with: 
