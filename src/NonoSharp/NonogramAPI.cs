@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using NonoSharp.Events;
+﻿using NonoSharp.Events;
 using NonoSharp.Exceptions;
 
 namespace NonoSharp
@@ -45,6 +44,24 @@ namespace NonoSharp
         /// </summary>
         public bool CanRedo { get { return redoStack.Count != 0; } }
 
+        /// <summary>
+        /// The solution for the current puzzle, i.e. the cells (and only those cells) that must be filled
+        /// for the puzzle to be solved.
+        /// </summary>
+        public List<CellPosition> Solution { 
+            get {
+                // CellPositions coordinates are readonly, we can just make a new list and return that,
+                // avoids users modifying the solution
+                return [.. grid.Solution]; 
+            } 
+        }
+
+        /// <summary>
+        /// Whether to automatically correct cells that are changed incorrectly according to the solution.
+        /// <c>false</c> by default.
+        /// </summary>
+        public bool EnableAutoCorrection = false;
+
         private readonly LinkedList<ICommand> undoStack;
         private readonly LinkedList<ICommand> redoStack;
 
@@ -60,31 +77,38 @@ namespace NonoSharp
         public event EventHandler? PuzzleSolved;
 
         /// <summary>
-        /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int)"/> 
+        /// Raised when a cell is changed incorrectly and is therefore corrected to the expected state of this cell.
+        /// </summary>
+        public event EventHandler<CorrectionEventArgs>? CellCorrected;
+
+        /// <summary>
+        /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int, bool)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
+        /// <param name="enableAutoCorrect">Whether to enable automatic correction of incorrect cells</param>
         /// <returns>NonogramAPI instance as described above</returns>
-        public static NonogramAPI CreateRandomPuzzle(int width, int height)
+        public static NonogramAPI CreateRandomPuzzle(int width, int height, bool enableAutoCorrect = false)
         {
             // Generate solution using a task as generating a puzzle is expensive
             List<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
             Grid g = new(width, height, sol);
-            return new NonogramAPI(g);
+            return new NonogramAPI(g) { EnableAutoCorrection = enableAutoCorrect};
         }
 
         /// <summary>
         /// Creates an API instance with a random puzzle asynchronously by running 
-        /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int)"/> on the ThreadPool
+        /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int, bool)"/> on the ThreadPool
         /// as it is computionally expensive.
         /// </summary>
         /// <param name="width">Width of the grid for the game</param>
         /// <param name="height">Height of the grid for the game</param>
+        /// <param name="enableAutoCorrect">Whether to enable automatic correction of incorrect cells</param>
         /// <returns>NonogramAPI instance as described above</returns>
-        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height)
+        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, bool enableAutoCorrect = false)
         {
-            return await Task.Run(() => CreateRandomPuzzle(width, height));
+            return await Task.Run(() => CreateRandomPuzzle(width, height, enableAutoCorrect));
         }
 
         internal NonogramAPI(Grid grid)
@@ -144,6 +168,7 @@ namespace NonoSharp
         /// <param name="newType"></param>
         private void DoMove(int x, int y, CellType newType)
         {
+            newType = DoAutoCorrection(x, y, newType);
             // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
             bool mightAutoCross = newType == CellType.FILLED || grid.GetCell(x, y) == CellType.FILLED;
 
@@ -177,6 +202,34 @@ namespace NonoSharp
                 PushCommand(initialCommand);
                 OnCellStateChanged(new([.. initialCommand.GetChanges()]));
             }
+        }
+
+        /// <summary>
+        /// Handles auto-correction
+        /// </summary>
+        /// <param name="x">x-coordinate of cell changed</param>
+        /// <param name="y">y-coordinate of cell changed</param>
+        /// <param name="typeCellChangedTo">New type of cell</param>
+        /// <returns>Corrected cell type if auto correction is enabled, <paramref name="typeCellChangedTo"/> otherwise</returns>
+        private CellType DoAutoCorrection(int x, int y, CellType typeCellChangedTo)
+        {
+            if (!EnableAutoCorrection)
+            {
+                return typeCellChangedTo;
+            }
+
+            // TODO: Optimise the way we check if the solution contains the changed cell
+            // Unfortunately, this requires a refactorisation of Grid, either changing from a List of CellPosition solution to
+            // a bool array solution, making checking if the puzzle is solved more expensive or using both, taking up more memory
+            bool solutionHasCell = grid.Solution.Contains(new(x, y));
+            if ((solutionHasCell && typeCellChangedTo == CellType.CROSS) || (!solutionHasCell && typeCellChangedTo == CellType.FILLED))
+            {
+                CellType invertedType = typeCellChangedTo == CellType.FILLED ? CellType.CROSS : CellType.FILLED;
+                CorrectionEventArgs args = new(new(x, y), typeCellChangedTo, invertedType);
+                OnCellCorrected(args);
+                return invertedType;
+            }
+            return typeCellChangedTo;
         }
 
         /// <summary>
@@ -397,7 +450,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="e">The event args corresponding to this event. Should contain the CellPositions of all
         /// changed cells.</param>
-        protected virtual void OnCellStateChanged(CellStateEventArgs e)
+        protected internal virtual void OnCellStateChanged(CellStateEventArgs e)
         {
             CellStateChanged?.Invoke(this, e);
         }
@@ -405,9 +458,18 @@ namespace NonoSharp
         /// <summary>
         /// Should be called when the puzzle has been solved in current move
         /// </summary>
-        protected virtual void OnPuzzleSolved()
+        protected internal virtual void OnPuzzleSolved()
         {
             PuzzleSolved?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Should be called when a cell was corrected to the expected type found in the solution
+        /// </summary>
+        /// <param name="e">Event args containing the changed cell, the requested state to change to and the corrected cell type</param>
+        protected internal virtual void OnCellCorrected(CorrectionEventArgs e)
+        {
+            CellCorrected?.Invoke(this, e);
         }
 
         /// <summary>

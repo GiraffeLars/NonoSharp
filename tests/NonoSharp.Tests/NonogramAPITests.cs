@@ -5,11 +5,11 @@ using NonoSharp;
 
 namespace NonoSharp.Tests
 {
-    public class GameAPITests
+    public class NonogramAPITests
     {
         private readonly NonogramAPI api;
 
-        public GameAPITests()
+        public NonogramAPITests()
         {
             // API for a 15x15 grid with an empty solution.
             // Don't generate random solvable solutions as this increases test time.

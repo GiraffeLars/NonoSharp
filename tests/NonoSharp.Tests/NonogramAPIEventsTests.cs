@@ -5,7 +5,7 @@ using NonoSharp.Events;
 
 namespace NonoSharp.Tests
 {
-    public class GameAPIEventsTests
+    public class NonogramAPIEventsTests
     {
         [Fact]
         public async Task TestCellStateChangedEvent()
@@ -56,6 +56,59 @@ namespace NonoSharp.Tests
 
             Assert.True(eventFired);
             Assert.Same(api, sender);
+        }
+
+
+        [Fact]
+        public void TestCorrectionEvent()
+        {
+            // Create simple grid with only (0, 1) filled being correct
+            Grid g = new(1, 2);
+            g.SetSolution([new(0, 1)]);
+            NonogramAPI api = new(g) { EnableAutoCorrection = true };
+
+            bool eventFired = false;
+            object? sender = null;
+            CorrectionEventArgs? args = null;
+
+            api.CellCorrected += (s, e) =>
+            {
+                eventFired = true;
+                sender = s;
+                args = e;
+            };
+
+            api.CrossCell(0, 1);
+
+            Assert.True(eventFired);
+            Assert.Same(api, sender);
+            Assert.NotNull(args);
+
+            Assert.Equal(0, args.Cell.X);
+            Assert.Equal(1, args.Cell.Y);
+
+            Assert.Equal(CellType.CROSS, args.Before);
+            Assert.Equal(CellType.FILLED, args.After);
+        }
+
+        [Fact]
+        public void TestCorrectionEventDisabled()
+        {
+            // Create simple grid with only (0, 1) filled being correct
+            Grid g = new(1, 2);
+            g.SetSolution([new(0, 1)]);
+            NonogramAPI api = new(g) { EnableAutoCorrection = false };
+
+            bool eventFired = false;
+            object? sender = null;
+
+            api.CellCorrected += (s, e) =>
+            {
+                eventFired = true;
+                sender = s;
+            };
+
+            Assert.False(eventFired);
         }
     }
 }
