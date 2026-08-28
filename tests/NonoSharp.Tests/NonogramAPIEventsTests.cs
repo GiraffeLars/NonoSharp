@@ -8,7 +8,7 @@ namespace NonoSharp.Tests
     public class NonogramAPIEventsTests
     {
         [Fact]
-        public async Task TestCellStateChangedEvent()
+        public void TestCellStateChangedEvent()
         {
             NonogramAPI api = new(new Grid(1, 1));
             bool eventFired = false;
@@ -108,6 +108,7 @@ namespace NonoSharp.Tests
                 sender = s;
             };
 
+            api.CrossCell(0, 1);
             Assert.False(eventFired);
         }
     }

@@ -7,7 +7,7 @@ namespace NonoSharp.Events
     /// <summary>
     /// The arguments for the Cell Corrected event
     /// </summary>
-    public class CorrectionEventArgs
+    public class CorrectionEventArgs : EventArgs
     {
         /// <summary>
         /// Position of cell that was corrected

@@ -5,7 +5,7 @@ namespace NonoSharp
 {
     /// <summary>
     /// Class for the Nonogram API. Can be initialised with static methods such as 
-    /// <see cref="CreateRandomPuzzle(int, int)"/> or <see cref="LoadPuzzle(string)"/>.
+    /// <see cref="CreateRandomPuzzle(int, int, bool)"/> or <see cref="LoadPuzzle(string)"/>.
     /// </summary>
     public class NonogramAPI
     {
@@ -60,7 +60,7 @@ namespace NonoSharp
         /// Whether to automatically correct cells that are changed incorrectly according to the solution.
         /// <c>false</c> by default.
         /// </summary>
-        public bool EnableAutoCorrection = false;
+        public bool EnableAutoCorrection { get; set; } = false;
 
         private readonly LinkedList<ICommand> undoStack;
         private readonly LinkedList<ICommand> redoStack;
