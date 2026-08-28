@@ -119,8 +119,8 @@ namespace NonoSharp.Tests
             NonogramAPI autoCrossAPI = new(g);
 
             // [O][X][O][O][X]
-            List<int> solXCoords = new() { 0, 2, 3 };
-            g.SetSolution(solXCoords.Select(x => new CellPosition(x, 0)).ToList());
+            List<int> solXCoords = [0, 2, 3];
+            g.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
             autoCrossAPI.FillCell(0, 0);
 
             // Check if auto cross didn't trigger

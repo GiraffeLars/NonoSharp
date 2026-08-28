@@ -5,7 +5,7 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
-    /// Possible states of a cell on the puzzle grid
+    /// Possible types of a cell on the puzzle grid
     /// </summary>
     public enum CellType
     {

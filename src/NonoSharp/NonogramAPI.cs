@@ -92,7 +92,7 @@ namespace NonoSharp
         public static NonogramAPI CreateRandomPuzzle(int width, int height, bool enableAutoCorrect = false)
         {
             // Generate solution using a task as generating a puzzle is expensive
-            List<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
+            HashSet<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
             Grid g = new(width, height, sol);
             return new NonogramAPI(g) { EnableAutoCorrection = enableAutoCorrect};
         }
@@ -611,7 +611,7 @@ namespace NonoSharp
         {
             Grid grid = new Grid(definition.Width, definition.Height);
 
-            List<CellPosition> solution = definition.ConvertBoolSolutionToPositions();
+            HashSet<CellPosition> solution = definition.ConvertBoolSolutionToPositions();
 
             await Task.Run(() => grid.SetSolution(solution));
             return grid;

@@ -8,7 +8,7 @@ namespace NonoSharp
     internal class Grid : ICloneable
     {
         private readonly CellType[,] grid;
-        internal List<CellPosition> Solution {get; private set; }
+        internal HashSet<CellPosition> Solution {get; private set; }
         private int filled = 0;
         private int paddingString = 0;
 
@@ -25,7 +25,7 @@ namespace NonoSharp
         /// <param name="height">Height of the grid</param>
         /// <param name="solution">The solution for the grid</param>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
-        public Grid(int width, int height, List<CellPosition> solution)
+        public Grid(int width, int height, HashSet<CellPosition> solution)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0);
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0);
@@ -58,7 +58,7 @@ namespace NonoSharp
         /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
         /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
-        internal Grid(CellType[,] grid, List<CellPosition> solution, int filled, int paddingString, int width, int height)
+        internal Grid(CellType[,] grid, HashSet<CellPosition> solution, int filled, int paddingString, int width, int height)
         {
             this.grid = grid;
             this.filled = filled;
@@ -93,7 +93,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="solution"></param>
         [MemberNotNull(nameof(Solution))]
-        internal void SetSolution(List<CellPosition> solution)
+        internal void SetSolution(HashSet<CellPosition> solution)
         { 
             this.Solution = solution;
             InitializeHints();
@@ -442,9 +442,8 @@ namespace NonoSharp
                 return false; 
             }
 
-            for (int i = 0; i < Solution.Count(); i++)
+            foreach (CellPosition p in Solution)
             {
-                CellPosition p = Solution[i];
                 if (grid[p.X, p.Y] != CellType.FILLED)
                 {
                     return false;

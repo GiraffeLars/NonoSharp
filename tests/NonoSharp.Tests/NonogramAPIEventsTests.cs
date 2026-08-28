@@ -60,7 +60,7 @@ namespace NonoSharp.Tests
 
 
         [Fact]
-        public void TestCorrectionEvent()
+        public void TestCorrectionEventCrossToFill()
         {
             // Create simple grid with only (0, 1) filled being correct
             Grid g = new(1, 2);
@@ -92,6 +92,59 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
+        public void TestCorrectionEventFillToCross()
+        {
+            // Create simple grid with only (0, 1) filled being correct
+            Grid g = new(2, 2);
+            g.SetSolution([new(1, 1)]);
+            NonogramAPI api = new(g) { EnableAutoCorrection = true };
+
+            bool eventFired = false;
+            object? sender = null;
+            CorrectionEventArgs? args = null;
+
+            api.CellCorrected += (s, e) =>
+            {
+                eventFired = true;
+                sender = s;
+                args = e;
+            };
+
+            api.FillCell(1, 0);
+
+            Assert.True(eventFired);
+            Assert.Same(api, sender);
+            Assert.NotNull(args);
+
+            Assert.Equal(1, args.Cell.X);
+            Assert.Equal(0, args.Cell.Y);
+
+            Assert.Equal(CellType.FILLED, args.Before);
+            Assert.Equal(CellType.CROSS, args.After);
+        }
+
+        [Fact]
+        public void TestCorrectionEventNonEmptyToEmpty()
+        {
+            // Emptying a cell should not trigger correction
+
+            // Create simple grid with only (0, 1) filled being correct
+            Grid g = new(1, 2);
+            g.SetSolution([new(0, 1)]);
+            NonogramAPI api = new(g) { EnableAutoCorrection = true };
+
+            bool eventFired = false;
+
+            api.CellCorrected += (s, e) =>
+            {
+                eventFired = true;
+            };
+
+            api.EmptyCell(0, 1);
+            Assert.False(eventFired);
+        }
+
+        [Fact]
         public void TestCorrectionEventDisabled()
         {
             // Create simple grid with only (0, 1) filled being correct
@@ -100,12 +153,10 @@ namespace NonoSharp.Tests
             NonogramAPI api = new(g) { EnableAutoCorrection = false };
 
             bool eventFired = false;
-            object? sender = null;
 
             api.CellCorrected += (s, e) =>
             {
                 eventFired = true;
-                sender = s;
             };
 
             api.CrossCell(0, 1);

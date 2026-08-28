@@ -14,11 +14,11 @@ namespace NonoSharp
         /// </summary>
         /// <param name="width">Width of the grid on which the puzzle is to be solved</param>
         /// <param name="height">Height of the grid on which the puzzle is to be solved</param>
-        /// <returns>List of CellPositions containing the coordinates of cells that must be filled</returns>
-        public static List<CellPosition> GenerateRandomSolution(int width, int height)
+        /// <returns>HashSet of CellPositions containing the coordinates of cells that must be filled</returns>
+        public static HashSet<CellPosition> GenerateRandomSolution(int width, int height)
         {
 
-            List<CellPosition> solution = GetRandomSolution(width, height);
+            HashSet<CellPosition> solution = GetRandomSolution(width, height);
             Grid g = new(width, height, solution);
 
             while (!Solver.IsSolvable(g))
@@ -30,10 +30,10 @@ namespace NonoSharp
             return solution;
         }
 
-        internal static List<CellPosition> GetRandomSolution(int width, int height)
+        internal static HashSet<CellPosition> GetRandomSolution(int width, int height)
         {
             var random = new Random();
-            List<CellPosition> positions = new List<CellPosition>();
+            HashSet<CellPosition> positions = [];
 
             for (int x = 0; x < width; x++)
             {
