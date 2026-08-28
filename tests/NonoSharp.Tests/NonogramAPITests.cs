@@ -149,7 +149,7 @@ namespace NonoSharp.Tests
         {
             Grid g = new Grid(5, 1);
 
-            NonogramOptions opts = new() { EnableAutoCorrection = false };
+            NonogramOptions opts = new() { EnableAutoCross = false };
             NonogramAPI autoCrossAPI = new(g) { Options = opts };
 
             // [O][X][O][O][X]

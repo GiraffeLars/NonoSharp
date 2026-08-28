@@ -154,7 +154,7 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 1) filled being correct
             Grid g = new(1, 2);
             g.SetSolution([new(0, 1)]);
-            NonogramAPI api = new(g) { Options = optsAutoCorrect };
+            NonogramAPI api = new(g) { Options = new() { EnableAutoCross = false } };
 
             bool eventFired = false;
 

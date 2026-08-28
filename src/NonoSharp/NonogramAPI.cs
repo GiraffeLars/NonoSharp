@@ -5,7 +5,7 @@ namespace NonoSharp
 {
     /// <summary>
     /// Class for the Nonogram API. Can be initialised with static methods such as 
-    /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string)"/>.
+    /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string, NonogramOptions)"/>.
     /// </summary>
     public class NonogramAPI
     {
@@ -536,9 +536,7 @@ namespace NonoSharp
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
 
             Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
-
-            options ??= new NonogramOptions();
-            return new(grid) { Options = options };
+            return new(grid) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -558,9 +556,7 @@ namespace NonoSharp
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
             Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
-
-            options ??= new();
-            return new(grid) { Options = options};
+            return new(grid) { Options = options ?? new()};
         }
 
         /// <summary>
@@ -574,13 +570,13 @@ namespace NonoSharp
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
-        public static async Task<NonogramAPI> LoadPuzzleAsync(string path, NonogramOptions? options)
+        public static async Task<NonogramAPI> LoadPuzzleAsync(string path, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
 
             Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
-            return new(grid) { Options = options ?? new NonogramOptions() };
+            return new(grid) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -592,17 +588,18 @@ namespace NonoSharp
         /// To avoid false positives on InvalidFileFormatException exceptions,
         /// the stream must consist of ONLY one valid puzzle, such as one provided by
         /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
-        public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream)
+        public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
             Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
-            return new(grid);
+            return new(grid) { Options = options ?? new() };
         }
 
         private static Grid ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)
