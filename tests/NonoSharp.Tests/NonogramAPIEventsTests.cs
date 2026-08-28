@@ -7,7 +7,7 @@ namespace NonoSharp.Tests
 {
     public class NonogramAPIEventsTests
     {
-        private NonogramOptions optsAutoCorrect = new() { EnableAutoCorrection = true };
+        private NonogramOptions optsAutoCorrect = new() { EnableAutoCorrect = true };
 
         [Fact]
         public void TestCellStateChangedEvent()

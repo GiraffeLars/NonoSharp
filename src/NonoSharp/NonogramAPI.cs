@@ -169,7 +169,7 @@ namespace NonoSharp
         /// <param name="newType"></param>
         private void DoMove(int x, int y, CellType newType)
         {
-            newType = DoAutoCorrection(x, y, newType);
+            newType = DoAutoCorrect(x, y, newType);
             // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
             bool mightAutoCross = newType == CellType.FILLED || grid.GetCell(x, y) == CellType.FILLED;
 
@@ -206,15 +206,15 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Handles auto-correction
+        /// Handles auto-correct
         /// </summary>
         /// <param name="x">x-coordinate of cell changed</param>
         /// <param name="y">y-coordinate of cell changed</param>
         /// <param name="typeCellChangedTo">New type of cell</param>
-        /// <returns>Corrected cell type if auto correction is enabled, <paramref name="typeCellChangedTo"/> otherwise</returns>
-        private CellType DoAutoCorrection(int x, int y, CellType typeCellChangedTo)
+        /// <returns>Corrected cell type if auto correct is enabled, <paramref name="typeCellChangedTo"/> otherwise</returns>
+        private CellType DoAutoCorrect(int x, int y, CellType typeCellChangedTo)
         {
-            if (!Options.EnableAutoCorrection)
+            if (!Options.EnableAutoCorrect)
             {
                 return typeCellChangedTo;
             }

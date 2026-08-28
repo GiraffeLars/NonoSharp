@@ -19,7 +19,7 @@ namespace NonoSharp
         /// Whether to automatically correct cells that are filled or crossed incorrectly according to the puzzle's solution.
         /// <c>false</c> by default
         /// </summary>
-        public bool EnableAutoCorrection { get; set; } = false;
+        public bool EnableAutoCorrect { get; set; } = false;
 
         /// <summary>
         /// Initialises a NonogramOptions instance with default values
