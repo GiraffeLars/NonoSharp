@@ -12,7 +12,7 @@ namespace NonoSharp.Tests
             grid = new Grid(5, 1);
 
             // Solution where [O][O][X][O][O] is correct
-            List<CellPosition> sol = new List<CellPosition>();
+            HashSet<CellPosition> sol = [];
             for (int i = 0; i < 5; i++)
             {
                 if (i == 2) { continue; }
@@ -27,7 +27,7 @@ namespace NonoSharp.Tests
 
             // Solution where [X][X][O][O][X][X][O][O][X]...
             //                  [X]....is correct
-            List<CellPosition> sol = new List<CellPosition>();
+            HashSet<CellPosition> sol = [];
             for (int i = 0; i < 8; i++)
             {
                 if (i <= 1 || i == 4 || i ==5) { continue; }
@@ -228,7 +228,7 @@ namespace NonoSharp.Tests
             // [O][X][O]
 
             Grid grid = new(3, 1);
-            List<CellPosition> sol = [new CellPosition(0, 0), new CellPosition(2, 0)];
+            HashSet<CellPosition> sol = [new CellPosition(0, 0), new CellPosition(2, 0)];
             grid.SetSolution(sol);
 
             // [O][X][X]

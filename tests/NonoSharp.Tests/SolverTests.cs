@@ -15,7 +15,7 @@ namespace NonoSharp.Tests
             // Empty grid
             Assert.True(Solver.IsSolvable(grid));
 
-            List<CellPosition> sol = [new CellPosition(0, 0)];
+            HashSet<CellPosition> sol = [new CellPosition(0, 0)];
 
             grid.SetSolution(sol);
 
@@ -35,7 +35,7 @@ namespace NonoSharp.Tests
             // [O][O][O]
             Grid grid = new Grid(3, 3);
 
-            List<CellPosition> solution =
+            HashSet<CellPosition> solution =
             [
                 new CellPosition(0, 0),
                 new CellPosition(0, 1),
@@ -55,7 +55,7 @@ namespace NonoSharp.Tests
             // [O][ ][O]
             Grid grid = new Grid(3, 3);
 
-            List<CellPosition> solution =
+            HashSet<CellPosition> solution =
             [
                 new CellPosition(0, 0), new CellPosition(2, 0),
                 new CellPosition(1, 1),
@@ -74,7 +74,7 @@ namespace NonoSharp.Tests
             // [ ][O]
 
             Grid grid = new Grid(2, 2);
-            List<CellPosition> solution = new List<CellPosition> { new CellPosition(0, 0), new CellPosition(1, 1) };
+            HashSet<CellPosition> solution = [new CellPosition(0, 0), new CellPosition(1, 1)];
             grid.SetSolution(solution);
 
             Assert.False(Solver.IsSolvable(grid));
@@ -83,7 +83,7 @@ namespace NonoSharp.Tests
             // [ ][O]
             // [O][ ]
             grid = new Grid(2, 2);
-            solution = new List<CellPosition> { new CellPosition(1, 0), new CellPosition(0, 1) };
+            solution = [new CellPosition(1, 0), new CellPosition(0, 1)];
             grid.SetSolution(solution);
 
             Assert.False(Solver.IsSolvable(grid));

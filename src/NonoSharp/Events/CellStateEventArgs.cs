@@ -7,7 +7,7 @@ namespace NonoSharp.Events
     /// <summary>
     /// The arguments for the cell state event.
     /// </summary>
-    public class CellStateEventArgs
+    public class CellStateEventArgs : EventArgs
     {
         /// <summary>
         /// List of the cells that were changed

@@ -74,14 +74,14 @@ namespace NonoSharp
         /// <param name="width">Width of the puzzle</param>
         /// <param name="height">Height of the puzzle</param>
         /// <param name="solution">The solution, of length width * height,
-        /// where for each filled cell in the solution, there is a CellPosition element in the list of the marked coordinates</param>
+        /// where for each filled cell in the solution, there is a CellPosition element in the set of the marked coordinates</param>
         /// <param name="title">Optional title of the puzzle</param>
         /// <exception cref="ArgumentException">Thrown when there are more filled cells in <paramref name="solution"/> than possible given <paramref name="width"/> and <paramref name="height"/></exception>
         /// <exception cref="OverflowException">Thrown when calculating <paramref name="width"/> * <paramref name="height"/> overflows.</exception>
-        internal PuzzleDefinition(int width, int height, List<CellPosition> solution, string? title = null) : 
+        internal PuzzleDefinition(int width, int height, HashSet<CellPosition> solution, string? title = null) : 
             this(width, height, ConvertPositionSolutionToBools(width, height, solution), title) { }
 
-        public static bool[] ConvertPositionSolutionToBools(int width, int height, List<CellPosition> solution)
+        public static bool[] ConvertPositionSolutionToBools(int width, int height, HashSet<CellPosition> solution)
         {
             bool[] boolSol = new bool[width * height];
 
@@ -95,9 +95,9 @@ namespace NonoSharp
             return boolSol;
         }
 
-        internal List<CellPosition> ConvertBoolSolutionToPositions()
+        internal HashSet<CellPosition> ConvertBoolSolutionToPositions()
         { 
-            List<CellPosition> positions = [];
+            HashSet<CellPosition> positions = [];
             for (int i = 0; i < Solution.Length; i++)
             {
                 if (Solution[i])

@@ -18,7 +18,12 @@ namespace NonoSharp
         /// </summary>
         public readonly int Y;
 
-        internal CellPosition(int x, int y)
+        /// <summary>
+        /// Creates a CellPosition with the given coordinates
+        /// </summary>
+        /// <param name="x">X-coordinate of the cell</param>
+        /// <param name="y">Y-coordinate of the cell</param>
+        public CellPosition(int x, int y)
         {
             X = x; Y = y;
         }
