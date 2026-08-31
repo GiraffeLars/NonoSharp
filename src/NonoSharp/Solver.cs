@@ -271,6 +271,13 @@ namespace NonoSharp
 
     internal class CompleteLineThenDFSStrategy : SolverHelperMethods, ISolveGridStrategy
     {
+        private UniqueQueue<(bool, int)> queue;
+
+        internal CompleteLineThenDFSStrategy()
+        {
+            queue = [];
+        }
+
         public void SolveGrid(Grid grid)
         {
             bool changed;
@@ -279,19 +286,89 @@ namespace NonoSharp
                 changed = false;
                 for (int i = 0; i < grid.Width; i++)
                 {
-                    DoIteration(grid, i, true);
+                    queue.Enqueue((true, i));
+                    changed |= HandleQueue(grid);
                 }
 
                 for (int j = 0; j < grid.Height; j++)
                 {
-
+                    queue.Enqueue((false, j));
+                    changed |= HandleQueue(grid);
                 }
             } while (changed);
         }
 
+        /// <summary>
+        /// While there are elements in the queue, calls <see cref="DoIteration(Grid, int, bool)"/> on the next
+        /// element of the queue
+        /// </summary>
+        /// <param name="grid">Grid to work with</param>
+        /// <returns>True if elements were changed during this run, false otherwise</returns>
+        private bool HandleQueue(Grid grid)
+        {
+            bool changed = false;
+            while (queue.Count > 0)
+            {
+                (bool inColumn, int index) = queue.Dequeue();
+                changed |= DoIteration(grid, index, inColumn);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Does a solve iteration. Changed cells are enqueued to the unique queue. 
+        /// </summary>
+        /// <param name="grid">Grid to work on</param>
+        /// <param name="idx">Index of row/column</param>
+        /// <param name="inColumn">Whether this iteration is in a column or not</param>
+        /// <returns>True if any cells where changed, false otherwise</returns>
         private bool DoIteration(Grid grid, int idx, bool inColumn)
         {
-            throw new NotImplementedException();
+            bool changed = false;
+            var line = inColumn ? grid.GetColumnArray(idx) : grid.GetRowArray(idx);
+            var hint = inColumn ? grid.ColumnHints[idx] : grid.RowHints[idx];
+
+            List<CellType[]> perms = [];
+            ComputePermutations(line, hint, 0, perms);
+
+            if (perms.Count == 0)
+            {
+                return false; // No valid moves left
+            }
+
+            for (int lineIndex = 0; lineIndex < line.Length; lineIndex++)
+            {
+                CellType baseCellType = perms[0][lineIndex];
+
+                int permIndex = 1;
+                for (; permIndex < perms.Count; permIndex++)
+                {
+                    if (perms[permIndex][lineIndex] != baseCellType)
+                    {
+                        break;
+                    }
+                }
+
+                // Check if all permutations were handled and the same type
+                if (permIndex == perms.Count)
+                {
+                    changed = true;
+
+                    if (inColumn)
+                    {
+                        grid.SetCell(idx, lineIndex, baseCellType);
+                    }
+                    else
+                    {
+                        grid.SetCell(lineIndex, idx, baseCellType);
+                    }
+
+                    // Enqueue the different direction as the cell has changed and can give information to the other cell
+                    queue.Enqueue((!inColumn, lineIndex));
+                }
+            }
+            return changed;
         }
     }
 
