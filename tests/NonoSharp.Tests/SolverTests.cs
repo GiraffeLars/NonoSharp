@@ -157,7 +157,7 @@ namespace NonoSharp.Tests
                 new CellPosition(14, 4), new CellPosition(14, 5), new CellPosition(14, 7), new CellPosition(14, 8), new CellPosition(14, 10),
                 new CellPosition(14, 13)]
             );
-            Assert.False(Solver.IsSolvable(grid));
+            Assert.False(Solver.IsSolvable(grid, new ImmediateDFSStrategy()));
 
 
             grid = new(15, 15);
@@ -189,7 +189,7 @@ namespace NonoSharp.Tests
                 new CellPosition(13, 14),    new CellPosition(14, 14),
                 ]);
 
-            Assert.True(Solver.IsSolvable(grid));
+            Assert.True(Solver.IsSolvable(grid, new ImmediateDFSStrategy()));
 
         }
 
