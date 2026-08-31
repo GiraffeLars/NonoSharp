@@ -269,33 +269,28 @@ namespace NonoSharp
         }
     }
 
-    internal class CompleteLineThenDFSStrategy : SolverHelperMethods, ISolveGridStrategy
+    internal class UniqueQueueStrategy : SolverHelperMethods, ISolveGridStrategy
     {
         private UniqueQueue<(bool, int)> queue;
 
-        internal CompleteLineThenDFSStrategy()
+        internal UniqueQueueStrategy()
         {
             queue = [];
         }
 
         public void SolveGrid(Grid grid)
         {
-            bool changed;
-            do
+            for (int i = 0; i < grid.Width; i++)
             {
-                changed = false;
-                for (int i = 0; i < grid.Width; i++)
-                {
-                    queue.Enqueue((true, i));
-                    changed |= HandleQueue(grid);
-                }
+                queue.Enqueue((true, i));
+            }
 
-                for (int j = 0; j < grid.Height; j++)
-                {
-                    queue.Enqueue((false, j));
-                    changed |= HandleQueue(grid);
-                }
-            } while (changed);
+            for (int j = 0; j < grid.Height; j++)
+            {
+                queue.Enqueue((false, j));
+            }
+
+            HandleQueue(grid);
         }
 
         /// <summary>
@@ -303,17 +298,13 @@ namespace NonoSharp
         /// element of the queue
         /// </summary>
         /// <param name="grid">Grid to work with</param>
-        /// <returns>True if elements were changed during this run, false otherwise</returns>
-        private bool HandleQueue(Grid grid)
+        private void HandleQueue(Grid grid)
         {
-            bool changed = false;
             while (queue.Count > 0)
             {
                 (bool inColumn, int index) = queue.Dequeue();
-                changed |= DoIteration(grid, index, inColumn);
+                DoIteration(grid, index, inColumn);
             }
-
-            return false;
         }
 
         /// <summary>
@@ -322,10 +313,8 @@ namespace NonoSharp
         /// <param name="grid">Grid to work on</param>
         /// <param name="idx">Index of row/column</param>
         /// <param name="inColumn">Whether this iteration is in a column or not</param>
-        /// <returns>True if any cells where changed, false otherwise</returns>
-        private bool DoIteration(Grid grid, int idx, bool inColumn)
+        private void DoIteration(Grid grid, int idx, bool inColumn)
         {
-            bool changed = false;
             var line = inColumn ? grid.GetColumnArray(idx) : grid.GetRowArray(idx);
             var hint = inColumn ? grid.ColumnHints[idx] : grid.RowHints[idx];
 
@@ -334,7 +323,7 @@ namespace NonoSharp
 
             if (perms.Count == 0)
             {
-                return false; // No valid moves left
+                return; // No valid moves left
             }
 
             for (int lineIndex = 0; lineIndex < line.Length; lineIndex++)
@@ -368,7 +357,6 @@ namespace NonoSharp
                     queue.Enqueue((!inColumn, lineIndex));
                 }
             }
-            return changed;
         }
     }
 

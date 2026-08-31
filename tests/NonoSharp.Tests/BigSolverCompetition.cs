@@ -104,7 +104,7 @@ namespace NonoSharp.Tests
                     await Task.Run(() =>
                     {
                         bool res = Solver.IsSolvable(
-                            fixture.grids[iteration], new CompleteLineThenDFSStrategy());
+                            fixture.grids[iteration], new UniqueQueueStrategy());
                         results[iteration] = res;
                     }
                     );
