@@ -185,12 +185,12 @@ namespace NonoSharp
                 for (int i = 0; i < grid.Width; i++)
                 {
 
-                    changed |= DoDFSFrom(grid, i, false);
+                    changed |= DoDFSFrom(grid, i, true);
                 }
 
                 for (int j = 0; j < grid.Height; j++)
                 {
-                    changed |= DoDFSFrom(grid, j, true);
+                    changed |= DoDFSFrom(grid, j, false);
                 }
             } while (changed);
         }
@@ -266,6 +266,32 @@ namespace NonoSharp
                 }
             }
             return changed;
+        }
+    }
+
+    internal class CompleteLineThenDFSStrategy : SolverHelperMethods, ISolveGridStrategy
+    {
+        public void SolveGrid(Grid grid)
+        {
+            bool changed;
+            do
+            {
+                changed = false;
+                for (int i = 0; i < grid.Width; i++)
+                {
+                    DoIteration(grid, i, true);
+                }
+
+                for (int j = 0; j < grid.Height; j++)
+                {
+
+                }
+            } while (changed);
+        }
+
+        private bool DoIteration(Grid grid, int idx, bool inColumn)
+        {
+            throw new NotImplementedException();
         }
     }
 
