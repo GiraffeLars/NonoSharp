@@ -5,7 +5,9 @@ namespace NonoSharp
 {
     /// <summary>
     /// Class for the Nonogram API. Can be initialised with static methods such as 
-    /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string, NonogramOptions)"/>.
+    /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string, NonogramOptions)"/>, or
+    /// by using the constructor with your own solution, 
+    /// <see cref="NonogramAPI(int, int, HashSet{CellPosition}, NonogramOptions)"/>.
     /// </summary>
     public class NonogramAPI
     {
@@ -80,6 +82,40 @@ namespace NonoSharp
         /// </summary>
         public event EventHandler<CorrectionEventArgs>? CellCorrected;
 
+        internal NonogramAPI(Grid grid)
+        {
+            this.grid = grid;
+            undoStack = new LinkedList<ICommand>();
+            redoStack = new LinkedList<ICommand>();
+
+            // The puzzle can switch between solved and unsolved when a cell changes state.
+            // Thus, we can handle sending the puzzle solved event after a cell changes state.
+            CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
+        }
+
+        /// <summary>
+        /// Creates a <c>NonogramAPI</c> instance with a width of <paramref name="width"/>, height of
+        /// <paramref name="height"/> and sets the solution to <paramref name="solution"/>.
+        /// </summary>
+        /// <remarks>
+        /// It is not checked whether the created puzzle can be solved. As such, using this constructor with an improper 
+        /// <paramref name="solution"/> can lead to the puzzle being unsolvable. To create puzzles that are guaranteed to be
+        /// uniquely solvable, use <see cref="NonogramBuilder"/> or create a random solvable puzzle with methods such as
+        /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/>.
+        /// </remarks>
+        /// <param name="width">The width of the puzzle.</param>
+        /// <param name="height">The height of the puzzle.</param>
+        /// <param name="solution">The solution of the puzzle.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
+        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
+        /// <exception cref="IndexOutOfRangeException">Thrown at least one of the <see cref="CellPosition"/>s found in
+        /// <paramref name="solution"/> is out of bounds of the grid.</exception>"
+        public NonogramAPI(int width, int height, HashSet<CellPosition> solution,
+            NonogramOptions? options = null) : this(new(width, height, solution))
+        { 
+            Options = options ?? new NonogramOptions();
+        }
+
         /// <summary>
         /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
         /// for the asynchronous method.
@@ -88,6 +124,7 @@ namespace NonoSharp
         /// <param name="height">Height of the grid for the game</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance as described above</returns>
+        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
         public static NonogramAPI CreateRandomPuzzle(int width, int height, NonogramOptions? options = null)
         {
             // Generate solution using a task as generating a puzzle is expensive
@@ -107,20 +144,10 @@ namespace NonoSharp
         /// <param name="height">Height of the grid for the game</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>NonogramAPI instance as described above</returns>
+        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
         public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
         {
             return await Task.Run(() => CreateRandomPuzzle(width, height, options));
-        }
-
-        internal NonogramAPI(Grid grid)
-        {
-            this.grid = grid;
-            undoStack = new LinkedList<ICommand>();
-            redoStack = new LinkedList<ICommand>();
-            
-            // The puzzle can switch between solved and unsolved when a cell changes state.
-            // Thus, we can handle sending the puzzle solved event after a cell changes state.
-            CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
         }
 
         /// <summary>

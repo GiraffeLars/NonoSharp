@@ -76,6 +76,8 @@ namespace NonoSharp
         /// Makes the solution into a 2D array representation, just as <c>grid</c>
         /// </summary>
         /// <returns>2D array of <c>CellType</c> where each cell position in the solution is <c>CellType.FILLED</c></returns>
+        /// <exception cref="IndexOutOfRangeException">Thrown when any of the CellPositions
+        /// found in the solution is out of bounds.</exception>
         private CellType[,] GridifySolution()
         {
             CellType[,] s = new CellType[Width, Height];

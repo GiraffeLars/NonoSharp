@@ -15,9 +15,9 @@ namespace NonoSharp
         /// <param name="width">Width of the grid on which the puzzle is to be solved</param>
         /// <param name="height">Height of the grid on which the puzzle is to be solved</param>
         /// <returns>HashSet of CellPositions containing the coordinates of cells that must be filled</returns>
+        /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
         public static HashSet<CellPosition> GenerateRandomSolution(int width, int height)
         {
-
             HashSet<CellPosition> solution = GetRandomSolution(width, height);
             Grid g = new(width, height, solution);
 
