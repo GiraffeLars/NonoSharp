@@ -108,7 +108,7 @@ namespace NonoSharp
         /// <param name="solution">The solution of the puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
-        /// <exception cref="IndexOutOfRangeException">Thrown at least one of the <c>CellPosition</c>s found in
+        /// <exception cref="IndexOutOfRangeException">Thrown at least one of the <see cref="CellPosition"/>s found in
         /// <paramref name="solution"/> is out of bounds of the grid.</exception>"
         public NonogramAPI(int width, int height, HashSet<CellPosition> solution,
             NonogramOptions? options = null) : this(new(width, height, solution))
