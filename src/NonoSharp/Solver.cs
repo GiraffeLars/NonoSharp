@@ -73,7 +73,7 @@ namespace NonoSharp
 
         /// <summary>
         /// While there are elements in <paramref name="queue"/>, does a solve iteration.
-        /// Cells changed after improving the line of each iteration are enqueued as the different direction
+        /// Cells changed after the line improvement iteration are enqueued as the different direction
         /// </summary>
         /// <param name="queue">Queue to clear.</param>
         /// <param name="grid">Grid to work with.</param>
@@ -83,30 +83,35 @@ namespace NonoSharp
             {
                 (bool inColumn, int index) = queue.Dequeue();
 
+                CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
+                Hints hints = inColumn ? grid.ColumnHints[index] : grid.RowHints[index];
+
                 LinkedList<int> changed = [];
-                ImproveLine(grid, index, inColumn, changed);
+                ImproveLine(line, hints, changed);
                 foreach (int i in changed)
                 {
+                    if (inColumn)
+                    {
+                        grid.SetCell(index, i, line[i]);
+                    } else
+                    {
+                        grid.SetCell(i, index, line[i]);
+                    }
                     queue.Enqueue((!inColumn, i));
                 }
             }
         }
 
         /// <summary>
-        /// Does a solve iteration. Changed cells in the line corresponding to <paramref name="idx"/> and
-        /// <paramref name="inColumn"/> are added to <paramref name="changedIndices"/>. 
+        /// Does a solve iteration. Changed cells in the line are added to the <paramref name="changedIndices"/> list. 
         /// </summary>
-        /// <param name="grid">Grid to work on.</param>
-        /// <param name="idx">Index of the column/row in the grid to solve.</param>
-        /// <param name="inColumn">Whether this is solving for a column or not.</param>
+        /// <param name="line">The line to improve in-place.</param>
+        /// <param name="hints">Hints associated with <paramref name="line"/>.</param>
         /// <param name="changedIndices">The LinkedList to append indices of the cells that are changed to.</param>
-        internal static void ImproveLine(Grid grid, int idx, bool inColumn, LinkedList<int> changedIndices)
-        {
-            var line = inColumn ? grid.GetColumnArray(idx) : grid.GetRowArray(idx);
-            var hint = inColumn ? grid.ColumnHints[idx] : grid.RowHints[idx];
-
+        internal static void ImproveLine(CellType[] line, Hints hints, LinkedList<int> changedIndices)
+        { 
             List<CellType[]> perms = [];
-            ComputePermutations(line, hint, perms);
+            ComputePermutations(line, hints, perms);
 
             if (perms.Count == 0)
             {
@@ -135,16 +140,9 @@ namespace NonoSharp
                 // Check if all permutations were handled and the same type
                 if (permIndex == perms.Count)
                 {
-
-                    if (inColumn)
-                    {
-                        grid.SetCell(idx, lineIndex, baseCellType);
-                    }
-                    else
-                    {
-                        grid.SetCell(lineIndex, idx, baseCellType);
-                    }
-
+                    // Since in all possible permutations the cell was set as baseCellType, this can be
+                    // safely filled in
+                    line[lineIndex] = baseCellType;
                     // Add the changed index to the list
                     changedIndices.AddLast(lineIndex);
                 }

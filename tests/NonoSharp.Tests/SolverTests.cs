@@ -104,26 +104,29 @@ namespace NonoSharp.Tests
 
             // To make sure that the info from the other hints are not used, we test ImproveLine
 
-            Solver.ImproveLine(grid, 0, false, []);
+            // Copy to avoid changing the grid unintentionally
+            CellType[] line = (CellType[])grid.GetRowArray(0).Clone();
+            Solver.ImproveLine(line, grid.RowHints[0], []);
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
-            Assert.NotEqual(CellType.FILLED, grid.GetCell(0, 0));
-            Assert.Equal(CellType.FILLED, grid.GetCell(1, 0));
-            Assert.Equal(CellType.FILLED, grid.GetCell(2, 0));
-            Assert.NotEqual(CellType.FILLED, grid.GetCell(3, 0));
+            Assert.NotEqual(CellType.FILLED, line[0]);
+            Assert.Equal(CellType.FILLED, line[1]);
+            Assert.Equal(CellType.FILLED, line[2]);
+            Assert.NotEqual(CellType.FILLED, line[3]);
 
             // Now check if the line can correctly be solved with extra information
             grid.SetCell(3, 0, CellType.FILLED);
-            Solver.ImproveLine(grid, 0, false, []);
+            line = (CellType[])grid.GetRowArray(0).Clone();
+            Solver.ImproveLine(line, grid.RowHints[0], []);
 
             // Check if 0th cell is not filled
-            Assert.NotEqual(CellType.FILLED, grid.GetCell(0, 0));
+            Assert.NotEqual(CellType.FILLED, line[0]);
 
             // Check if others are filled
-            for (int i = 1; i < grid.Width; i++)
+            for (int i = 1; i < line.Length; i++)
             {
-                Assert.Equal(CellType.FILLED, grid.GetCell(i, 0));
+                Assert.Equal(CellType.FILLED, line[i]);
             }
         }
 
