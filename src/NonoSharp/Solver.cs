@@ -19,7 +19,7 @@ namespace NonoSharp
         /// <summary>
         /// Solves the puzzle of API instance <paramref name="nonogram"/> in-place.
         /// </summary>
-        /// <param name="nonogram">Puzzle to solve</param>
+        /// <param name="nonogram">Puzzle to solve.</param>
         public static void Solve(NonogramAPI nonogram)
         {
             Solve(nonogram.grid);
@@ -28,7 +28,7 @@ namespace NonoSharp
         /// <summary>
         /// Solves the grid <paramref name="grid"/> in-place.
         /// </summary>
-        /// <param name="grid">Grid to solve</param>
+        /// <param name="grid">Grid to solve.</param>
         internal static void Solve(Grid grid)
         {
             UniqueQueue<(bool, int)> queue = [];
@@ -47,9 +47,9 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether a puzzle can be solved
+        /// Determines whether a puzzle can be solved.
         /// </summary>
-        /// <returns>True if the puzzle can be solved, false if not</returns>
+        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         internal static bool IsSolvable(Grid grid)
         {
             // Grid to work on to calculate solutions (Copy of grid).
@@ -63,9 +63,9 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved
+        /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved.
         /// </summary>
-        /// <returns>True if the puzzle can be solved, false if not</returns>
+        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         public static bool IsSolvable(NonogramAPI nonogram)
         {
             return IsSolvable(nonogram.grid);
@@ -156,24 +156,24 @@ namespace NonoSharp
         /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="hints"/>, 
         /// all non-empty cells remain as they were.
         /// </summary>
-        /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells</param>
-        /// <param name="hints">Hints instance corresponding to <paramref name="line"/></param>
+        /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells.</param>
+        /// <param name="hints">Hints instance corresponding to <paramref name="line"/>.</param>
         /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
-        /// and already non-empty cells. This List will be modified by adding the found permutations</param>
+        /// and already non-empty cells. This List will be modified by adding the found permutations.</param>
         private static void ComputePermutations(CellType[] line, Hints hints, List<CellType[]> currentlyFound)
         {
             PlaceHintBlocks(line, hints, 0, 0, currentlyFound);
         }
 
         /// <summary>
-        /// Places filled cells to satisfy all hints, if possible
+        /// Places filled cells to satisfy all hints, if possible.
         /// </summary>
-        /// <param name="permutation">The current permutation to work on</param>
-        /// <param name="hints">Hints associated with the permutation</param>
+        /// <param name="permutation">The current permutation to work on.</param>
+        /// <param name="hints">Hints associated with the permutation.</param>
         /// <param name="hintIdx">Index of the next hint that needs to be satisfied. Should initially be 0.</param>
         /// <param name="cellIdx">Index of the next cell that needs to be determined if it can satisfy a cell.
         /// Should initially be 0.</param>
-        /// <param name="found">List of permutations currently found that are able to satisfy all hints</param>
+        /// <param name="found">List of permutations currently found that are able to satisfy all hints.</param>
         private static void PlaceHintBlocks(CellType[] permutation, Hints hints, int hintIdx, int cellIdx, List<CellType[]> found)
         {
             if (hintIdx >= hints.Count)
