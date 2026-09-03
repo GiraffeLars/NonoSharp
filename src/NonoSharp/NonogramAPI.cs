@@ -9,7 +9,7 @@ namespace NonoSharp
     /// </summary>
     public class NonogramAPI
     {
-        private Grid grid;
+        internal Grid grid;
 
         /// <summary>
         /// The width of the game grid

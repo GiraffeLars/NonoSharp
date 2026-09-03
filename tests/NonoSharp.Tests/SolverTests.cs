@@ -105,8 +105,8 @@ namespace NonoSharp.Tests
             // To make sure that the info from the other hints are not used, we test ImproveLine
 
             // Copy to avoid changing the grid unintentionally
-            CellType[] line = (CellType[]) grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.RowHints[0]);
+            CellType[] line = (CellType[])grid.GetRowArray(0).Clone();
+            Solver.ImproveLine(line, grid.RowHints[0], []);
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
@@ -118,7 +118,7 @@ namespace NonoSharp.Tests
             // Now check if the line can correctly be solved with extra information
             grid.SetCell(3, 0, CellType.FILLED);
             line = (CellType[])grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.RowHints[0]);
+            Solver.ImproveLine(line, grid.RowHints[0], []);
 
             // Check if 0th cell is not filled
             Assert.NotEqual(CellType.FILLED, line[0]);
@@ -190,7 +190,6 @@ namespace NonoSharp.Tests
                 ]);
 
             Assert.True(Solver.IsSolvable(grid));
-
         }
     }
 }
