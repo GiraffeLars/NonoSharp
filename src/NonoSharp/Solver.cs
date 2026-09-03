@@ -7,15 +7,13 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
-    /// Helper class to determine whether a puzzle can be solved,
-    /// and whether the puzzle can be improved with 100% certainty.
-    /// At its current state, the Solver will not make any "guesses", meaning that puzzles with a valid
-    /// solution that might require logical deductions might be rejected.
-    /// Puzzles where guessing is required, i.e. without one unique answer, are rejected. 
-    /// TODO replace the Solvable algorithm with a backtracking/dynamic programming aproach for better performance
-    /// TODO also consider applying logical deductions, allowing for more difficult puzzles
+    /// A static class to solve Nonogram puzzles, or determine if they can be solved.
+    /// The Solver will not make any guesses, meaning that puzzles with a valid
+    /// solution that require more advanced logical deductions, 
+    /// or guesses in any other form, to arrive at one unique solution, might be rejected.
+    /// Puzzles without one unique answer, are rejected.
     /// </summary>
-    internal static class Solver
+    public static class Solver
     {
         /// <summary>
         /// Solves the puzzle of API instance <paramref name="nonogram"/> in-place.
@@ -51,7 +49,7 @@ namespace NonoSharp
         /// Determines whether a puzzle can be solved
         /// </summary>
         /// <returns>True if the puzzle can be solved, false if not</returns>
-        public static bool IsSolvable(Grid grid)
+        internal static bool IsSolvable(Grid grid)
         {
             // Grid to work on to calculate solutions (Copy of grid).
             Grid workingGrid = (Grid) grid.Clone();
@@ -61,6 +59,15 @@ namespace NonoSharp
             // The loop stops either if the puzzle is solved and no lines could be improved, or if the puzzle was not solved
             // and no cells could be filled with certainty.
             return workingGrid.IsSolved();
+        }
+
+        /// <summary>
+        /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved
+        /// </summary>
+        /// <returns>True if the puzzle can be solved, false if not</returns>
+        public static bool IsSolvable(NonogramAPI nonogram)
+        {
+            return IsSolvable(nonogram.grid);
         }
 
         /// <summary>
@@ -153,11 +160,20 @@ namespace NonoSharp
         /// <param name="index">Current index of iteration, should be initially called as 0</param>
         /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
         /// and already non-empty cells. This List will be modified by adding the found permutations</param>
-        public static void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
+        private static void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
         {
             PlaceHintBlocks(line, hints, 0, 0, currentlyFound);
         }
 
+        /// <summary>
+        /// Places filled cells to satisfy all hints, if possible
+        /// </summary>
+        /// <param name="permutation">The current permutation to work on</param>
+        /// <param name="hints">Hints associated with the permutation</param>
+        /// <param name="hintIdx">Index of the next hint that needs to be satisfied. Should initially be 0.</param>
+        /// <param name="cellIdx">Index of the next cell that needs to be determined if it can satisfy a cell.
+        /// Should initially be 0.</param>
+        /// <param name="found">List of permutations currently found that are able to satisfy all hints</param>
         private static void PlaceHintBlocks(CellType[] permutation, Hints hints, int hintIdx, int cellIdx, List<CellType[]> found)
         {
             if (hintIdx >= hints.Count)
