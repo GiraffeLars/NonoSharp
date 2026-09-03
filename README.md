@@ -22,9 +22,10 @@ By filling the grid one cell at a time, eventually you reach the solution.
 ## Features
 - **A fully functional Nonogram game**, complete with hint checking
 - An **API** allowing for game logic to be reused in other projects
+- A **custom solver** allowing you to solve any Nonogram puzzle you wish
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
-- **Cross-platform** UI built with MAUI
-- **Saving and loading solutions** to/from custom file format
+- **Saving and loading solutions** to/from custom file format optimised for file size
+- A **Nonogram builder** allowing you to create your own Nonogram puzzles quickly and easily
 
 ## Using the API
 Since the core logic is separate from the UI, it can be reused in other projects. To add the API
@@ -35,7 +36,7 @@ your project.
 dotnet add package NonoSharp
 ```
 
-Currently supported functions include:
+Currently supported functions include, but are not limited to:
 - Abstracted grid, making it easy to implement in your projects
 - Built-in undo/redo functionality
 - Checking whether the puzzle is solved
@@ -43,6 +44,8 @@ Currently supported functions include:
 - Events for cells changing states and the puzzle being solved correctly
 - Generating random uniquely solvable puzzles
 - Loading and saving puzzles to a custom file type
+- Custom solver for Nonogram puzzles
+- Builder to create your own Nonogram puzzles
 
 ### Documentation
 Documentation for the API is found on this repo's GitHub pages, 
@@ -51,7 +54,6 @@ Documentation for the API is found on this repo's GitHub pages,
 ### Example usage
 ```csharp
 using NonoSharp;
-using NonoSharp.Events;
  
 // Creates a new random 10x10 puzzle. Generation is guaranteed to produce a solvable puzzle.
 // This method is also available asynchronously via NonogramAPI.CreateRandomPuzzleAsync
@@ -88,8 +90,6 @@ Hints[] rowHints = game.RowHints;
 // There are also some events provided
 game.CellStateChanged += (s, e) => {
     Console.WriteLine("A cell has changed states");
-
-    // Include using NonoSharp.Events to gain access to the event args
 };
 ```
 
@@ -128,7 +128,7 @@ Features that are currently planned to be added *(in no particular order)*:
 - [x] Support for pre-made puzzles
 - [x] Player-created puzzles and puzzle creator
 - [x] Settings for consumers, such as toggling auto crosses or enabling automatic correction when a cell was filled incorrectly
-- [ ] Optimise Solver used for random puzzle generation and make it available publicly
+- [x] Optimise Solver used for random puzzle generation and make it available publicly
 - [ ] Convert pictures to Nonograms
 - [ ] Getting hints when stuck solving a puzzle
 
@@ -136,11 +136,11 @@ Features that are currently planned to be added *(in no particular order)*:
 This project started as a solo learning project, but contributions are welcome. Please open a PR or an issue if you wish to contribute. 
 
 When submitting a pull request, please make note of the following:
+- No AI generated code! 
 - Keep PRs focussed
 - If you make any changes to the logic, ensure that the tests verify
 - Make sure the project builds and functions as intended
 - Keep code documented
-- Try to keep AI generated code at a minimum
 
 ## License
 This project is licensed under the **MIT License**. See the `LICENSE` file.

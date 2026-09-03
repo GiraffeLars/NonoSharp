@@ -10,8 +10,9 @@ By filling the grid one cell at a time, eventually you reach the solution.
 ## Features
 - **A fully functional Nonogram game**, complete with hint checking
 - An **API** allowing for game logic to be reused in other projects
+- **Custom Solver** to solve any Nonogram puzzle you might encounter
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
-- **Saving and loading solutions** to/from custom file format
+- **Custom file format** optimised for file size to load and save puzzles
 
 ## The API
 ### Supported features
@@ -19,10 +20,12 @@ Currently supported functions include:
 - Abstracted grid, making it easy to implement in your projects
 - Built-in undo/redo functionality
 - Checking whether the puzzle is solved
-- A hint system, together with whether a hint is completed by the user.
-- Events for cells changing states and the puzzle being solved correctly
+- A hint system, together with whether a hint is completed by the user
+- Events, e.g. for when cells change states or the puzzle is solved
 - Generating random uniquely solvable puzzles
-- Loading and saving puzzles to a custom file type
+- Loading and saving puzzles to a custom file type optimised for file size
+- A custom solver allowing users to solve any Nonogram puzzle they wish
+- A Nonogram builder allowing for quick and easy creation of Nonogram puzzles
 
 ## Documentation
 Documentation for the API is found on GitHub pages for the corresponding repo, 
@@ -31,8 +34,7 @@ Documentation for the API is found on GitHub pages for the corresponding repo,
 ### Example usage
 ```csharp
 using NonoSharp;
-using NonoSharp.Events;
- 
+
 // Creates a new random 10x10 puzzle. Generation is guaranteed to produce a solvable puzzle.
 // This method is also available asynchronously via NonogramAPI.CreateRandomPuzzleAsync
 var game = NonogramAPI.CreateRandomPuzzle(10, 10); // (width x height)
@@ -68,8 +70,6 @@ Hints[] rowHints = game.RowHints;
 // There are also some events provided
 game.CellStateChanged += (s, e) => {
     Console.WriteLine("A cell has changed states");
-
-    // Include using NonoSharp.Events to gain access to the event args
 };
 ```
 

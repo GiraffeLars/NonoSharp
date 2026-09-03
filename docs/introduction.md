@@ -8,7 +8,9 @@ By filling the grid one cell at a time, eventually you reach the solution.
 ## Features
 - **A fully functional Nonogram game**, complete with hint checking
 - An **API** allowing for game logic to be reused in other projects
+- **Custom Solver** to solve any Nonogram puzzle you might encounter
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
+- **Custom file format** optimised for file size to load and save puzzles
 
 ## The API
 ### Supported features
@@ -16,10 +18,12 @@ Currently supported functions include:
 - Abstracted grid, making it easy to implement in your projects
 - Built-in undo/redo functionality
 - Checking whether the puzzle is solved
-- A hint system, together with whether a hint is completed by the user.
-- Events for cells changing states and the puzzle being solved correctly
+- A hint system, together with whether a hint is completed by the user
+- Events, e.g. for when cells change states or the puzzle is solved
 - Generating random uniquely solvable puzzles
-- Loading and saving puzzles to a custom file type
+- Loading and saving puzzles to a custom file type optimised for file size
+- A custom solver allowing users to solve any Nonogram puzzle they wish
+- A Nonogram builder allowing for quick and easy creation of Nonogram puzzles
 
 ## Full repo
 The full repo can be found on [GitHub](https://github.com/GiraffeLars/NonoSharp).
