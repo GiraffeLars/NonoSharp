@@ -62,11 +62,11 @@ namespace NonoSharp
 
 
             // Simple first check to see if the total of remaining hints can be satisfied
-            //int totalCellsNeededForRemainingHints = hints.Skip(hintIdx).Select(hint => hint.Number).Sum();
-            //if (totalCellsNeededForRemainingHints > permutation.Length - cellIdx)
-            //{
-            //    return;
-            //}
+            int totalCellsNeededForRemainingHints = hints.Skip(hintIdx).Select(hint => hint.Number).Sum();
+            if (totalCellsNeededForRemainingHints > permutation.Length - cellIdx)
+            {
+                return;
+            }
 
             if (IsValidPlacement(permutation, hints[hintIdx], cellIdx))
             {
@@ -196,8 +196,38 @@ namespace NonoSharp
 
     }
 
-    internal class OldSolverStrategy : SolverHelperMethods, ISolveGridStrategy 
+    internal class OldSolverStrategy : SolverHelperMethods, ISolveGridStrategy
     {
+        private static readonly CellType[] typesToCheck = [CellType.FILLED, CellType.CROSS];
+        public override void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
+        {
+            if (index >= line.Length)
+            {
+                if (IsValidPermutation(line, hints))
+                {
+                    CellType[] clone = (CellType[])line.Clone();
+                    currentlyFound.Add(clone);
+                }
+                return;
+            }
+
+            // Player placed tile, continue immediately
+            if (line[index] != CellType.BLANK)
+            {
+                ComputePermutations(line, hints, index + 1, currentlyFound);
+                return;
+            }
+
+            // Check all possible combinations
+            foreach (CellType type in typesToCheck)
+            {
+                line[index] = type;
+                ComputePermutations(line, hints, index + 1, currentlyFound);
+            }
+
+            line[index] = CellType.BLANK;
+        }
+
         /// <summary>
         /// Tries to improve <paramref name="line"/> by determining which cells must be crosses or filled.
         /// Will modify <paramref name="line"/> by setting the celltypes after improving. Skips non-empty cells.

@@ -7,8 +7,8 @@ namespace NonoSharp.Tests
     public class SolverFixture
     {
         private Random rng;
-        internal readonly Grid[] grids = new Grid[1];
-        public readonly bool[] baseCases = new bool[1];
+        internal readonly Grid[] grids = new Grid[5];
+        public readonly bool[] baseCases = new bool[5];
         public int totalSolvable;
 
         public SolverFixture() 
@@ -26,11 +26,9 @@ namespace NonoSharp.Tests
         }
 
         private bool CreateRandomResult(int iter)
-        { 
-            //int width = rng.Next(1, 50);
-            //int height = rng.Next(1, 50);
-            int width = 40;
-            int height = 40;
+        {
+            int width = 20;
+            int height = 20;
             HashSet<CellPosition> sol = [];
 
             for (int i = 0; i < width; i++)
@@ -39,7 +37,7 @@ namespace NonoSharp.Tests
                 {
                     // Random between guaranteed to add to 1 in 10
                     //int fillRate = Random.Shared.Next(0, 9);
-                    if (rng.Next(2) == 0)
+                    if (rng.Next(3) != 0)
                     {
                         sol.Add(new(i, j));
                     }
@@ -48,8 +46,7 @@ namespace NonoSharp.Tests
 
             Grid g = new(width, height, sol);
             grids[iter] = g;
-            return true;
-            //return Solver.IsSolvable(g, new UniqueQueueStrategy());
+            return Solver.IsSolvable(g, new UniqueQueueStrategy());
         }
     }
 
@@ -82,7 +79,7 @@ namespace NonoSharp.Tests
                     }
                     );
                     stopwatch.Stop();
-                    //Assert.Equal(fixture.baseCases[iteration], results[iteration]);
+                    Assert.Equal(fixture.baseCases[iteration], results[iteration]);
                     return stopwatch.Elapsed;
                 });
 
@@ -110,7 +107,7 @@ namespace NonoSharp.Tests
                     }
                     );
                     stopwatch.Stop();
-                    //Assert.Equal(fixture.baseCases[iteration], results[iteration]);
+                    Assert.Equal(fixture.baseCases[iteration], results[iteration]);
                     return stopwatch.Elapsed;
                 });
 
