@@ -98,7 +98,7 @@ namespace NonoSharp
         /// <paramref name="height"/> and sets the solution to <paramref name="solution"/>.
         /// </summary>
         /// <remarks>
-        /// It is not checked whether the created puzzle can be solved. As such, using this method with an improper 
+        /// It is not checked whether the created puzzle can be solved. As such, using this constructor with an improper 
         /// <paramref name="solution"/> can lead to the puzzle being unsolvable. To create puzzles that are guaranteed to be
         /// uniquely solvable, use <see cref="NonogramBuilder"/> or create a random solvable puzzle with methods such as
         /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/>.
