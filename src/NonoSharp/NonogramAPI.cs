@@ -231,16 +231,6 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Executes <paramref name="command"/> and pushes it onto the undoStack. See also <seealso cref="PushCommand(ICommand)"/>.
-        /// </summary>
-        /// <param name="command">Command to execute and push</param>
-        private void ExecuteCommand(ICommand command)
-        {
-            command.Execute();
-            PushCommand(command);
-        }
-
-        /// <summary>
         /// Pushes <paramref name="command"/> onto <c>undoStack</c> and clears <c>redoStack</c>.
         /// </summary>
         /// <param name="command">Command to push</param>
@@ -543,8 +533,11 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle in <paramref name="stream"/> and returns a new NonogramAPI instance. The stream is automatically closed.
+        /// Loads the puzzle in <paramref name="stream"/> and returns a new NonogramAPI instance.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="stream"/> is left open. Do not forget to close it.
+        /// </remarks>
         /// <param name="stream">Stream to read the puzzle from. 
         /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, 
         /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
@@ -583,16 +576,20 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle in <paramref name="stream"/> asynchronously. Contents of <paramref name="stream"/> 
-        /// are expected to be relatively small. Larger streams might cause noticeable blocking. 
-        /// The stream is automatically closed.
+        /// Loads the puzzle in <paramref name="stream"/> and then asynchronously converts the read data into a usable 
+        /// <see cref="NonogramAPI"/>.
         /// </summary>
+        /// <remarks>
+        /// Contents of <paramref name="stream"/> are expected to be relatively small and is read synchronously. 
+        /// Larger stream contents might cause noticeable blocking.<br/>
+        /// <paramref name="stream"/> is left open. Do not forget to close it.
+        /// </remarks>
         /// <param name="stream">Stream to read the puzzle from. 
         /// To avoid false positives on InvalidFileFormatException exceptions,
         /// the stream must consist of ONLY one valid puzzle, such as one provided by
         /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
+        /// <returns>A <c>NonogramAPI</c> instance of the puzzle loaded from the stream</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
