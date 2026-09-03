@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NonoSharp.Collections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -105,7 +106,7 @@ namespace NonoSharp
             var hint = inColumn ? grid.ColumnHints[idx] : grid.RowHints[idx];
 
             List<CellType[]> perms = [];
-            ComputePermutations(line, hint, 0, perms);
+            ComputePermutations(line, hint, perms);
 
             if (perms.Count == 0)
             {
@@ -157,10 +158,9 @@ namespace NonoSharp
         /// </summary>
         /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells</param>
         /// <param name="hints">Hints instance corresponding to <paramref name="line"/></param>
-        /// <param name="index">Current index of iteration, should be initially called as 0</param>
         /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
         /// and already non-empty cells. This List will be modified by adding the found permutations</param>
-        private static void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
+        private static void ComputePermutations(CellType[] line, Hints hints, List<CellType[]> currentlyFound)
         {
             PlaceHintBlocks(line, hints, 0, 0, currentlyFound);
         }

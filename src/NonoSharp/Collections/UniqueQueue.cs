@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NonoSharp
+namespace NonoSharp.Collections
 {
     /// <summary>
     /// A queue where each element can only appear once in the queue. Works on a FIFO basis.
-    /// Functions like <see cref="Queue"/>.
+    /// This class is based on <see cref="Queue"/> and is expected to behave similary, except for the restriction
+    /// on uniqueness.
     /// </summary>
     /// <typeparam name="T">The type of the elements for the queue</typeparam>
     internal class UniqueQueue<T> : IEnumerable<T>
@@ -32,10 +33,9 @@ namespace NonoSharp
         /// <param name="element">The element to enqueue</param>
         public void Enqueue(T element)
         {
-            if (!enqueued.Contains(element))
+            if (enqueued.Add(element)) // Returns true if element was not present yet
             {
                 queue.Enqueue(element);
-                enqueued.Add(element);
             }
 
         }
@@ -44,6 +44,7 @@ namespace NonoSharp
         /// Removes the first element from the queue.
         /// </summary>
         /// <returns>The dequeued element</returns>
+        /// <exception cref="InvalidOperationException">Thrown when there was no element to dequeue</exception>
         public T Dequeue()
         {
             T element = queue.Dequeue();
