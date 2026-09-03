@@ -158,7 +158,7 @@ namespace NonoSharp
         public byte[] Serialize()
         {
             using var ms = new MemoryStream();
-            using var bw = new BinaryWriter(ms);
+            using var bw = new BinaryWriter(ms, Encoding.UTF8, leaveOpen: true);
 
             bw.Write(Encoding.ASCII.GetBytes(MAGIC));
             bw.Write(Version);
@@ -219,17 +219,20 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Deserializes <paramref name="stream"/> into a <c>PuzzleDefinition</c>
+        /// Deserializes <paramref name="stream"/> into a <c>PuzzleDefinition</c>.
         /// </summary>
-        /// <param name="stream">Stream to read</param>
-        /// <returns>PuzzleDefinition of <paramref name="stream"/></returns>
-        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
-        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <remarks>
+        /// <paramref name="stream"/> is left open. Do not forget to close it.
+        /// </remarks>
+        /// <param name="stream">Stream to read.</param>
+        /// <returns><c>PuzzleDefinition</c> loaded from <paramref name="stream"/>.</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="PuzzleDeserializationFailedException">Thrown when the file format is valid, but other issues occur. Usually, there is an
         /// inner exception giving more details.</exception>
         public static PuzzleDefinition Deserialize(Stream stream)
         {
-            using var br = new BinaryReader(stream);
+            using var br = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
             ValidateMagic(br);
 
             try
@@ -308,7 +311,7 @@ namespace NonoSharp
         /// Deserializes <paramref name="serializedPuzzle"/> into a <c>PuzzleDefinition</c>
         /// </summary>
         /// <param name="serializedPuzzle">Puzzle to deserialize</param>
-        /// <returns>PuzzleDefinition of <paramref name="serializedPuzzle"/></returns>
+        /// <returns>PuzzleDefinition deserialized from <paramref name="serializedPuzzle"/>.</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleDeserializationFailedException">Thrown when the file format is valid, but other issues occur. Usually, there is an
@@ -433,8 +436,11 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle contained in <paramref name="stream"/>. The stream is automatically closed.
+        /// Loads the puzzle contained in <paramref name="stream"/>.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="stream"/> is left open. Do not forget to close it.
+        /// </remarks>
         /// <param name="stream">Stream to read the puzzle from. 
         /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, such as one provided by <see cref="SavePuzzle(string)"/>.</param>
         /// <returns><c>PuzzleDefinition</c> of the requested puzzle</returns>
@@ -477,9 +483,13 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle located at <paramref name="path"/> asynchronously. Contents of <paramref name="path"/> are expected to be relatively small. Larger files might cause noticeable blocking.
-        /// Asynchronous puzzle reading of a Stream is not supported. Use the synchronous <see cref="LoadPuzzle(Stream)"/> instead.
+        /// Loads the puzzle located at <paramref name="path"/> asynchronously. 
         /// </summary>
+        /// <remarks>
+        /// Contents of <paramref name="path"/> are expected to be relatively small. 
+        /// Larger files might cause noticeable blocking.
+        /// Asynchronous puzzle reading of a <see cref="Stream"/> is not supported. Use the synchronous <see cref="LoadPuzzle(Stream)"/> instead.
+        /// </remarks>
         /// <param name="path">Path of the puzzle to load</param>
         /// <returns>A PuzzleDefinition of the requested puzzle, if available</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
