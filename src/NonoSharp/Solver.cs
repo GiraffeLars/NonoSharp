@@ -4,11 +4,16 @@ namespace NonoSharp
 {
     /// <summary>
     /// A static class to solve Nonogram puzzles, or determine if they can be solved.
-    /// The Solver will not make any guesses, meaning that puzzles with a valid
-    /// solution that requires more advanced logical deduction, 
-    /// or guesses in any other form, to arrive at one unique solution, might be rejected.
-    /// Puzzles without one unique answer, are rejected.
     /// </summary>
+    /// <remarks>
+    /// The Solver will not make any guesses, meaning that puzzles with a valid and unique
+    /// solution that might require more advanced logical deduction, 
+    /// or guesses in any other form, might be rejected.
+    /// Puzzles without one unique answer, are rejected.<br/>
+    /// Note that the runtime of solving a puzzle grows exponentially with its size.
+    /// For a quick runtime, keep puzzles small (~25x25). There are, however, no restrictions on the methods 
+    /// regarding puzzle size.
+    /// </remarks>
     public static class Solver
     {
         /// <summary>
