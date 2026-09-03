@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections;
 
 namespace NonoSharp.Collections
 {
@@ -43,7 +40,7 @@ namespace NonoSharp.Collections
         /// <summary>
         /// Removes the first element from the queue.
         /// </summary>
-        /// <returns>The dequeued element</returns>
+        /// <returns>The dequeued element.</returns>
         /// <exception cref="InvalidOperationException">Thrown when there was no element to dequeue.</exception>
         public T Dequeue()
         {
@@ -66,10 +63,19 @@ namespace NonoSharp.Collections
         /// Determines whether <paramref name="element"/> is currently in the queue.
         /// </summary>
         /// <param name="element">The element to check for.</param>
-        /// <returns><see langword="true"/> if the element is in the queue, <see langword="false"/> otherwise</returns>
+        /// <returns><c>true</c> if the element is in the queue, <c>false</c> otherwise.</returns>
         public bool Contains(T element)
         {
             return enqueued.Contains(element);
+        }
+
+        /// <summary>
+        /// Removes all items from the queue.
+        /// </summary>
+        public void Clear()
+        {
+            enqueued.Clear();
+            queue.Clear();
         }
 
         public IEnumerator<T> GetEnumerator()

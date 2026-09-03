@@ -1,16 +1,11 @@
 ﻿using NonoSharp.Collections;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace NonoSharp
 {
     /// <summary>
     /// A static class to solve Nonogram puzzles, or determine if they can be solved.
     /// The Solver will not make any guesses, meaning that puzzles with a valid
-    /// solution that require more advanced logical deductions, 
+    /// solution that requires more advanced logical deduction, 
     /// or guesses in any other form, to arrive at one unique solution, might be rejected.
     /// Puzzles without one unique answer, are rejected.
     /// </summary>
@@ -75,8 +70,8 @@ namespace NonoSharp
         /// While there are elements in <paramref name="queue"/>, does a solve iteration.
         /// Cells changed after improving the line of each iteration are enqueued as the different direction
         /// </summary>
-        /// <param name="queue">Queue to clear</param>
-        /// <param name="grid">Grid to work with</param>
+        /// <param name="queue">Queue to clear.</param>
+        /// <param name="grid">Grid to work with.</param>
         private static void HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid)
         {
             while (queue.Count > 0)
@@ -96,10 +91,10 @@ namespace NonoSharp
         /// Does a solve iteration. Changed cells in the line corresponding to <paramref name="idx"/> and
         /// <paramref name="inColumn"/> are added to <paramref name="changedIndices"/>. 
         /// </summary>
-        /// <param name="grid">Grid to work on</param>
-        /// <param name="idx">Index of the column/row in the grid to solve</param>
-        /// <param name="inColumn">Whether this is solving for a column or not</param>
-        /// <param name="changedIndices">The LinkedList to append indices of the cells that are changed to</param>
+        /// <param name="grid">Grid to work on.</param>
+        /// <param name="idx">Index of the column/row in the grid to solve.</param>
+        /// <param name="inColumn">Whether this is solving for a column or not.</param>
+        /// <param name="changedIndices">The LinkedList to append indices of the cells that are changed to.</param>
         internal static void ImproveLine(Grid grid, int idx, bool inColumn, LinkedList<int> changedIndices)
         {
             var line = inColumn ? grid.GetColumnArray(idx) : grid.GetRowArray(idx);
@@ -259,13 +254,13 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines if a full group of filled cells, with a total length of <paramref name="nextHint"/>.Number
+        /// Determines if a full group of filled cells, with a total length of <c><paramref name="nextHint"/>.Number</c>
         /// can be placed into the permutation without issue
         /// </summary>
-        /// <param name="permutation">Permutation to work on</param>
-        /// <param name="nextHint">Hint to consider</param>
-        /// <param name="cellIdx">Current cell to check of permutation</param>
-        /// <returns>True if possible, false otherwise</returns>
+        /// <param name="permutation">Permutation to work on.</param>
+        /// <param name="nextHint">Hint to consider.</param>
+        /// <param name="cellIdx">Current cell to check of permutation.</param>
+        /// <returns><c>true</c> if possible, <c>false</c> otherwise.</returns>
         private static bool IsValidPlacement(CellType[] permutation, Hint nextHint, int cellIdx)
         {
             int cellsToPlace = nextHint.Number;
