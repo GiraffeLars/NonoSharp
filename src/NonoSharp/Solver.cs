@@ -7,7 +7,197 @@ namespace NonoSharp
 {
     internal class SolverHelperMethods
     {
-        private static readonly CellType[] typesToCheck = [CellType.FILLED, CellType.CROSS];
+        
+
+        /// <summary>
+        /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="hints"/>, 
+        /// all non-empty cells remain as they were.
+        /// </summary>
+        /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells</param>
+        /// <param name="hints">Hints instance corresponding to <paramref name="line"/></param>
+        /// <param name="index">Current index of iteration, should be initially called as 0</param>
+        /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
+        /// and already non-empty cells. This List will be modified by adding the found permutations</param>
+        /// <returns>Nothing, <paramref name="currentlyFound"/> is updated.</returns>
+        public virtual void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
+        {
+            PlaceHintBlocks(line, hints, 0, 0, currentlyFound);
+        }
+
+        private void PlaceHintBlocks(CellType[] permutation, Hints hints, int hintIdx, int cellIdx, List<CellType[]> found)
+        {
+            if (hintIdx >= hints.Count)
+            {
+                CellType[] clone = (CellType[])permutation.Clone();
+                for (int i = cellIdx; i < permutation.Length; i++)
+                {
+                    // If there are more filled cells after the hints have been processed, there are too many
+                    // filled cells in the line. As such, this pernutation is invalid
+                    if (clone[i] == CellType.FILLED)
+                    {
+                        return;
+                    }
+
+                    // Cross out the cell otherwise, as all hints should have been satisfied
+                    clone[i] = CellType.CROSS;
+                }
+
+                found.Add(clone);
+                return;
+            }
+
+            if (cellIdx >= permutation.Length)
+            {
+                // We have reached the last cell but the hints are not completed,
+                // making this permutation invalid
+                return;
+            }
+
+            // Skip crossed (will never contribute to a hint, filled cells can contribute if they are the start of a hint)
+            if (permutation[cellIdx] == CellType.CROSS)
+            {
+                PlaceHintBlocks(permutation, hints, hintIdx, cellIdx + 1, found);
+                return; 
+            }
+
+
+            // Simple first check to see if the total of remaining hints can be satisfied
+            //int totalCellsNeededForRemainingHints = hints.Skip(hintIdx).Select(hint => hint.Number).Sum();
+            //if (totalCellsNeededForRemainingHints > permutation.Length - cellIdx)
+            //{
+            //    return;
+            //}
+
+            if (IsValidPlacement(permutation, hints[hintIdx], cellIdx))
+            {
+                int hintsNum = hints[hintIdx].Number;
+                
+                // Cells that need to be emptied again after this iteration
+                LinkedList<int> needToBeEmptied = new();
+                for (int i = 0; i < hintsNum; i++)
+                {
+                    if (permutation[cellIdx + i] == CellType.BLANK)
+                    {
+                        permutation[cellIdx + i] = CellType.FILLED;
+                        needToBeEmptied.AddLast(cellIdx + i);
+                    }
+                }
+
+                // Place cross since space between hints is required to be empty
+                if (cellIdx + hintsNum < permutation.Length && permutation[cellIdx + hintsNum] == CellType.BLANK)
+                {
+                    permutation[cellIdx + hintsNum] = CellType.CROSS;
+                    needToBeEmptied.AddLast(cellIdx + hintsNum);
+                }
+
+                PlaceHintBlocks(permutation, hints, hintIdx + 1, cellIdx + hintsNum, found);
+                
+                // Undo filled cells
+                foreach (int cellToBeEmptied in needToBeEmptied)
+                {
+                    permutation[cellToBeEmptied] = CellType.BLANK;
+                }
+            }
+
+            // A cell can be crossed as well, without any requirements
+            if (permutation[cellIdx] == CellType.BLANK)
+            {
+                permutation[cellIdx] = CellType.CROSS;
+                PlaceHintBlocks(permutation, hints, hintIdx, cellIdx + 1, found);
+                permutation[cellIdx] = CellType.BLANK;
+            }    
+        }
+
+        /// <summary>
+        /// Determines if a full group of filled cells, with a total length of <paramref name="nextHint"/>.Number
+        /// can be placed into the permutation without issue
+        /// </summary>
+        /// <param name="permutation">Permutation to work on</param>
+        /// <param name="nextHint">Hint to consider</param>
+        /// <param name="cellIdx">Current cell to check of permutation</param>
+        /// <returns>True if possible, false otherwise</returns>
+        private static bool IsValidPlacement(CellType[] permutation, Hint nextHint, int cellIdx)
+        {
+            int cellsToPlace = nextHint.Number;
+
+            // Check if there is enough space left in the permutation
+            if (cellIdx + cellsToPlace > permutation.Length)
+            {
+                return false;
+            }
+
+            if (cellIdx + cellsToPlace < permutation.Length)
+            {
+                // If the end of the hint is not located at the last square of the grid,
+                // we need to check if the cell after filling the hint can be/is crossed
+                // Else, the placement is invalid since it won't satisfy the hint restrictions
+                if (permutation[cellIdx + cellsToPlace] == CellType.FILLED)
+                {
+                    return false;
+                }
+
+            }
+            // If cellsIdx + cellsToPlace == permutation.Length, then the hint ends at the last cell,
+            // no need for an extra check
+
+            // Finally, check if all cells can be/are already placed
+            while (cellsToPlace > 0)
+            {
+                // Check if this cell is crossed. Filled cells can be "skipped" and empty cells filled,
+                // but crossed cells must remain crossed
+                if (permutation[cellIdx] == CellType.CROSS)
+                {
+                    return false;
+                }
+                cellsToPlace--;
+                cellIdx++;
+            }
+            return true;
+        }
+
+        private static bool IsHintAlreadyCompleted(CellType[] permutation, Hint hint, int cellIdx)
+        {
+            int nextNonFilledCellIdx = Array.FindIndex(permutation, cellIdx, c => c != CellType.FILLED);
+            int totalConsecutiveFilled = nextNonFilledCellIdx - cellIdx;
+
+            return totalConsecutiveFilled == hint.Number;
+        }
+
+        public bool IsValidPermutation(CellType[] permutation, Hints hints)
+        {
+            /* Hints are marked as completed, even if there are still other cells in the row, i.e. more filled in cells than 
+               the hint requires.
+               This is intentional behaviour, but means we must check if the total of cells filled in match the hints
+            */
+            int filledIn = permutation.Count(cell => cell == CellType.FILLED);
+            if (filledIn != hints.TotalCellsInHints)
+            {
+                return false;
+            }
+
+            // Check if all hints are satisfied
+            hints.DoCompletion(permutation);
+
+            for (int h = 0; h < hints.Count; h++)
+            {
+                if (!hints[h].Completed)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    internal interface ISolveGridStrategy
+    {
+        void SolveGrid(Grid grid);
+
+    }
+
+    internal class OldSolverStrategy : SolverHelperMethods, ISolveGridStrategy 
+    {
         /// <summary>
         /// Tries to improve <paramref name="line"/> by determining which cells must be crosses or filled.
         /// Will modify <paramref name="line"/> by setting the celltypes after improving. Skips non-empty cells.
@@ -15,7 +205,7 @@ namespace NonoSharp
         /// <param name="line">The line to improve. Improved cells will be changed in the array.</param>
         /// <param name="hints">The hints to base the improvement on</param>
         /// <returns>True if any cells were changed, false otherwise</returns>
-        internal static bool ImproveLine(CellType[] line, Hints hints)
+        internal bool ImproveLine(CellType[] line, Hints hints)
         {
             List<CellType[]> validPermutations = [];
             ComputePermutations(line, hints, 0, validPermutations);
@@ -61,80 +251,8 @@ namespace NonoSharp
             return changedCells;
         }
 
-        /// <summary>
-        /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="hints"/>, 
-        /// all non-empty cells remain as they were.
-        /// </summary>
-        /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells</param>
-        /// <param name="hints">Hints instance corresponding to <paramref name="line"/></param>
-        /// <param name="index">Current index of iteration, should be initially called as 0</param>
-        /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
-        /// and already non-empty cells. This List will be modified by adding the found permutations</param>
-        /// <returns>Nothing, <paramref name="currentlyFound"/> is updated.</returns>
-        public static void ComputePermutations(CellType[] line, Hints hints, int index, List<CellType[]> currentlyFound)
-        {
-            if (index >= line.Length)
-            {
-                if (IsValidPermutation(line, hints))
-                {
-                    CellType[] clone = (CellType[])line.Clone();
-                    currentlyFound.Add(clone);
-                }
-                return;
-            }
 
-            // Player placed tile, continue immediately
-            if (line[index] != CellType.BLANK)
-            {
-                ComputePermutations(line, hints, index + 1, currentlyFound);
-                return;
-            }
 
-            // Check all possible combinations
-            foreach (CellType type in typesToCheck)
-            {
-                line[index] = type;
-                ComputePermutations(line, hints, index + 1, currentlyFound);
-            }
-
-            line[index] = CellType.BLANK;
-        }
-
-        private static bool IsValidPermutation(CellType[] permutation, Hints hints)
-        {
-            /* Hints are marked as completed, even if there are still other cells in the row, i.e. more filled in cells than 
-               the hint requires.
-               This is intentional behaviour, but means we must check if the total of cells filled in match the hints
-            */
-            int filledIn = permutation.Count(cell => cell == CellType.FILLED);
-            if (filledIn != hints.TotalCellsInHints)
-            {
-                return false;
-            }
-
-            // Check if all hints are satisfied
-            hints.DoCompletion(permutation);
-
-            for (int h = 0; h < hints.Count; h++)
-            {
-                if (!hints[h].Completed)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    internal interface ISolveGridStrategy
-    {
-        void SolveGrid(Grid grid);
-
-    }
-
-    internal class OldSolverStrategy : SolverHelperMethods, ISolveGridStrategy 
-    {
         public void SolveGrid(Grid grid) {
             bool changedInIteration;
 
@@ -170,6 +288,8 @@ namespace NonoSharp
                 }
             } while (changedInIteration);
         }
+
+        
     }
 
     internal class ImmediateDFSStrategy : SolverHelperMethods, ISolveGridStrategy
@@ -328,6 +448,12 @@ namespace NonoSharp
 
             for (int lineIndex = 0; lineIndex < line.Length; lineIndex++)
             {
+                if (line[lineIndex] != CellType.BLANK)
+                {
+                    // This cell was already filled in a previous iteration and should not be updated
+                    // to avoid infinite loops
+                    continue;
+                }
                 CellType baseCellType = perms[0][lineIndex];
 
                 int permIndex = 1;
@@ -342,7 +468,6 @@ namespace NonoSharp
                 // Check if all permutations were handled and the same type
                 if (permIndex == perms.Count)
                 {
-                    changed = true;
 
                     if (inColumn)
                     {
