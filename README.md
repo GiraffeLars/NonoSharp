@@ -22,7 +22,7 @@ By filling the grid one cell at a time, eventually you reach the solution.
 ## Features
 - **A fully functional Nonogram game**, complete with hint checking
 - An **API** allowing for game logic to be reused in other projects
-- A **custom solver** allowing you to solve any Nonogram puzzle you wish
+- A **custom solver** allowing you to solve any Nonogram puzzle
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
 - **Saving and loading solutions** to/from custom file format optimised for file size
 - A **Nonogram builder** allowing you to create your own Nonogram puzzles quickly and easily
@@ -40,12 +40,12 @@ Currently supported functions include, but are not limited to:
 - Abstracted grid, making it easy to implement in your projects
 - Built-in undo/redo functionality
 - Checking whether the puzzle is solved
-- A hint system, together with whether a hint is completed by the user.
-- Events for cells changing states and the puzzle being solved correctly
+- A hint system, together with whether a hint is completed by the user
+- Events, e.g. for when cells change states or the puzzle is solved
 - Generating random uniquely solvable puzzles
-- Loading and saving puzzles to a custom file type
-- Custom solver for Nonogram puzzles
-- Builder to create your own Nonogram puzzles
+- Loading and saving puzzles to a custom file type optimised for file size
+- A custom solver allowing users to solve any Nonogram puzzle they wish
+- A Nonogram builder allowing for quick and easy creation of Nonogram puzzles
 
 ### Documentation
 Documentation for the API is found on this repo's GitHub pages, 
