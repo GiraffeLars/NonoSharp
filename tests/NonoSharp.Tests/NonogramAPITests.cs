@@ -171,5 +171,14 @@ namespace NonoSharp.Tests
                 }
             }
         }
+
+        [Fact]
+        public void TestRNGSeed()
+        {
+            var api_1 = NonogramAPI.CreateRandomPuzzle(15, 15, 12345);
+            var api_2 = NonogramAPI.CreateRandomPuzzle(15, 15, 12345);
+
+            Assert.True(api_1.Solution.SetEquals(api_2.Solution));
+        }
     }
 }
