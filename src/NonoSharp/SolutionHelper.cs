@@ -10,13 +10,13 @@ namespace NonoSharp
     internal class SolutionHelper
     {
         /// <summary>
-        /// Generates a random, solvable puzzle
+        /// Generates a random, solvable puzzle.
         /// </summary>
-        /// <param name="width">Width of the grid on which the puzzle is to be solved</param>
-        /// <param name="height">Height of the grid on which the puzzle is to be solved</param>
-        /// <param name="seed">Optional seed to use with randomisation</param>
-        /// <returns>HashSet of CellPositions containing the coordinates of cells that must be filled</returns>
-        /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
+        /// <param name="width">Width of the grid on which the puzzle is to be solved.</param>
+        /// <param name="height">Height of the grid on which the puzzle is to be solved.</param>
+        /// <param name="seed">Optional seed to use with randomisation.</param>
+        /// <returns>HashSet of CellPositions containing the coordinates of cells that must be filled.</returns>
+        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
         public static HashSet<CellPosition> GenerateRandomSolution(int width, int height, int? seed = null)
         {
             Random random = seed.HasValue ? new Random(seed.Value) : new Random();
@@ -38,7 +38,7 @@ namespace NonoSharp
         /// <param name="width">Width of grid.</param>
         /// <param name="height">Height of grid.</param>
         /// <param name="random">Random instance to generate CellPositions from.</param>
-        /// <returns>A Set of random CellPositions</returns>
+        /// <returns>A HashSet of random CellPositions.</returns>
         internal static HashSet<CellPosition> GenerateRandomSet(int width, int height, Random random)
         {
 
