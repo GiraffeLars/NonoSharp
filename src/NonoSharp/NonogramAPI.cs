@@ -117,7 +117,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
+        /// Creates an API instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <remarks>

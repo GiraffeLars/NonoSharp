@@ -19,21 +19,28 @@ namespace NonoSharp
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
         public static HashSet<CellPosition> GenerateRandomSolution(int width, int height, int? seed = null)
         {
-            HashSet<CellPosition> solution = GetRandomSolution(width, height, seed);
-            Grid g = new(width, height, solution);
+            Random random = seed.HasValue ? new Random(seed.Value) : new Random();
+            HashSet<CellPosition> solution;
+            Grid g = new(width, height);
 
-            while (!Solver.IsSolvable(g))
+            do
             {
-                solution = GetRandomSolution(width, height);
+                solution = GenerateRandomSet(width, height, random);
                 g.SetSolution(solution);
-            }
+            } while (!Solver.IsSolvable(g));
 
             return solution;
         }
 
-        internal static HashSet<CellPosition> GetRandomSolution(int width, int height, int? seed = null)
+        /// <summary>
+        /// Generates a random HashSet of CellPositions using the Random object in <paramref name="random"/>.
+        /// </summary>
+        /// <param name="width">Width of grid.</param>
+        /// <param name="height">Height of grid.</param>
+        /// <param name="random">Random instance to generate CellPositions from.</param>
+        /// <returns>A Set of random CellPositions</returns>
+        internal static HashSet<CellPosition> GenerateRandomSet(int width, int height, Random random)
         {
-            Random random = seed.HasValue ? new Random(seed.Value) : new Random();
 
             HashSet<CellPosition> positions = [];
 
