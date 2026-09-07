@@ -120,19 +120,29 @@ namespace NonoSharp
         /// Creates an API instance with a random puzzle. See <see cref="NonogramAPI.CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
         /// for the asynchronous method.
         /// </summary>
-        /// <param name="width">Width of the grid for the game</param>
-        /// <param name="height">Height of the grid for the game</param>
-        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>NonogramAPI instance as described above</returns>
+        /// <remarks>
+        /// Generating solvable puzzles is computationally expensive and the runtime increases drastically with
+        /// <paramref name="width"/> and <paramref name="height"/>. To ensure a fast runtime, try to keep puzzle dimensions
+        /// small. The library has no (theoretical) restrictions on <paramref name="width"/> or <paramref name="height"/>,
+        /// but it is not recommend to generate large puzzles.
+        /// </remarks>
+        /// <param name="width">Width of the grid for the game.</param>
+        /// <param name="height">Height of the grid for the game.</param>
+        /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <returns>NonogramAPI instance as described above.</returns>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
+        public static NonogramAPI CreateRandomPuzzle(int width, int height, int seed, NonogramOptions? options = null)
+        {
+            HashSet<CellPosition> solution = SolutionHelper.GenerateRandomSolution(width, height, seed);
+            return new NonogramAPI(width, height, solution, options);
+        }
+
+        ///<inheritdoc cref="CreateRandomPuzzle(int, int, int, NonogramOptions?)"/>
         public static NonogramAPI CreateRandomPuzzle(int width, int height, NonogramOptions? options = null)
         {
-            // Generate solution using a task as generating a puzzle is expensive
             HashSet<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
-            Grid g = new(width, height, sol);
-
-            options ??= new NonogramOptions();
-            return new NonogramAPI(g) { Options = options};
+            return new NonogramAPI(width, height, sol, options);
         }
 
         /// <summary>
@@ -140,11 +150,24 @@ namespace NonoSharp
         /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int, NonogramOptions)"/> on the ThreadPool
         /// as it is computionally expensive.
         /// </summary>
-        /// <param name="width">Width of the grid for the game</param>
-        /// <param name="height">Height of the grid for the game</param>
-        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>NonogramAPI instance as described above</returns>
+        /// <remarks>
+        /// Generating solvable puzzles is computationally expensive and the runtime increases drastically with
+        /// <paramref name="width"/> and <paramref name="height"/>. To ensure a fast runtime, try to keep puzzle dimensions
+        /// small. The library has no (theoretical) restrictions on <paramref name="width"/> or <paramref name="height"/>,
+        /// but it is not recommend to generate large puzzles.
+        /// </remarks>
+        /// <param name="width">Width of the grid for the game.</param>
+        /// <param name="height">Height of the grid for the game.</param>
+        /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <returns>NonogramAPI instance as described above.</returns>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
+        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, int seed, NonogramOptions? options = null)
+        {
+            return await Task.Run(() => CreateRandomPuzzle(width, height, seed, options));
+        }
+
+        /// <inheritdoc cref="CreateRandomPuzzleAsync(int, int, int, NonogramOptions?)"/>
         public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
         {
             return await Task.Run(() => CreateRandomPuzzle(width, height, options));
