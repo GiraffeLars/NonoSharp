@@ -14,5 +14,8 @@ namespace NonoSharp
         internal Hint(int num) : base(num)
         {
         }
+
+        internal Hint(Clue clue) : base(clue.Number)
+        { }
     }
 }

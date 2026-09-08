@@ -8,7 +8,9 @@ namespace NonoSharp
     /// </summary>
     public class Clues : ICloneable, IEnumerable<Clue>
     {
-        private List<Clue> clues;
+        /// <exclude />
+        protected internal List<Clue> clues;
+
         private bool isColumnClues;
         private int position;
 
