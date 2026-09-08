@@ -37,6 +37,29 @@ namespace NonoSharp
         public Clues[] RowClues { get { return grid.RowClues; } }
 
         /// <summary>
+        /// The hints, i.e. the numbers on the side of a grid, for the columns of the grid.
+        /// In Nonogram puzzles these are usually shown at the top of the grid.
+        /// </summary>
+        [Obsolete("ColumnHints has been renamed and is thus deprecated. Use ColumnClues instead. Hints will be removed after v0.5.*")]
+        public Hints[] ColumnHints { get 
+            {
+                return [.. Enumerable.Range(0, ColumnClues.Length).Select(i => new Hints(ColumnClues[i]))];
+            } 
+        }
+
+
+        /// <summary>
+        /// The hints, i.e. the numbers on the side of a grid, for the rows of the grid.
+        /// In Nonogram puzzles these are usually shown at the left side of the grid.
+        /// </summary>
+        [Obsolete("RowHints has been renamed and is thus deprecated. Use RowClues instead. Hints will be removed after v0.5.*")]
+        public Hints[] RowHints { get
+            {
+                return [.. Enumerable.Range(0, RowClues.Length).Select(i => new Hints(RowClues[i]))];
+            }
+        }
+
+        /// <summary>
         /// A boolean indicating whether an undo via <see cref="Undo"/> is possible.
         /// </summary>
         public bool CanUndo { get { return undoStack.Count != 0; } }

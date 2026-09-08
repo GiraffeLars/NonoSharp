@@ -12,6 +12,11 @@ namespace NonoSharp
         private bool isColumnClues;
         private int position;
 
+        [Obsolete("Remove when Hints get removed")]
+        internal bool colClues { get { return isColumnClues; } }
+        [Obsolete("Remove when Hints get removed")]
+        internal int pos { get { return position; } }
+
         /// <summary>
         /// The total amount of filled cells these clues concern.
         /// </summary>
