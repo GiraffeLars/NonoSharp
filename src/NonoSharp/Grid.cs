@@ -15,8 +15,8 @@ namespace NonoSharp
         public int Width { get; }
         public int Height { get; }
 
-        public Clues[] ColumnClues { get; }
-        public Clues[] RowClues { get; }
+        public PuzzleClues[] ColumnClues { get; }
+        public PuzzleClues[] RowClues { get; }
 
         /// <summary>
         /// Constructs a Grid.
@@ -36,8 +36,8 @@ namespace NonoSharp
 
             grid = new CellType[width, height];
 
-            ColumnClues = new Clues[width];
-            RowClues = new Clues[height];
+            ColumnClues = new PuzzleClues[width];
+            RowClues = new PuzzleClues[height];
 
             SetSolution(solution);
         }
@@ -65,8 +65,8 @@ namespace NonoSharp
             this.paddingString = paddingString;
             Width = width;
             Height = height;
-            ColumnClues = new Clues[width];
-            RowClues = new Clues[height];
+            ColumnClues = new PuzzleClues[width];
+            RowClues = new PuzzleClues[height];
             SetSolution(solution);
         }
 
@@ -106,11 +106,11 @@ namespace NonoSharp
         {
             for (int i = 0; i < Width; i++)
             {
-                ColumnClues[i] = new Clues(true, i);
+                ColumnClues[i] = new(true, i);
             }
             for (int i = 0; i < Height; i++)
             {
-                RowClues[i] = new Clues(false, i);
+                RowClues[i] = new(false, i);
             }
             SetClues(ColumnClues, true);
             SetClues(RowClues, false);

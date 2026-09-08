@@ -13,7 +13,7 @@ namespace NonoSharp.Tests
             // even if the user did not separate the groups of cells with a cross, only adding
             // a cross after the second group.
             // While in-line with first clue does not need a cross to be marked as complete, it looks strange
-            Clues clues = new(false, 0, [new(1), new(1), new(1)]);
+            Clues clues = new([new(1), new(1), new(1)]);
 
             // Setup a mock line
             CellType[] line = new CellType[6];
