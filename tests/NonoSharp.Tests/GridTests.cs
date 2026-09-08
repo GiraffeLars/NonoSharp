@@ -71,7 +71,7 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
-        public void TestHintsNumbersColumn()
+        public void TestCluesNumbersColumn()
         {
             for (int i = 0; i < grid.Width; i++)
             {
@@ -79,108 +79,108 @@ namespace NonoSharp.Tests
                 {
                     continue;
                 }
-                Assert.Equal(1, grid.ColumnHints[i].Count);
-                Assert.Equal(1, grid.ColumnHints[i][0].Number);
+                Assert.Equal(1, grid.ColumnClues[i].Count);
+                Assert.Equal(1, grid.ColumnClues[i][0].Number);
             }
 
-            // Check that column hints for 2 is 0
-            Assert.Equal(1, grid.ColumnHints[2].Count);
-            Assert.Equal(0, grid.ColumnHints[2][0].Number);
+            // Check that column clues for 2 is 0
+            Assert.Equal(1, grid.ColumnClues[2].Count);
+            Assert.Equal(0, grid.ColumnClues[2][0].Number);
         }
 
         [Fact]
-        public void TestHintsNumbersRow()
+        public void TestCluesNumbersRow()
         {
-            Hints hints = Assert.Single(grid.RowHints);
-            Assert.Equal(2, hints.Count);
-            Assert.Equal(2, hints[0].Number);
-            Assert.Equal(2, hints[1].Number);
+            Clues clues = Assert.Single(grid.RowClues);
+            Assert.Equal(2, clues.Count);
+            Assert.Equal(2, clues[0].Number);
+            Assert.Equal(2, clues[1].Number);
         }
 
         [Fact]
-        public void TestHintsCompletedColumn()
+        public void TestCluesCompletedColumn()
         {
-            // Column hints using a grid of 5 x 1 with the current solution
+            // Column clues using a grid of 5 x 1 with the current solution
             // should only be correct at index 2 (i.e. where no cell is expected)
             for (int i = 0; i < grid.Width; i++)
             {
-                Assert.Equal(i == 2, grid.ColumnHints[i][0].Completed);
+                Assert.Equal(i == 2, grid.ColumnClues[i][0].Completed);
             }
 
             // Fill in the expected cells
             FillInGridSolution();
 
-            // Now all hints should be completed
+            // Now all clues should be completed
             for (int i = 0; i < grid.Width; i++)
             {
-                Assert.True(grid.ColumnHints[i][0].Completed);
+                Assert.True(grid.ColumnClues[i][0].Completed);
             }
 
             // Finally, if we place a cell at the expected empty one, this should no longer be completed
             grid.SetCell(2, 0, CellType.FILLED);
-            Assert.False(grid.ColumnHints[2][0].Completed);
+            Assert.False(grid.ColumnClues[2][0].Completed);
         }
 
         [Fact]
-        public void TestHintsCompletedRow()
+        public void TestCluesCompletedRow()
         {
             // The grid is not filled in, we expected these to not be completed
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.False(grid.RowHints[i][0].Completed);
-                Assert.False(grid.RowHints[i][1].Completed);
+                Assert.False(grid.RowClues[i][0].Completed);
+                Assert.False(grid.RowClues[i][1].Completed);
             }
 
             FillInGridSolution();
 
-            // Now we expected all hints to be completed
+            // Now we expected all clues to be completed
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.True(grid.RowHints[i][0].Completed);
-                Assert.True(grid.RowHints[i][1].Completed);
+                Assert.True(grid.RowClues[i][0].Completed);
+                Assert.True(grid.RowClues[i][1].Completed);
             }
 
-            // Test for completion if only the last hints are filled in
+            // Test for completion if only the last clues are filled in
             grid.SetCell(0, 0, CellType.BLANK);
             grid.SetCell(1, 0, CellType.BLANK);
-            Assert.True(grid.RowHints[0][1].Completed);
+            Assert.True(grid.RowClues[0][1].Completed);
         }
 
         [Fact]
-        public void TestHintsCompletedWithCrosses()
+        public void TestCluesCompletedWithCrosses()
         {
             FillInGridSolution();
             grid.SetCell(2, 0, CellType.CROSS);
 
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.True(grid.RowHints[i][0].Completed);
-                Assert.True(grid.RowHints[i][1].Completed);
+                Assert.True(grid.RowClues[i][0].Completed);
+                Assert.True(grid.RowClues[i][1].Completed);
             }
 
             grid.SetCell(1, 0, CellType.CROSS);
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.False(grid.RowHints[i][0].Completed);
-                Assert.True(grid.RowHints[i][1].Completed);
+                Assert.False(grid.RowClues[i][0].Completed);
+                Assert.True(grid.RowClues[i][1].Completed);
             }
 
             grid.SetCell(4, 0, CellType.CROSS);
             for (int i = 0; i < grid.Height; i++)
             {
-                Assert.False(grid.RowHints[i][0].Completed);
-                Assert.False(grid.RowHints[i][1].Completed);
+                Assert.False(grid.RowClues[i][0].Completed);
+                Assert.False(grid.RowClues[i][1].Completed);
             }
         }
 
         [Fact]
-        public void TestHintsCompletedWithMultipleBetweenCrosses()
+        public void TestCluesCompletedWithMultipleBetweenCrosses()
         {
             grid = GetBigGrid();
 
             Assert.False(grid.IsSolved());
-            Assert.False(grid.RowHints[0][0].Completed);
-            Assert.False(grid.RowHints[0][1].Completed);
+            Assert.False(grid.RowClues[0][0].Completed);
+            Assert.False(grid.RowClues[0][1].Completed);
 
 
             grid.SetCell(2, 0, CellType.FILLED);
@@ -195,34 +195,34 @@ namespace NonoSharp.Tests
             grid.SetCell(5, 0, CellType.CROSS);
             Assert.True(grid.IsSolved());
 
-            Assert.True(grid.RowHints[0][0].Completed);
+            Assert.True(grid.RowClues[0][0].Completed);
 
-            // Our specifications for when a user knows this should be filled requires all hints after the first/last to be between crosses or other cells
-            Assert.False(grid.RowHints[0][1].Completed);
+            // Our specifications for when a user knows this should be filled requires all clues after the first/last to be between crosses or other cells
+            Assert.False(grid.RowClues[0][1].Completed);
 
             grid.SetCell(8, 0, CellType.CROSS);
-            Assert.True(grid.RowHints[0][1].Completed);
+            Assert.True(grid.RowClues[0][1].Completed);
 
             for (int i = 9; i < grid.Width; i++)
             {
                 grid.SetCell(i, 0, CellType.CROSS);
             }
             Assert.True(grid.IsSolved());
-            Assert.True(grid.RowHints[0][0].Completed);
-            Assert.True(grid.RowHints[0][1].Completed);
+            Assert.True(grid.RowClues[0][0].Completed);
+            Assert.True(grid.RowClues[0][1].Completed);
 
-            // Check if hint completeness is still true if we know that it was handled from the back
+            // Check if clue completeness is still true if we know that it was handled from the back
             grid.SetCell(0, 0, CellType.BLANK);
             Assert.True(grid.IsSolved());
-            Assert.True(grid.RowHints[0][0].Completed);
-            Assert.True(grid.RowHints[0][1].Completed);
+            Assert.True(grid.RowClues[0][0].Completed);
+            Assert.True(grid.RowClues[0][1].Completed);
 
             grid.SetCell(7, 0, CellType.BLANK);
             Assert.False(grid.IsSolved());
         }
 
         [Fact]
-        public void TestHint_SingleFilled_TwoInSolution()
+        public void TestClue_SingleFilled_TwoInSolution()
         {
             // Solution
             // [O][X][O]
@@ -236,18 +236,18 @@ namespace NonoSharp.Tests
             grid.SetCell(1, 0, CellType.CROSS);
             grid.SetCell(2, 0, CellType.CROSS);
 
-            // Since the first cell is filled in, we expect the first hint to be completed as it makes more sense intuitively
-            Assert.True(grid.RowHints[0][0].Completed);
-            Assert.False(grid.RowHints[0][1].Completed);
+            // Since the first cell is filled in, we expect the first clue to be completed as it makes more sense intuitively
+            Assert.True(grid.RowClues[0][0].Completed);
+            Assert.False(grid.RowClues[0][1].Completed);
 
             // Now check single filled in cell at the end
             // [X][X][O]
             grid.SetCell(0, 0, CellType.CROSS);
             grid.SetCell(2, 0, CellType.FILLED);
 
-            // It does not really matter which hint is completed, both make sense in a way, as long as one is completed and the other is not
-            bool completed0 = grid.RowHints[0][0].Completed;
-            bool completed1 = grid.RowHints[0][1].Completed;
+            // It does not really matter which clue is completed, both make sense in a way, as long as one is completed and the other is not
+            bool completed0 = grid.RowClues[0][0].Completed;
+            bool completed1 = grid.RowClues[0][1].Completed;
 
             // Since these are bools, c0 != c1 implies that one is true and the other is false
             // This is enough for what we want to test as above

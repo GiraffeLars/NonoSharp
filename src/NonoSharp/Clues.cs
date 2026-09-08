@@ -3,72 +3,72 @@
 namespace NonoSharp
 {
     /// <summary>
-    /// The hints of a line. Each Hint in Hints can be accessed by using the indexer.
-    /// E.g.: Hint hintAtI = (Hints) hints[i].
+    /// The clues of a line. Each Clue in Clues can be accessed by using the indexer.
+    /// E.g.: Clue clueAtI = (Clues) clues[i].
     /// </summary>
-    public class Hints : ICloneable, IEnumerable<Hint>
+    public class Clues : ICloneable, IEnumerable<Clue>
     {
-        private List<Hint> hints;
-        private bool isColumnHints;
+        private List<Clue> clues;
+        private bool isColumnClues;
         private int position;
 
         /// <summary>
-        /// The total amount of filled cells these hints concern.
+        /// The total amount of filled cells these clues concern.
         /// </summary>
-        public int TotalCellsInHints {  get; private set; }
+        public int TotalCellsInClues {  get; private set; }
 
         /// <summary>
-        /// Whether this line of Hints is fully completed (i.e. all hints are completed).
+        /// Whether this line of Clues is fully completed (i.e. all clues are completed).
         /// </summary>
         public bool FullyCompleted { get; private set; }
 
         /// <summary>
-        /// The total number of <see cref="Hint"/> instances contained in this Hints instance.
+        /// The total number of <see cref="Clue"/> instances contained in this Clues instance.
         /// </summary>
-        public int Count { get { return hints.Count; } }
+        public int Count { get { return clues.Count; } }
 
-        internal Hints(bool isColumnHints, int position)
+        internal Clues(bool isColumnClues, int position)
         {
-            hints = new List<Hint>();
-            this.isColumnHints = isColumnHints;
+            clues = new List<Clue>();
+            this.isColumnClues = isColumnClues;
             this.position = position;
-            TotalCellsInHints = 0;
+            TotalCellsInClues = 0;
         }
 
-        internal Hints(bool isColumnHints, int position, List<Hint> hints)
+        internal Clues(bool isColumnClues, int position, List<Clue> clues)
         {
-            this.hints = hints;
-            this.isColumnHints = isColumnHints;
+            this.clues = clues;
+            this.isColumnClues = isColumnClues;
             this.position = position;
-            TotalCellsInHints = 0;
+            TotalCellsInClues = 0;
         }
 
         /// <summary>
-        /// Adds a <c>Hint</c> to this Hints instance. It is appended to the end.
+        /// Adds a <c>Clue</c> to this Clues instance. It is appended to the end.
         /// </summary>
-        /// <param name="hint">The hint to add</param>
-        internal void Add(Hint hint)
+        /// <param name="clue">The clue to add</param>
+        internal void Add(Clue clue)
         {
-            hints.Add(hint);
-            TotalCellsInHints += hint.Number;
+            clues.Add(clue);
+            TotalCellsInClues += clue.Number;
         }
 
         /// <summary>
-        /// Resets the all hints by setting their completed status to false.
+        /// Resets the all clues by setting their completed status to false.
         /// Also resets how many cells we have not handled yet.
         /// </summary>
         internal void Reset()
         {
-            foreach (Hint hint in hints)
+            foreach (Clue clue in clues)
             {
-                hint._completed = false;
+                clue._completed = false;
             }
         }
 
         internal void DoCompletion(Grid grid) {
-            if (hints.Count == 0) return;
+            if (clues.Count == 0) return;
             Reset();
-            LinkedList<CellType> line = isColumnHints ? grid.GetColumn(position) : grid.GetRow(position);
+            LinkedList<CellType> line = isColumnClues ? grid.GetColumn(position) : grid.GetRow(position);
             LinkedListNode<CellType>? node = line.First;
 
             int leftOffAt = DoCompletionForward(line);
@@ -79,7 +79,7 @@ namespace NonoSharp
 
         internal void DoCompletion(CellType[] line)
         {
-            if (hints.Count == 0) return;
+            if (clues.Count == 0) return;
             Reset();
             LinkedList<CellType> linked = new();
             foreach(CellType cell in line)
@@ -94,19 +94,19 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks hint completion by starting from the front
+        /// Checks clue completion by starting from the front
         /// </summary>
         /// <param name="line">The row/column to check</param>
-        /// <returns>The final hint which was marked as completed</returns>
+        /// <returns>The final clue which was marked as completed</returns>
         /// <seealso cref="DoCompletionBackward(LinkedList{CellType}, int)"/>
         private int DoCompletionForward(LinkedList<CellType> line)
         {
             LinkedListNode<CellType>? node = line.First;
             bool startedFromFirst = true; // Whether we started from the first cell in the current iteration of checking
-            int hintIndex = 0;
-            int cellsFound = 0; // The total cells we have found that are filled in for this hint
+            int clueIndex = 0;
+            int cellsFound = 0; // The total cells we have found that are filled in for this clue
 
-            while (node != null && hintIndex < hints.Count)
+            while (node != null && clueIndex < clues.Count)
             {
                 if (node.Value == CellType.CROSS && startedFromFirst && cellsFound == 0)
                 {
@@ -116,50 +116,50 @@ namespace NonoSharp
                     continue;
                 }
 
-                // Check if we are allowed to mark this hint as completed
-                // A hint is allowed to be completed if it started from the first possible cell in the grid
+                // Check if we are allowed to mark this clue as completed
+                // A clue is allowed to be completed if it started from the first possible cell in the grid
                 // Or it has a cross
                 bool firstGroupCompleteFollowedByBlank = node.Value == CellType.BLANK && startedFromFirst;
                 if (node.Value == CellType.CROSS || firstGroupCompleteFollowedByBlank)
                 {
-                    if (cellsFound == hints[hintIndex].Number)
+                    if (cellsFound == clues[clueIndex].Number)
                     {
-                        hints[hintIndex]._completed = true;
+                        clues[clueIndex]._completed = true;
                     }
                     else if (node.Value == CellType.CROSS && cellsFound == 0)
                     {
-                        // Check if this is a cross while we have not yet started processing a new hint, then this can still be completed,
-                        // As we have not invalidated any hint since crosses are like blank spaces
+                        // Check if this is a cross while we have not yet started processing a new clue, then this can still be completed,
+                        // As we have not invalidated any clue since crosses are like blank spaces
                         node = node.Next;
                         continue;
                     }
                     else
                     {
-                        // This hint is not completed, meaning all other hints are incorrect as well
+                        // This clue is not completed, meaning all other clues are incorrect as well
                         // We stop this loop
-                        return hintIndex - 1;
+                        return clueIndex - 1;
                     }
 
                     if (firstGroupCompleteFollowedByBlank)
                     {
-                        // Immediatly stop checking if the first hint group was not seperated by a cross
-                        return hintIndex;
+                        // Immediatly stop checking if the first clue group was not seperated by a cross
+                        return clueIndex;
                     }
 
                     // Reset variables for next iteration
                     startedFromFirst = false;
                     node = node.Next;
                     cellsFound = 0;
-                    hintIndex++;
+                    clueIndex++;
                     continue;
                 }
 
                 if (node.Value == CellType.BLANK && !startedFromFirst)
                 {
-                    // Now, we do not know whether the player knows that these hints are correct or not,
+                    // Now, we do not know whether the player knows that these clues are correct or not,
                     // as we require crosses between cells for cells not starting at the first index
-                    // We return as we have no other garauntees on other hints
-                    return hintIndex - 1;
+                    // We return as we have no other garauntees on other clues
+                    return clueIndex - 1;
                 }
 
                 // This cell is filled in and should be correct, do the proper variable increments
@@ -168,30 +168,30 @@ namespace NonoSharp
             }
 
 
-            // We can reach a situation where the hint is completed at the end of the grid (i.e. all hints are correct)
-            // Then, we should do a final check whether this hint is completed
-            if (hintIndex <  hints.Count && hints[hintIndex].Number == cellsFound)
+            // We can reach a situation where the clue is completed at the end of the grid (i.e. all clues are correct)
+            // Then, we should do a final check whether this clue is completed
+            if (clueIndex <  clues.Count && clues[clueIndex].Number == cellsFound)
             {
-                hints[hintIndex]._completed = true;
-                hintIndex++; // Increase hint index as this hint is completed
+                clues[clueIndex]._completed = true;
+                clueIndex++; // Increase clue index as this clue is completed
             }
-            return hintIndex;
+            return clueIndex;
         }
 
         /// <summary>
-        /// Checks hint completion by starting from the back. Only checks upto (not including) <paramref name="forwardsFinalCheck"/>.
+        /// Checks clue completion by starting from the back. Only checks upto (not including) <paramref name="forwardsFinalCheck"/>.
         /// </summary>
         /// <param name="line">The row/column to check</param>
-        /// <param name="forwardsFinalCheck">The last hint index which <c>DoCompletionForward</c> left off at</param>
+        /// <param name="forwardsFinalCheck">The last clue index which <c>DoCompletionForward</c> left off at</param>
         /// <seealso cref="DoCompletionForward(LinkedList{CellType})"/>
         private void DoCompletionBackward(LinkedList<CellType> line, int forwardsFinalCheck)
         {
             LinkedListNode<CellType>? node = line.Last;
             bool startedFromFirst = true; // Whether we started from the first cell in the current iteration of checking
-            int hintIndex = hints.Count - 1;
-            int cellsFound = 0; // The total cells we have found that are filled in for this hint   
+            int clueIndex = clues.Count - 1;
+            int cellsFound = 0; // The total cells we have found that are filled in for this clue   
 
-            while (node != null && hintIndex >= 0 && hintIndex > forwardsFinalCheck)
+            while (node != null && clueIndex >= 0 && clueIndex > forwardsFinalCheck)
             {
                 if (node.Value == CellType.CROSS && startedFromFirst && cellsFound == 0)
                 {
@@ -201,25 +201,25 @@ namespace NonoSharp
                     continue;
                 }
 
-                // Check if we are allowed to mark this hint as completed
-                // A hint is allowed to be completed if it started from the first possible cell in the grid
+                // Check if we are allowed to mark this clue as completed
+                // A clue is allowed to be completed if it started from the first possible cell in the grid
                 // Or it has a cross
                 if (node.Value == CellType.CROSS || (node.Value == CellType.BLANK && startedFromFirst))
                 {
-                    if (cellsFound == hints[hintIndex].Number)
+                    if (cellsFound == clues[clueIndex].Number)
                     {
-                        hints[hintIndex]._completed = true;
+                        clues[clueIndex]._completed = true;
                     }
                     else if (node.Value == CellType.CROSS && cellsFound == 0)
                     {
-                        // Check if this is a cross while we have not yet started processing a new hint, then this can still be completed,
-                        // As we have not invalidated any hint since crosses are like blank spaces
+                        // Check if this is a cross while we have not yet started processing a new clue, then this can still be completed,
+                        // As we have not invalidated any clue since crosses are like blank spaces
                         node = node.Previous;
                         continue;
                     }
                     else
                     {
-                        // This hint is not completed, meaning all other hints are incorrect as well
+                        // This clue is not completed, meaning all other clues are incorrect as well
                         // We stop this loop
                         return;
                     }
@@ -228,16 +228,16 @@ namespace NonoSharp
                     startedFromFirst = false;
                     node = node.Previous;
                     cellsFound = 0;
-                    hintIndex--;
+                    clueIndex--;
                     continue;
                 }
 
                 if (node.Value == CellType.BLANK)
                 {
-                    // Now, we do not know whether the player knows that these hints are correct or not,
+                    // Now, we do not know whether the player knows that these clues are correct or not,
                     // as we require crosses between cells for cells not starting at the first index
-                    // We return as we have no other guarantees on other hints. If this was the first checked hint,
-                    // we still return to avoid unintuitively marking following hints as complete
+                    // We return as we have no other guarantees on other clues. If this was the first checked clue,
+                    // we still return to avoid unintuitively marking following clues as complete
                     return;
                 }
 
@@ -246,17 +246,17 @@ namespace NonoSharp
                 cellsFound++;
             }
 
-            // We can reach a situation where the hint is completed at the end of the grid (i.e. all hints are correct)
-            // Then, we should do a final check whether this hint is completed
-            if (hintIndex >= 0 && hintIndex > forwardsFinalCheck && hints[hintIndex].Number == cellsFound)
+            // We can reach a situation where the clue is completed at the end of the grid (i.e. all clues are correct)
+            // Then, we should do a final check whether this clue is completed
+            if (clueIndex >= 0 && clueIndex > forwardsFinalCheck && clues[clueIndex].Number == cellsFound)
             {
-                hints[hintIndex]._completed = true;
+                clues[clueIndex]._completed = true;
             }
         }
 
         private void SetFullyCompleted()
         {
-            foreach (Hint h in this)
+            foreach (Clue h in this)
             {
                 if (!h.Completed)
                 {
@@ -269,31 +269,31 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Deep copies this Hints instance.
+        /// Deep copies this Clues instance.
         /// </summary>
         /// <returns>Deep copy of this instance</returns>
         public object Clone()
         {
-            var hintCopy = new List<Hint>();
+            var clueCopy = new List<Clue>();
 
-            foreach(Hint h in hints)
+            foreach(Clue h in clues)
             {
-                // Create deep copy of the hints, otherwise interference might occur with user playing
-                hintCopy.Add((Hint) h.Clone());
+                // Create deep copy of the clues, otherwise interference might occur with user playing
+                clueCopy.Add((Clue) h.Clone());
             }
 
-            return new Hints(isColumnHints, position, hintCopy);
+            return new Clues(isColumnClues, position, clueCopy);
         }
         
         /// <summary>
-        /// Gets the Enumerator over the <see cref="Hint"/> instances contained in this instance.
+        /// Gets the Enumerator over the <see cref="Clue"/> instances contained in this instance.
         /// </summary>
         /// <returns>Enumerator as above</returns>
-        public IEnumerator<Hint> GetEnumerator()
+        public IEnumerator<Clue> GetEnumerator()
         {
-            for (int i = 0; i < hints.Count; i++)
+            for (int i = 0; i < clues.Count; i++)
             {
-                yield return hints[i];
+                yield return clues[i];
             }
         }
 
@@ -303,15 +303,15 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Gets the <see cref="Hint"/> instance located at position <paramref name="index"/> in this instance.
+        /// Gets the <see cref="Clue"/> instance located at position <paramref name="index"/> in this instance.
         /// </summary>
-        /// <param name="index">Hint to get</param>
-        /// <returns><see cref="Hint"/> instance at <paramref name="index"/></returns>
-        public Hint this[int index]
+        /// <param name="index">Clue to get</param>
+        /// <returns><see cref="Clue"/> instance at <paramref name="index"/></returns>
+        public Clue this[int index]
         {
             get
             {
-                return hints[index];
+                return clues[index];
             }
         }
     }

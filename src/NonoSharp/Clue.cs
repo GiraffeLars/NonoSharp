@@ -5,21 +5,21 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
-    /// A singular hint, usually part of a group of multiple Hint instances contained in <see cref="Hints"/>.
+    /// A singular clue, usually part of a group of multiple Clue instances contained in <see cref="Clues"/>.
     /// </summary>
-    public class Hint : ICloneable
+    public class Clue : ICloneable
     {
         /// <summary>
-        /// Amount of expected filled cells this singular hint corresponds to
+        /// Amount of expected filled cells this singular clue corresponds to
         /// </summary>
         public int Number { get; }
         /// <summary>
-        /// Whether this hint is marked as complete, i.e. this hint's corresponding cell group is correct.
+        /// Whether this clue is marked as complete, i.e. this clue's corresponding cell group is correct.
         /// </summary>
         public bool Completed { get { return _completed; } }
         internal bool _completed;
 
-        internal Hint(int num) {
+        internal Clue(int num) {
             ArgumentOutOfRangeException.ThrowIfNegative(num);
 
             Number = num;
@@ -32,7 +32,7 @@ namespace NonoSharp
             }
         }
 
-        private Hint(int num, bool completed)
+        private Clue(int num, bool completed)
         {
             this._completed = completed;
             this.Number = num;
@@ -44,7 +44,7 @@ namespace NonoSharp
         /// <returns>New, deep-copied instance of this instance</returns>
         public object Clone()
         {
-            return new Hint(Number, Completed);
+            return new Clue(Number, Completed);
         }
     }
 }

@@ -1,12 +1,12 @@
 # Introduction
 ## What is NonoSharp?
 NonoSharp is an API for C# and .NET10.0, allowing for easy creation and playing of [Nonogram](https://en.wikipedia.org/wiki/Nonogram) (also known as Picross) puzzles.
-Nonograms are Japanese puzzles where you fill in a picture based on hints given to you.
-The hints, either on the left-side or top-side of the grid, show how many groups there are in a given row/column and show how many cells each group consists of.
+Nonograms are Japanese puzzles where you fill in a picture based on clues given to you.
+The clues, either on the left-side or top-side of the grid, show how many groups there are in a given row/column and show how many cells each group consists of.
 By filling the grid one cell at a time, eventually you reach the solution.
 
 ## Features
-- **A fully functional Nonogram game**, complete with hint checking
+- **A fully functional Nonogram game**, complete with clue checking
 - An **API** allowing for game logic to be reused in other projects
 - **Custom Solver** to solve any Nonogram puzzle you might encounter
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
@@ -18,7 +18,7 @@ Currently supported functions include:
 - Abstracted grid, making it easy to implement in your projects
 - Built-in undo/redo functionality
 - Checking whether the puzzle is solved
-- A hint system, together with whether a hint is completed by the user
+- A clue system, together with whether a clue is completed by the user
 - Events, e.g. for when cells change states or the puzzle is solved
 - Generating random uniquely solvable puzzles
 - Loading and saving puzzles to a custom file type optimised for file size
