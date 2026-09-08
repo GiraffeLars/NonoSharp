@@ -23,5 +23,20 @@ namespace NonoSharp
                 yield return new Hint(clues[i]);
             }
         }
+
+        /// <summary>
+        /// Gets the <see cref="Hint"/> instance located at position <paramref name="index"/> in this instance.
+        /// </summary>
+        /// <param name="index">Hint to get</param>
+        /// <returns><see cref="Hint"/> instance at <paramref name="index"/></returns>
+        [Obsolete("Hints has been renamed and is thus deprecated, including the index getter." +
+            "Use Clues instead. Hints will be removed after v0.5.*")]
+        public new Hint this[int index]
+        {
+            get
+            {
+                return new(clues[index]);
+            }
+        }
     }
 }
