@@ -5,46 +5,17 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
+    /// Deprecated: Use <see cref="Clue"/> instead.
     /// A singular hint, usually part of a group of multiple Hint instances contained in <see cref="Hints"/>.
     /// </summary>
-    public class Hint : ICloneable
+    [Obsolete("Hint has been renamed and is thus deprecated. Use Clue instead. Hint will be removed after v0.5.*")]
+    public class Hint : Clue
     {
-        /// <summary>
-        /// Amount of expected filled cells this singular hint corresponds to
-        /// </summary>
-        public int Number { get; }
-        /// <summary>
-        /// Whether this hint is marked as complete, i.e. this hint's corresponding cell group is correct.
-        /// </summary>
-        public bool Completed { get { return _completed; } }
-        internal bool _completed;
-
-        internal Hint(int num) {
-            ArgumentOutOfRangeException.ThrowIfNegative(num);
-
-            Number = num;
-            if (Number == 0)
-            {
-                _completed = true;
-            } else
-            {
-                _completed = false;
-            }
-        }
-
-        private Hint(int num, bool completed)
+        internal Hint(int num) : base(num)
         {
-            this._completed = completed;
-            this.Number = num;
         }
 
-        /// <summary>
-        /// Deep copies this instance.
-        /// </summary>
-        /// <returns>New, deep-copied instance of this instance</returns>
-        public object Clone()
-        {
-            return new Hint(Number, Completed);
-        }
+        internal Hint(Clue clue) : base(clue.Number)
+        { }
     }
 }

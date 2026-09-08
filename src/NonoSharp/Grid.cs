@@ -15,8 +15,8 @@ namespace NonoSharp
         public int Width { get; }
         public int Height { get; }
 
-        public Hints[] ColumnHints { get; }
-        public Hints[] RowHints { get; }
+        public Clues[] ColumnClues { get; }
+        public Clues[] RowClues { get; }
 
         /// <summary>
         /// Constructs a Grid.
@@ -36,8 +36,8 @@ namespace NonoSharp
 
             grid = new CellType[width, height];
 
-            ColumnHints = new Hints[width];
-            RowHints = new Hints[height];
+            ColumnClues = new Clues[width];
+            RowClues = new Clues[height];
 
             SetSolution(solution);
         }
@@ -55,7 +55,7 @@ namespace NonoSharp
         /// <param name="grid">List of CellType, with data of filled in cells, etc.</param>
         /// <param name="solution">Solution to this grid</param>
         /// <param name="filled">How many cells are filled in. Should be consistent with <paramref name="grid"/>.</param>
-        /// <param name="paddingString">The padding used to pad out the hints when converting to string</param>
+        /// <param name="paddingString">The padding used to pad out the clues when converting to string</param>
         /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
         internal Grid(CellType[,] grid, HashSet<CellPosition> solution, int filled, int paddingString, int width, int height)
@@ -65,8 +65,8 @@ namespace NonoSharp
             this.paddingString = paddingString;
             Width = width;
             Height = height;
-            ColumnHints = new Hints[width];
-            RowHints = new Hints[height];
+            ColumnClues = new Clues[width];
+            RowClues = new Clues[height];
             SetSolution(solution);
         }
 
@@ -91,40 +91,40 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Sets the solution to a Grid and sets the hints.
+        /// Sets the solution to a Grid and sets the clues.
         /// </summary>
         /// <param name="solution"></param>
         [MemberNotNull(nameof(Solution))]
         internal void SetSolution(HashSet<CellPosition> solution)
         { 
             this.Solution = solution;
-            InitializeHints();
+            InitializeClues();
         }
 
-        private void InitializeHints()
+        private void InitializeClues()
             
         {
             for (int i = 0; i < Width; i++)
             {
-                ColumnHints[i] = new Hints(true, i);
+                ColumnClues[i] = new Clues(true, i);
             }
             for (int i = 0; i < Height; i++)
             {
-                RowHints[i] = new Hints(false, i);
+                RowClues[i] = new Clues(false, i);
             }
-            SetHints(ColumnHints, true);
-            SetHints(RowHints, false);
+            SetClues(ColumnClues, true);
+            SetClues(RowClues, false);
             
         }
 
         /// <summary>
-        /// Creates the hints for the solution of this grid.
+        /// Creates the clues for the solution of this grid.
         /// </summary>
-        /// <param name="hints">Which hints to set, either <c>ColumnHints</c> or <c>RowHints</c></param>
-        /// <param name="isColumn">Whether we are setting the ColumnHints, corresponding to the <paramref name="hints"/> parameter</param>
-        private void SetHints(Hints[] hints, bool isColumn)
+        /// <param name="clues">Which clues to set, either <c>ColumnClues</c> or <c>RowClues</c></param>
+        /// <param name="isColumn">Whether we are setting the ColumnClues, corresponding to the <paramref name="clues"/> parameter</param>
+        private void SetClues(Clues[] clues, bool isColumn)
         {
-            // Sets the hint limits based on whether we process the column hints
+            // Sets the clue limits based on whether we process the column clues
             int xLimit = isColumn ? Width : Height;
             int yLimit = isColumn ? Height : Width;
 
@@ -139,8 +139,8 @@ namespace NonoSharp
                     // If this is not a filled cell
                     if (cell != CellType.FILLED)
                     {
-                        // Add the new hint to the list
-                        AddHint(hints, x, count); // TODO if cells are split (i.e. empty between two patches), separate them with a 0
+                        // Add the new clue to the list
+                        AddClue(clues, x, count); // TODO if cells are split (i.e. empty between two patches), separate them with a 0
                         count = 0;
                         continue;
                     }
@@ -148,27 +148,27 @@ namespace NonoSharp
                     count++;
                 }
 
-                // Do final hint adding in case the last cell is filled
+                // Do final clue adding in case the last cell is filled
                 // Count minus 1 as it is increased by one even if unfilled
                 CellType lastCell = isColumn ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
                 if (count > 0 && lastCell == CellType.FILLED)
                 {
-                    AddHint(hints, x, count);
+                    AddClue(clues, x, count);
                 }
-                else if (hints[x].Count == 0)
+                else if (clues[x].Count == 0)
                 {
-                    hints[x].Add(new Hint(0));
+                    clues[x].Add(new Clue(0));
                 }
 
-                DoRowPaddingCount(hints[x].Count, isColumn);
+                DoRowPaddingCount(clues[x].Count, isColumn);
             }
         }
 
-        private void AddHint(Hints[] hints, int pos, int count)
+        private void AddClue(Clues[] clues, int pos, int count)
         {
             if (count > 0)
             {
-                hints[pos].Add(new Hint(count));
+                clues[pos].Add(new Clue(count));
             }
         }
 
@@ -207,9 +207,8 @@ namespace NonoSharp
 
             grid[x, y] = value;
 
-            // TODO change hints from ints to using Hints and Hint classes then change completion here
-            RowHints[y].DoCompletion(this);
-            ColumnHints[x].DoCompletion(this);
+            RowClues[y].DoCompletion(this);
+            ColumnClues[x].DoCompletion(this);
         }
 
         /// <summary>
@@ -458,15 +457,15 @@ namespace NonoSharp
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            String[] rowHintsStr = CreateRowHintsString();
+            String[] rowCluesStr = CreateRowCluesString();
 
-            sb.Append(CreateColumnHintsString());
+            sb.Append(CreateColumnCluesString());
             //sb.AppendLine();
 
             for (int y = 0; y < Height; y++)
             {
                 sb.Append('\n');
-                sb.Append(rowHintsStr[y]);
+                sb.Append(rowCluesStr[y]);
                 for (int x = 0; x < Width; x++)
                 {
                     char c = ' ';
@@ -490,7 +489,7 @@ namespace NonoSharp
             return sb.ToString();
         }
 
-        private String CreateColumnHintsString()
+        private String CreateColumnCluesString()
         {
             StringBuilder sb = new StringBuilder();
 
@@ -503,12 +502,12 @@ namespace NonoSharp
                 lastFilled = 0;
                 for (int x = 0; x < Width; x++)
                 {
-                    Hints hints = ColumnHints[x];
-                    if (hints.Count > y)
+                    Clues clues = ColumnClues[x];
+                    if (clues.Count > y)
                     {
-                        // Add spaces for all columns with no hints until this column
+                        // Add spaces for all columns with no clues until this column
                         sb.Append(new string(' ', (x - lastFilled) * 3));
-                        sb.Append($" {hints[y].Number} ");
+                        sb.Append($" {clues[y].Number} ");
                         
                         newStringRow = true;
                         lastFilled = x + 1;
@@ -525,40 +524,40 @@ namespace NonoSharp
             return sb.ToString();
         }
 
-        private String[] CreateRowHintsString()
+        private String[] CreateRowCluesString()
         {
-            String[] hintsStr = new String[Height];
+            String[] cluesStr = new String[Height];
 
             for (int i = 0; i < Height; i++)
             {
                 int x;
                 StringBuilder sb = new StringBuilder();
-                Hints hints = RowHints[i];
+                Clues clues = RowClues[i];
 
-                for (x = 0; x < hints.Count; x++)
+                for (x = 0; x < clues.Count; x++)
                 {
-                    sb.Append($"{hints[x].Number} ");
+                    sb.Append($"{clues[x].Number} ");
                 }
 
                 sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));
-                hintsStr[i] = sb.ToString();
+                cluesStr[i] = sb.ToString();
             }
 
-            return hintsStr;
+            return cluesStr;
         }
 
         /// <summary>
         /// Deep copies <paramref name="toClone"/>
         /// </summary>
-        /// <param name="toClone">The hints array to clone</param>
+        /// <param name="toClone">The clues array to clone</param>
         /// <returns>Deep copy of <c>toClone</c></returns>
-        private Hints[] CloneHints(Hints[] toClone)
+        private Clues[] CloneClues(Clues[] toClone)
         {
-            Hints[] clone = new Hints[toClone.Length];
+            Clues[] clone = new Clues[toClone.Length];
 
             for (int i = 0; i < toClone.Length; i++)
             {
-                clone[i] = (Hints) toClone[i].Clone();
+                clone[i] = (Clues) toClone[i].Clone();
             }
 
             return clone;

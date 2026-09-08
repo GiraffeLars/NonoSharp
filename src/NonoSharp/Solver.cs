@@ -84,10 +84,10 @@ namespace NonoSharp
                 (bool inColumn, int index) = queue.Dequeue();
 
                 CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
-                Hints hints = inColumn ? grid.ColumnHints[index] : grid.RowHints[index];
+                Clues clues = inColumn ? grid.ColumnClues[index] : grid.RowClues[index];
 
                 LinkedList<int> changed = [];
-                ImproveLine(line, hints, changed);
+                ImproveLine(line, clues, changed);
                 foreach (int i in changed)
                 {
                     if (inColumn)
@@ -106,12 +106,12 @@ namespace NonoSharp
         /// Does a solve iteration. Changed cells in the line are added to the <paramref name="changedIndices"/> list. 
         /// </summary>
         /// <param name="line">The line to improve in-place.</param>
-        /// <param name="hints">Hints associated with <paramref name="line"/>.</param>
+        /// <param name="clues">Clues associated with <paramref name="line"/>.</param>
         /// <param name="changedIndices">The LinkedList to append indices of the cells that are changed to.</param>
-        internal static void ImproveLine(CellType[] line, Hints hints, LinkedList<int> changedIndices)
+        internal static void ImproveLine(CellType[] line, Clues clues, LinkedList<int> changedIndices)
         { 
             List<CellType[]> perms = [];
-            ComputePermutations(line, hints, perms);
+            ComputePermutations(line, clues, perms);
 
             if (perms.Count == 0)
             {
@@ -151,42 +151,42 @@ namespace NonoSharp
     
 
         /// <summary>
-        /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="hints"/>, 
+        /// Gets all possible permutations of <paramref name="line"/> based on <paramref name="clues"/>, 
         /// all non-empty cells remain as they were.
         /// </summary>
         /// <param name="line">Array of CellType to compute all possible permutations of, filling/crossing only blank cells.</param>
-        /// <param name="hints">Hints instance corresponding to <paramref name="line"/>.</param>
-        /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="hints"/>
+        /// <param name="clues">Clues instance corresponding to <paramref name="line"/>.</param>
+        /// <param name="currentlyFound">The currently found valid permutations according to <paramref name="clues"/>
         /// and already non-empty cells. This List will be modified by adding the found permutations.</param>
-        private static void ComputePermutations(CellType[] line, Hints hints, List<CellType[]> currentlyFound)
+        private static void ComputePermutations(CellType[] line, Clues clues, List<CellType[]> currentlyFound)
         {
-            PlaceHintBlocks(line, hints, 0, 0, currentlyFound);
+            PlaceClueBlocks(line, clues, 0, 0, currentlyFound);
         }
 
         /// <summary>
-        /// Places filled cells to satisfy all hints, if possible.
+        /// Places filled cells to satisfy all clues, if possible.
         /// </summary>
         /// <param name="permutation">The current permutation to work on.</param>
-        /// <param name="hints">Hints associated with the permutation.</param>
-        /// <param name="hintIdx">Index of the next hint that needs to be satisfied. Should initially be 0.</param>
+        /// <param name="clues">Clues associated with the permutation.</param>
+        /// <param name="clueIdx">Index of the next clue that needs to be satisfied. Should initially be 0.</param>
         /// <param name="cellIdx">Index of the next cell that needs to be determined if it can satisfy a cell.
         /// Should initially be 0.</param>
-        /// <param name="found">List of permutations currently found that are able to satisfy all hints.</param>
-        private static void PlaceHintBlocks(CellType[] permutation, Hints hints, int hintIdx, int cellIdx, List<CellType[]> found)
+        /// <param name="found">List of permutations currently found that are able to satisfy all clues.</param>
+        private static void PlaceClueBlocks(CellType[] permutation, Clues clues, int clueIdx, int cellIdx, List<CellType[]> found)
         {
-            if (hintIdx >= hints.Count)
+            if (clueIdx >= clues.Count)
             {
                 CellType[] clone = (CellType[])permutation.Clone();
                 for (int i = cellIdx; i < permutation.Length; i++)
                 {
-                    // If there are more filled cells after the hints have been processed, there are too many
+                    // If there are more filled cells after the clues have been processed, there are too many
                     // filled cells in the line. As such, this pernutation is invalid
                     if (clone[i] == CellType.FILLED)
                     {
                         return;
                     }
 
-                    // Cross out the cell otherwise, as all hints should have been satisfied
+                    // Cross out the cell otherwise, as all clues should have been satisfied
                     clone[i] = CellType.CROSS;
                 }
 
@@ -196,33 +196,33 @@ namespace NonoSharp
 
             if (cellIdx >= permutation.Length)
             {
-                // We have reached the last cell but the hints are not completed,
+                // We have reached the last cell but the clues are not completed,
                 // making this permutation invalid
                 return;
             }
 
-            // Skip crossed (will never contribute to a hint, filled cells can contribute if they are the start of a hint)
+            // Skip crossed (will never contribute to a clue, filled cells can contribute if they are the start of a clue)
             if (permutation[cellIdx] == CellType.CROSS)
             {
-                PlaceHintBlocks(permutation, hints, hintIdx, cellIdx + 1, found);
+                PlaceClueBlocks(permutation, clues, clueIdx, cellIdx + 1, found);
                 return;
             }
 
 
-            // Simple first check to see if the total of remaining hints can be satisfied
-            int totalCellsNeededForRemainingHints = hints.Skip(hintIdx).Select(hint => hint.Number).Sum();
-            if (totalCellsNeededForRemainingHints > permutation.Length - cellIdx)
+            // Simple first check to see if the total of remaining clues can be satisfied
+            int totalCellsNeededForRemainingClues = clues.Skip(clueIdx).Select(clue => clue.Number).Sum();
+            if (totalCellsNeededForRemainingClues > permutation.Length - cellIdx)
             {
                 return;
             }
 
-            if (IsValidPlacement(permutation, hints[hintIdx], cellIdx))
+            if (IsValidPlacement(permutation, clues[clueIdx], cellIdx))
             {
-                int hintsNum = hints[hintIdx].Number;
+                int cluesNum = clues[clueIdx].Number;
 
                 // Cells that need to be emptied again after this iteration
                 LinkedList<int> needToBeEmptied = new();
-                for (int i = 0; i < hintsNum; i++)
+                for (int i = 0; i < cluesNum; i++)
                 {
                     if (permutation[cellIdx + i] == CellType.BLANK)
                     {
@@ -231,14 +231,14 @@ namespace NonoSharp
                     }
                 }
 
-                // Place cross since space between hints is required to be empty
-                if (cellIdx + hintsNum < permutation.Length && permutation[cellIdx + hintsNum] == CellType.BLANK)
+                // Place cross since space between clues is required to be empty
+                if (cellIdx + cluesNum < permutation.Length && permutation[cellIdx + cluesNum] == CellType.BLANK)
                 {
-                    permutation[cellIdx + hintsNum] = CellType.CROSS;
-                    needToBeEmptied.AddLast(cellIdx + hintsNum);
+                    permutation[cellIdx + cluesNum] = CellType.CROSS;
+                    needToBeEmptied.AddLast(cellIdx + cluesNum);
                 }
 
-                PlaceHintBlocks(permutation, hints, hintIdx + 1, cellIdx + hintsNum, found);
+                PlaceClueBlocks(permutation, clues, clueIdx + 1, cellIdx + cluesNum, found);
 
                 // Undo filled cells
                 foreach (int cellToBeEmptied in needToBeEmptied)
@@ -251,22 +251,22 @@ namespace NonoSharp
             if (permutation[cellIdx] == CellType.BLANK)
             {
                 permutation[cellIdx] = CellType.CROSS;
-                PlaceHintBlocks(permutation, hints, hintIdx, cellIdx + 1, found);
+                PlaceClueBlocks(permutation, clues, clueIdx, cellIdx + 1, found);
                 permutation[cellIdx] = CellType.BLANK;
             }
         }
 
         /// <summary>
-        /// Determines if a full group of filled cells, with a total length of <c><paramref name="nextHint"/>.Number</c>
+        /// Determines if a full group of filled cells, with a total length of <c><paramref name="nextClue"/>.Number</c>
         /// can be placed into the permutation without issue
         /// </summary>
         /// <param name="permutation">Permutation to work on.</param>
-        /// <param name="nextHint">Hint to consider.</param>
+        /// <param name="nextClue">Clue to consider.</param>
         /// <param name="cellIdx">Current cell to check of permutation.</param>
         /// <returns><c>true</c> if possible, <c>false</c> otherwise.</returns>
-        private static bool IsValidPlacement(CellType[] permutation, Hint nextHint, int cellIdx)
+        private static bool IsValidPlacement(CellType[] permutation, Clue nextClue, int cellIdx)
         {
-            int cellsToPlace = nextHint.Number;
+            int cellsToPlace = nextClue.Number;
 
             // Check if there is enough space left in the permutation
             if (cellIdx + cellsToPlace > permutation.Length)
@@ -276,16 +276,16 @@ namespace NonoSharp
 
             if (cellIdx + cellsToPlace < permutation.Length)
             {
-                // If the end of the hint is not located at the last square of the grid,
-                // we need to check if the cell after filling the hint can be/is crossed
-                // Else, the placement is invalid since it won't satisfy the hint restrictions
+                // If the end of the clue is not located at the last square of the grid,
+                // we need to check if the cell after filling the clue can be/is crossed
+                // Else, the placement is invalid since it won't satisfy the clue restrictions
                 if (permutation[cellIdx + cellsToPlace] == CellType.FILLED)
                 {
                     return false;
                 }
 
             }
-            // If cellsIdx + cellsToPlace == permutation.Length, then the hint ends at the last cell,
+            // If cellsIdx + cellsToPlace == permutation.Length, then the clue ends at the last cell,
             // no need for an extra check
 
             // Finally, check if all cells can be/are already placed

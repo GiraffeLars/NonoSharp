@@ -24,17 +24,40 @@ namespace NonoSharp
         public int Height { get { return grid.Height; } }
 
         /// <summary>
+        /// The clues, i.e. the numbers on the side of a grid, for the columns of the grid.
+        /// In Nonogram puzzles these are usually shown at the top of the grid.
+        /// </summary>
+        public Clues[] ColumnClues { get { return grid.ColumnClues; } }
+
+
+        /// <summary>
+        /// The clues, i.e. the numbers on the side of a grid, for the rows of the grid.
+        /// In Nonogram puzzles these are usually shown at the left side of the grid.
+        /// </summary>
+        public Clues[] RowClues { get { return grid.RowClues; } }
+
+        /// <summary>
         /// The hints, i.e. the numbers on the side of a grid, for the columns of the grid.
         /// In Nonogram puzzles these are usually shown at the top of the grid.
         /// </summary>
-        public Hints[] ColumnHints { get { return grid.ColumnHints; } }
+        [Obsolete("ColumnHints has been renamed and is thus deprecated. Use ColumnClues instead. Hints will be removed after v0.5.*")]
+        public Hints[] ColumnHints { get 
+            {
+                return [.. Enumerable.Range(0, ColumnClues.Length).Select(i => new Hints(ColumnClues[i]))];
+            } 
+        }
 
 
         /// <summary>
         /// The hints, i.e. the numbers on the side of a grid, for the rows of the grid.
         /// In Nonogram puzzles these are usually shown at the left side of the grid.
         /// </summary>
-        public Hints[] RowHints { get { return grid.RowHints; } }
+        [Obsolete("RowHints has been renamed and is thus deprecated. Use RowClues instead. Hints will be removed after v0.5.*")]
+        public Hints[] RowHints { get
+            {
+                return [.. Enumerable.Range(0, RowClues.Length).Select(i => new Hints(RowClues[i]))];
+            }
+        }
 
         /// <summary>
         /// A boolean indicating whether an undo via <see cref="Undo"/> is possible.
@@ -318,12 +341,12 @@ namespace NonoSharp
         private List<int> GetColumnAutoCross(int col)
         {
             LinkedList<int> groups = grid.GetGroupsInColumn(col);
-            Hints hints = grid.ColumnHints[col];
+            Clues clues = grid.ColumnClues[col];
             List<int> posToCross = [];
 
-            bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
+            bool groupsMatchClues = DoGroupsMatchClues(groups, clues);
 
-            if (groupsMatchHints)
+            if (groupsMatchClues)
             {
                 CellType[] column = grid.GetColumnArray(col);
 
@@ -342,12 +365,12 @@ namespace NonoSharp
         private List<int> GetRowAutoCross(int row)
         {
             LinkedList<int> groups = grid.GetGroupsInRow(row);
-            Hints hints = grid.RowHints[row];
+            Clues clues = grid.RowClues[row];
             List<int> posToCross = [];
 
-            bool groupsMatchHints = DoGroupsMatchHints(groups, hints);
+            bool groupsMatchClues = DoGroupsMatchClues(groups, clues);
 
-            if (groupsMatchHints)
+            if (groupsMatchClues)
             {
                 CellType[] rowCells = grid.GetRowArray(row);
                 for (int i = 0; i < rowCells.Length; i++)
@@ -363,38 +386,38 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines whether <paramref name="groups"/> exactly matches <paramref name="hints"/>, i.e. consist of the same groups.
+        /// Determines whether <paramref name="groups"/> exactly matches <paramref name="clues"/>, i.e. consist of the same groups.
         /// </summary>
         /// <param name="groups">
         /// A linked list where each value represents the size of a consecutive group of filled cells.
         /// </param>
-        /// <param name="hints">
-        /// The expected hints for the line corresponding with <paramref name="groups"/>.
+        /// <param name="clues">
+        /// The expected clues for the line corresponding with <paramref name="groups"/>.
         /// </param>
         /// <returns>
-        /// true if the number of groups matches the hints as described, false otherwise.
+        /// true if the number of groups matches the clues as described, false otherwise.
         /// </returns>
-        private static bool DoGroupsMatchHints(LinkedList<int> groups, Hints hints)
+        private static bool DoGroupsMatchClues(LinkedList<int> groups, Clues clues)
         {
-            if (hints.Count != groups.Count)
+            if (clues.Count != groups.Count)
             {
                 return false;
             }
 
-            // Check if each group has the same number of cells filled as expected in the hints
-            bool groupsMatchHints = true;
+            // Check if each group has the same number of cells filled as expected in the clues
+            bool groupsMatchClues = true;
             LinkedListNode<int>? node = groups.First;
             for (int i = 0; i < groups.Count; i++)
             {
-                if (hints[i].Number != node!.Value)
+                if (clues[i].Number != node!.Value)
                 {
-                    groupsMatchHints = false;
+                    groupsMatchClues = false;
                     break;
                 }
                 node = node.Next;
             }
 
-            return groupsMatchHints;
+            return groupsMatchClues;
         }
 
         private CellCommand CreateCellCommand(int x, int y, CellType newType)
@@ -671,7 +694,7 @@ namespace NonoSharp
 
         /// <summary>
         /// Converts this instance into a nice string representation of the grid. This includes all cells and
-        /// their respective states and the hints at the sides.
+        /// their respective states and the clues at the sides.
         /// </summary>
         /// <returns>A string showing the current state of the game</returns>
         public override String ToString() { return grid.ToString(); }

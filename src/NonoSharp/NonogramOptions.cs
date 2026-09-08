@@ -10,7 +10,7 @@ namespace NonoSharp
     public class NonogramOptions
     {
         /// <summary>
-        /// Whether blank cells should be crossed out when the hints of a line are completed.
+        /// Whether blank cells should be crossed out when the clues of a line are completed.
         /// <c>true</c> by default.
         /// </summary>
         public bool EnableAutoCross { get; set; } = true;

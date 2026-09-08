@@ -69,7 +69,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestSolvableGuessRequired()
         {
-            // An ambiguous grid, where there are two possible solutions according to the hints:
+            // An ambiguous grid, where there are two possible solutions according to the clues:
             // [O][ ]
             // [ ][O]
 
@@ -102,11 +102,11 @@ namespace NonoSharp.Tests
                 new CellPosition(1, 0), new CellPosition(2, 0), new CellPosition(3, 0)
                 ]);
 
-            // To make sure that the info from the other hints are not used, we test ImproveLine
+            // To make sure that the info from the other clues are not used, we test ImproveLine
 
             // Copy to avoid changing the grid unintentionally
             CellType[] line = (CellType[])grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.RowHints[0], []);
+            Solver.ImproveLine(line, grid.RowClues[0], []);
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
@@ -118,7 +118,7 @@ namespace NonoSharp.Tests
             // Now check if the line can correctly be solved with extra information
             grid.SetCell(3, 0, CellType.FILLED);
             line = (CellType[])grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.RowHints[0], []);
+            Solver.ImproveLine(line, grid.RowClues[0], []);
 
             // Check if 0th cell is not filled
             Assert.NotEqual(CellType.FILLED, line[0]);
