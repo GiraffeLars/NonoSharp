@@ -26,27 +26,44 @@ namespace NonoSharp
         /// </summary>
         public int Count { get { return clues.Count; } }
 
-        internal Clues()
+        /// <summary>
+        /// Creates an empty Clues instance.
+        /// </summary>
+        public Clues()
         {
             this.clues = [];
+            TotalCellsInClues = 0;
         }
         
-        internal Clues(List<Clue> clues)
+
+        /// <summary>
+        /// Creates Clues instance, representing a collection of <see cref="Clue"/>s from <paramref name="clues"/>.
+        /// </summary>
+        /// <param name="clues">List containing Clue instances to group in this instance</param>
+        public Clues(List<Clue> clues)
         {
-            this.clues = clues;
+            this.clues = [.. clues]; // Copy list as we do not want unexpected modifications
             TotalCellsInClues = clues.Select(clue => clue.Number).Sum();
             SetFullyCompleted();
         }
         
 
         /// <summary>
-        /// Adds a <c>Clue</c> to this Clues instance. It is appended to the end.
+        /// Adds a <see cref="Clue"/> to this Clues instance. It is appended to the end.
         /// </summary>
-        /// <param name="clue">The clue to add</param>
-        internal void Add(Clue clue)
+        /// <param name="clue">The clue to add.</param>
+        public void Add(Clue clue)
         {
             clues.Add(clue);
             TotalCellsInClues += clue.Number;
+
+            if (!clue.Completed)
+            {
+                FullyCompleted = false;
+            }
+
+            // If the clue was completed, whether this set of clues is fully completed still only depends on
+            // the clues that were here before adding this clue. As such, FullyCompleted does not need to change
         }
 
         /// <summary>
