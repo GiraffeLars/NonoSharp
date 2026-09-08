@@ -180,5 +180,14 @@ namespace NonoSharp.Tests
 
             Assert.True(api_1.Solution.SetEquals(api_2.Solution));
         }
+
+        [Fact]
+        public async Task TestRNGSeedAsync()
+        {
+            var api_1 = await NonogramAPI.CreateRandomPuzzleAsync(15, 15, 12345);
+            var api_2 = await NonogramAPI.CreateRandomPuzzleAsync(15, 15, 12345);
+
+            Assert.True(api_1.Solution.SetEquals(api_2.Solution));
+        }
     }
 }
