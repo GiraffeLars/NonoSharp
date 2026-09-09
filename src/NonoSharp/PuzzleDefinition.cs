@@ -268,7 +268,10 @@ namespace NonoSharp
                 // Read the bytes of the puzzle. These are the total number of cells converted to bytes, round up
                 byte[] remaining = br.ReadBytes(remainingByteCount);
 
-                if (br.BaseStream.Position != br.BaseStream.Length || remaining.Length < remainingByteCount)
+                // Only check if the given input was shorter than expected for a correct file
+                // Do not check if there are remaining elements in the stream, as we will not be using them either way
+                // and Stream.Position is not supported by all streams
+                if (remaining.Length < remainingByteCount)
                 {
                     // Check for extra or missing data after the file should have been fully read
                     // If that is the case, this is not a supported file as the dimensions do not match

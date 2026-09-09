@@ -247,19 +247,6 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
-        public void TestDeserializeBytesTooLargeException()
-        {
-            byte[] serialized = puzzle.Serialize();
-
-            // Add a byte to the serialized puzzle
-            byte[] truncated = new byte[serialized.Length + 1];
-            Array.Copy(serialized, truncated, serialized.Length);
-
-            void act() => PuzzleDefinition.Deserialize(truncated);
-            Assert.Throws<InvalidFileFormatException>(act);
-        }
-
-        [Fact]
         public void TestSetDimensionsInvalidException()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => puzzle.SetDimensions(0, puzzle.Height));
