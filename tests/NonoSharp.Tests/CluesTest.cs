@@ -52,5 +52,15 @@ namespace NonoSharp.Tests
             Assert.Single(clues);
             Assert.Equal(0, clues[0].Number);
         }
+
+        [Fact]
+        public void TestFromList()
+        {
+            List<Clue> clues = [new(1), new(2)];
+            Clues instance = [.. clues];
+            Assert.Equal(2, instance.Count);
+            Assert.Equal(1, instance[0].Number);
+            Assert.Equal(2, instance[1].Number);
+        }
     }
 }

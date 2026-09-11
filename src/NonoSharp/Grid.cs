@@ -49,6 +49,33 @@ namespace NonoSharp
         /// <param name="height">Height of the grid</param>
         public Grid(int width, int height) : this(width, height, []) { }
 
+
+        internal Grid(int width, int height, Clues[] columnClues, Clues[] rowClues)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0);
+            if (width != columnClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
+                    $"must match ${nameof(width)} ({width})!");
+            }
+
+            if (height != rowClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
+                    $"must match ${nameof(height)} ({height})!");
+            }
+
+            Width = width;
+            Height = height;
+
+            // Initialize the clues as PuzzleClues
+            ColumnClues = [.. Enumerable.Range(0, width).Select(i => new PuzzleClues(true, i, columnClues[i].clues))];
+            RowClues = [.. Enumerable.Range(0, height).Select(i => new PuzzleClues(false, i, rowClues[i].clues))];
+            grid = new CellType[width, height];
+            Solution = [];
+        }
+
         /// <summary>
         /// Creates a full custom Grid
         /// </summary>
