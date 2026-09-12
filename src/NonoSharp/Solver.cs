@@ -56,7 +56,7 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether a puzzle can be solved.
         /// </summary>
-        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>t
+        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         internal static bool IsSolvable(Grid grid, out HashSet<CellPosition>? solution)
         {
             // Grid to work on to calculate solutions (Copy of grid).
@@ -66,7 +66,7 @@ namespace NonoSharp
             // At the end of all iterations, check if the puzzle is solved.
             // The loop stops either if the puzzle is solved and no lines could be improved, or if the puzzle was not solved
             // and no cells could be filled with certainty.
-            bool solvable = workingGrid.IsSolved();
+            bool solvable = workingGrid.AreAllCluesSatisfied();
 
             if (!solvable)
             {

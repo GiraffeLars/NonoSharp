@@ -83,7 +83,7 @@ namespace NonoSharp.Tests
             ];
             grid.SetSolution(solution);
 
-            Solver.IsSolvable(grid, out var returned);
+            Solver.IsSolvable(new NonogramAPI(grid), out var returned);
             Assert.Equal(solution, returned);
         }
 
@@ -140,7 +140,7 @@ namespace NonoSharp.Tests
             Grid grid = new Grid(2, 2);
             HashSet<CellPosition> solution = [new CellPosition(0, 0), new CellPosition(1, 1)];
             grid.SetSolution(solution);
-            Solver.IsSolvable(grid, out var returned);
+            Solver.IsSolvable(new NonogramAPI(grid), out var returned);
             Assert.Null(returned);
         }
 
