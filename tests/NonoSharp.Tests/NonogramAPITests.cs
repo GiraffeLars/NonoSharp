@@ -189,5 +189,20 @@ namespace NonoSharp.Tests
 
             Assert.True(api_1.Solution.SetEquals(api_2.Solution));
         }
+
+        [Fact]
+        public void TestFromClues()
+        {
+            Clues[] colClues = [[new(3)], [new(1), new(1)], [new(3)]];
+            Clues[] rowClues = [[new(3)], [new(1), new(1)], [new(3)]];
+            NonogramAPI nonogram = new(3, 3, colClues, rowClues);
+            HashSet<CellPosition> expected = [
+                new(0,0), new(1,0), new(2, 0),
+                new(0,1), new(2,1),
+                new(0,2), new(1,2), new(2,2)];
+
+
+            Assert.Equal(expected, nonogram.Solution);
+        }
     }
 }

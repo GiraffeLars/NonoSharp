@@ -10,7 +10,7 @@ namespace NonoSharp
     public class Clue : ICloneable
     {
         /// <summary>
-        /// Amount of expected filled cells this singular clue corresponds to
+        /// Amount of expected consecutively filled cells this singular clue corresponds to.
         /// </summary>
         public int Number { get; }
         /// <summary>
@@ -19,7 +19,13 @@ namespace NonoSharp
         public bool Completed { get { return _completed; } }
         internal bool _completed;
 
-        internal Clue(int num) {
+        /// <summary>
+        /// Creates a Clue instance, where Number is <paramref name="num"/>.
+        /// </summary>
+        /// <param name="num">The total amount of cells needing to be filled consecutively for this Clue
+        /// to be consider complete.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="num"/> is negative.</exception>
+        public Clue(int num) {
             ArgumentOutOfRangeException.ThrowIfNegative(num);
 
             Number = num;

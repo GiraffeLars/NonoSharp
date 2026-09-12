@@ -129,7 +129,7 @@ namespace NonoSharp
         /// <param name="width">The width of the puzzle.</param>
         /// <param name="height">The height of the puzzle.</param>
         /// <param name="solution">The solution of the puzzle.</param>
-        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
         /// <exception cref="IndexOutOfRangeException">Thrown at least one of the <see cref="CellPosition"/>s found in
         /// <paramref name="solution"/> is out of bounds of the grid.</exception>"
@@ -137,6 +137,55 @@ namespace NonoSharp
             NonogramOptions? options = null) : this(new(width, height, solution))
         { 
             Options = options ?? new NonogramOptions();
+        }
+
+
+        /// <summary>
+        /// Creates a <c>NonogramAPI</c> with a solution based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
+        /// </summary>
+        /// <param name="width">Width of the puzzle.</param>
+        /// <param name="height">Height of the puzzle.</param>
+        /// <param name="columnClues">Array of <see cref="Clues"/> instances, one for each column of the puzzle.</param>
+        /// <param name="rowClues">Array of <see cref="Clues"/> instances, one for each row of the puzzle.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> and <paramref name="rowClues"/>
+        /// do not match <paramref name="width"/> or <paramref name="height"/> respectively, 
+        /// or when <paramref name="width"/> or <paramref name="height"/> are non-positive.</exception>
+        public NonogramAPI(int width, int height, Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
+        {
+            if (width != columnClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
+                    $"must match ${nameof(width)} ({width})!");
+            }
+
+            if (height != rowClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
+                    $"must match ${nameof(height)} ({height})!");
+            }
+
+            Grid toSolve = new(width, height, columnClues, rowClues);
+            Solver.Solve(toSolve);
+            HashSet<CellPosition> solution = [];
+            for (int i = 0; i < toSolve.Width; i++)
+            {
+                for (int j = 0; j < toSolve.Height; j++)
+                {
+                    if (toSolve.GetCell(i, j) == CellType.FILLED)
+                    {
+                        solution.Add(new CellPosition(i, j));
+                    }
+                }
+            }
+
+            // TODO: Rework above to use returned/out from Solver (not yet implemented as of writing)
+
+            Grid puzzleGrid = new(width, height, solution);
+            grid = puzzleGrid;
+            undoStack = [];
+            redoStack = [];
+            Options = options ?? Options;
         }
 
         /// <summary>

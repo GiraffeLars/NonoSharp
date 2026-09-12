@@ -15,8 +15,8 @@ namespace NonoSharp
         public int Width { get; }
         public int Height { get; }
 
-        public Clues[] ColumnClues { get; }
-        public Clues[] RowClues { get; }
+        public PuzzleClues[] ColumnClues { get; }
+        public PuzzleClues[] RowClues { get; }
 
         /// <summary>
         /// Constructs a Grid.
@@ -36,8 +36,8 @@ namespace NonoSharp
 
             grid = new CellType[width, height];
 
-            ColumnClues = new Clues[width];
-            RowClues = new Clues[height];
+            ColumnClues = new PuzzleClues[width];
+            RowClues = new PuzzleClues[height];
 
             SetSolution(solution);
         }
@@ -48,6 +48,33 @@ namespace NonoSharp
         /// <param name="width">Width of the grid</param>
         /// <param name="height">Height of the grid</param>
         public Grid(int width, int height) : this(width, height, []) { }
+
+
+        internal Grid(int width, int height, Clues[] columnClues, Clues[] rowClues)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0);
+            if (width != columnClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
+                    $"must match ${nameof(width)} ({width})!");
+            }
+
+            if (height != rowClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
+                    $"must match ${nameof(height)} ({height})!");
+            }
+
+            Width = width;
+            Height = height;
+
+            // Initialize the clues as PuzzleClues
+            ColumnClues = [.. Enumerable.Range(0, width).Select(i => new PuzzleClues(true, i, columnClues[i].clues))];
+            RowClues = [.. Enumerable.Range(0, height).Select(i => new PuzzleClues(false, i, rowClues[i].clues))];
+            grid = new CellType[width, height];
+            Solution = [];
+        }
 
         /// <summary>
         /// Creates a full custom Grid
@@ -65,8 +92,8 @@ namespace NonoSharp
             this.paddingString = paddingString;
             Width = width;
             Height = height;
-            ColumnClues = new Clues[width];
-            RowClues = new Clues[height];
+            ColumnClues = new PuzzleClues[width];
+            RowClues = new PuzzleClues[height];
             SetSolution(solution);
         }
 
@@ -106,11 +133,11 @@ namespace NonoSharp
         {
             for (int i = 0; i < Width; i++)
             {
-                ColumnClues[i] = new Clues(true, i);
+                ColumnClues[i] = new(true, i);
             }
             for (int i = 0; i < Height; i++)
             {
-                RowClues[i] = new Clues(false, i);
+                RowClues[i] = new(false, i);
             }
             SetClues(ColumnClues, true);
             SetClues(RowClues, false);

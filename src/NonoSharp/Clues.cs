@@ -8,56 +8,62 @@ namespace NonoSharp
     /// </summary>
     public class Clues : ICloneable, IEnumerable<Clue>
     {
-        /// <exclude />
-        protected internal List<Clue> clues;
-
-        private bool isColumnClues;
-        private int position;
-
-        [Obsolete("Remove when Hints get removed")]
-        internal bool colClues { get { return isColumnClues; } }
-        [Obsolete("Remove when Hints get removed")]
-        internal int pos { get { return position; } }
+        /// TODO: Switch to private/private protected if necessary when removing Hints
+        internal List<Clue> clues;
 
         /// <summary>
         /// The total amount of filled cells these clues concern.
         /// </summary>
-        public int TotalCellsInClues {  get; private set; }
+        public int TotalCellsInClues { get; private protected set; } // TODO: Set to private set when removing Hints
 
         /// <summary>
         /// Whether this line of Clues is fully completed (i.e. all clues are completed).
         /// </summary>
-        public bool FullyCompleted { get; private set; }
+        public bool FullyCompleted { get; private set; } = false;
 
         /// <summary>
         /// The total number of <see cref="Clue"/> instances contained in this Clues instance.
         /// </summary>
         public int Count { get { return clues.Count; } }
 
-        internal Clues(bool isColumnClues, int position)
+        /// <summary>
+        /// Creates an empty Clues instance.
+        /// </summary>
+        public Clues()
         {
-            clues = new List<Clue>();
-            this.isColumnClues = isColumnClues;
-            this.position = position;
+            this.clues = [];
             TotalCellsInClues = 0;
         }
-
-        internal Clues(bool isColumnClues, int position, List<Clue> clues)
-        {
-            this.clues = clues;
-            this.isColumnClues = isColumnClues;
-            this.position = position;
-            TotalCellsInClues = 0;
-        }
+        
 
         /// <summary>
-        /// Adds a <c>Clue</c> to this Clues instance. It is appended to the end.
+        /// Creates Clues instance, representing a collection of <see cref="Clue"/>s from <paramref name="clues"/>.
         /// </summary>
-        /// <param name="clue">The clue to add</param>
-        internal void Add(Clue clue)
+        /// <param name="clues">List containing Clue instances to group together as a Clues instance.</param>
+        public Clues(List<Clue> clues)
+        {
+            this.clues = [.. clues]; // Copy list as we do not want unexpected modifications
+            TotalCellsInClues = clues.Select(clue => clue.Number).Sum();
+            SetFullyCompleted();
+        }
+        
+
+        /// <summary>
+        /// Adds a <see cref="Clue"/> to this Clues instance. It is appended to the end.
+        /// </summary>
+        /// <param name="clue">The clue to add.</param>
+        public void Add(Clue clue)
         {
             clues.Add(clue);
             TotalCellsInClues += clue.Number;
+
+            if (!clue.Completed)
+            {
+                FullyCompleted = false;
+            }
+
+            // If the clue was completed, whether this set of clues is fully completed still only depends on
+            // the clues that were here before adding this clue. As such, FullyCompleted does not need to change
         }
 
         /// <summary>
@@ -72,19 +78,13 @@ namespace NonoSharp
             }
         }
 
-        internal void DoCompletion(Grid grid) {
-            if (clues.Count == 0) return;
-            Reset();
-            LinkedList<CellType> line = isColumnClues ? grid.GetColumn(position) : grid.GetRow(position);
-            LinkedListNode<CellType>? node = line.First;
-
-            int leftOffAt = DoCompletionForward(line);
-            DoCompletionBackward(line, leftOffAt);
-
-            SetFullyCompleted();
-        }
-
-        internal void DoCompletion(CellType[] line)
+        /// <summary>
+        /// Checks for completed clues, from front to back and back to front. If a clue can not be completed,
+        /// the following clues are not checked and assumed to be incomplete.
+        /// </summary>
+        /// <param name="line">The line to check the clues on</param>
+        /// <exclude />
+        protected internal void DoCompletion(CellType[] line)
         {
             if (clues.Count == 0) return;
             Reset();
@@ -98,6 +98,7 @@ namespace NonoSharp
 
             int leftOffAt = DoCompletionForward(linked);
             DoCompletionBackward(linked, leftOffAt);
+            SetFullyCompleted();
         }
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace NonoSharp
         /// <param name="line">The row/column to check</param>
         /// <returns>The final clue which was marked as completed</returns>
         /// <seealso cref="DoCompletionBackward(LinkedList{CellType}, int)"/>
-        private int DoCompletionForward(LinkedList<CellType> line)
+        private protected int DoCompletionForward(LinkedList<CellType> line)
         {
             LinkedListNode<CellType>? node = line.First;
             bool startedFromFirst = true; // Whether we started from the first cell in the current iteration of checking
@@ -191,7 +192,7 @@ namespace NonoSharp
         /// <param name="line">The row/column to check</param>
         /// <param name="forwardsFinalCheck">The last clue index which <c>DoCompletionForward</c> left off at</param>
         /// <seealso cref="DoCompletionForward(LinkedList{CellType})"/>
-        private void DoCompletionBackward(LinkedList<CellType> line, int forwardsFinalCheck)
+        private protected void DoCompletionBackward(LinkedList<CellType> line, int forwardsFinalCheck)
         {
             LinkedListNode<CellType>? node = line.Last;
             bool startedFromFirst = true; // Whether we started from the first cell in the current iteration of checking
@@ -261,7 +262,11 @@ namespace NonoSharp
             }
         }
 
-        private void SetFullyCompleted()
+        /// <summary>
+        /// Checks if all clues in this instance are completed and sets <c>this.FullyCompleted</c> accordingly.
+        /// </summary>
+        /// <exclude />
+        protected void SetFullyCompleted()
         {
             foreach (Clue h in this)
             {
@@ -273,6 +278,46 @@ namespace NonoSharp
             }
 
             FullyCompleted = true;
+        }
+
+        /// <summary>
+        /// Converts a string in a form like "X X X X", where each X is an integer, to a Clues instance.
+        /// Each X is converted into a <see cref="Clue"/> with Clue.Number matching X.
+        /// </summary>
+        /// <remarks>
+        /// X must be non-negative. If constructing an empty Clues instance (one without any
+        /// filled cells in the line), 0 must be the only number in the string. 0 is only allowed to appear <paramref name="str"/>
+        /// on its own, with no other numbers.
+        /// </remarks>
+        /// <param name="str">The string to convert</param>
+        /// <returns>A Clues instance as above.</returns>
+        /// <exception cref="FormatException">Thrown when any of the numbers is not a valid integer or 
+        /// is of an incorrect format in any other way</exception>
+        /// <exception cref="OverflowException">Thrown when any of the numbers is not between <see cref="Int32.MinValue"/>
+        /// and <see cref="Int32.MaxValue"/>.</exception>
+        /// <exception cref="ArgumentException">Thrown when any parsed number X is negative or 0 appears in a string
+        /// with other clues.</exception>
+        public static Clues FromString(string str)
+        {
+            string[] splitted = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            Clues clues = new();
+
+            foreach (string s in splitted)
+            {
+                int parsed = int.Parse(s);
+                if (parsed < 0)
+                {
+                    throw new ArgumentException($"Parsed number {parsed} in {nameof(str)} must be non-negative!", nameof(str));
+                }
+                if (parsed == 0 && splitted.Length > 1)
+                {
+                    throw new ArgumentException("Can not have a clue with 0 filled cells if there are other clues!", nameof(str));
+                }
+
+                clues.Add(new(parsed));
+            }
+
+            return clues;
         }
 
         /// <summary>
@@ -289,7 +334,7 @@ namespace NonoSharp
                 clueCopy.Add((Clue) h.Clone());
             }
 
-            return new Clues(isColumnClues, position, clueCopy);
+            return new Clues(clueCopy);
         }
         
         /// <summary>

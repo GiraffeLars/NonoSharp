@@ -10,11 +10,12 @@ namespace NonoSharp
     [Obsolete("Hints has been renamed and is thus deprecated. Use Clues instead. Hints will be removed after v0.5.*")]
     public class Hints : Clues, IEnumerable<Hint>
     {
-        internal Hints(bool isColumnClues, int position) : base(isColumnClues, position)
+        internal Hints(Clues clues) 
         {
+            this.clues = clues.clues;
+            TotalCellsInClues = clues.Select(clue => clue.Number).Sum();
+            SetFullyCompleted();
         }
-
-        internal Hints(Clues clues) : this(clues.colClues, clues.pos) { }
 
         IEnumerator<Hint> IEnumerable<Hint>.GetEnumerator()
         {
