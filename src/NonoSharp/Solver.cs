@@ -19,19 +19,25 @@ namespace NonoSharp
         /// <summary>
         /// Solves the puzzle of API instance <paramref name="nonogram"/> in-place.
         /// </summary>
+        /// <remarks>
+        /// If the given puzzle is not solvable, the returned solution will be incomplete.
+        /// </remarks>
         /// <param name="nonogram">Puzzle to solve.</param>
-        public static void Solve(NonogramAPI nonogram)
+        /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
+        public static HashSet<CellPosition> Solve(NonogramAPI nonogram)
         {
-            Solve(nonogram.grid);
+            return Solve(nonogram.grid);
         }
 
         /// <summary>
         /// Solves the grid <paramref name="grid"/> in-place.
         /// </summary>
         /// <param name="grid">Grid to solve.</param>
-        internal static void Solve(Grid grid)
+        /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
+        internal static HashSet<CellPosition> Solve(Grid grid)
         {
             UniqueQueue<(bool, int)> queue = [];
+            HashSet<CellPosition> solution = [];
 
             for (int i = 0; i < grid.Width; i++)
             {
@@ -43,7 +49,8 @@ namespace NonoSharp
                 queue.Enqueue((false, j));
             }
 
-            HandleQueue(queue, grid);
+            HandleQueue(queue, grid, solution);
+            return solution;
         }
 
         /// <summary>
@@ -77,26 +84,34 @@ namespace NonoSharp
         /// </summary>
         /// <param name="queue">Queue to clear.</param>
         /// <param name="grid">Grid to work with.</param>
-        private static void HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid)
+        /// <param name="setToFill">The HashSet to fill in with the solution. Set to null to not fill the solution.</param>
+        private static void HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid, HashSet<CellPosition>? setToFill)
         {
+            // Allocate changed list beforehand and keep reusing it, instead of building a new one each time
+            // as enlarging the list is expensive.
+            List<int> changed = [];
             while (queue.Count > 0)
             {
+                changed.Clear();
                 (bool inColumn, int index) = queue.Dequeue();
 
                 CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
                 Clues clues = inColumn ? grid.ColumnClues[index] : grid.RowClues[index];
 
-                LinkedList<int> changed = [];
+                
                 ImproveLine(line, clues, changed);
                 foreach (int i in changed)
                 {
-                    if (inColumn)
+                    CellPosition changedPos = inColumn ? new(index, i) : new(i, index);
+                    
+                    grid.SetCell(changedPos.X, changedPos.Y, line[i]);
+
+                    if (line[i] == CellType.FILLED)
                     {
-                        grid.SetCell(index, i, line[i]);
-                    } else
-                    {
-                        grid.SetCell(i, index, line[i]);
+                        // Only append to the solution if the changed cell has been changed to FILLED
+                        setToFill?.Add(changedPos);
                     }
+                    
                     queue.Enqueue((!inColumn, i));
                 }
             }
@@ -107,8 +122,8 @@ namespace NonoSharp
         /// </summary>
         /// <param name="line">The line to improve in-place.</param>
         /// <param name="clues">Clues associated with <paramref name="line"/>.</param>
-        /// <param name="changedIndices">The LinkedList to append indices of the cells that are changed to.</param>
-        internal static void ImproveLine(CellType[] line, Clues clues, LinkedList<int> changedIndices)
+        /// <param name="changedIndices">The List to append indices of the cells that are changed to.</param>
+        internal static void ImproveLine(CellType[] line, Clues clues, List<int> changedIndices)
         { 
             List<CellType[]> perms = [];
             ComputePermutations(line, clues, perms);
@@ -144,7 +159,7 @@ namespace NonoSharp
                     // safely filled in
                     line[lineIndex] = baseCellType;
                     // Add the changed index to the list
-                    changedIndices.AddLast(lineIndex);
+                    changedIndices.Add(lineIndex);
                 }
             }
         }
