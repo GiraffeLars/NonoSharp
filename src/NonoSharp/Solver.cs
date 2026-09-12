@@ -21,6 +21,7 @@ namespace NonoSharp
         /// </summary>
         /// <remarks>
         /// If the given puzzle is not solvable, the returned solution will be incomplete.
+        /// To ensure a complete solution, use <see cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>.
         /// </remarks>
         /// <param name="nonogram">Puzzle to solve.</param>
         /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
@@ -55,26 +56,47 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether a puzzle can be solved.
         /// </summary>
-        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        internal static bool IsSolvable(Grid grid)
+        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>t
+        internal static bool IsSolvable(Grid grid, out HashSet<CellPosition>? solution)
         {
             // Grid to work on to calculate solutions (Copy of grid).
             Grid workingGrid = (Grid) grid.Clone();
-            Solve(workingGrid);
+            solution = Solve(workingGrid);
 
             // At the end of all iterations, check if the puzzle is solved.
             // The loop stops either if the puzzle is solved and no lines could be improved, or if the puzzle was not solved
             // and no cells could be filled with certainty.
-            return workingGrid.IsSolved();
+            bool solvable = workingGrid.IsSolved();
+
+            if (!solvable)
+            {
+                solution = null;
+            }
+            return solvable;
+        }
+
+        /// <inheritdoc cref="IsSolvable(Grid, out HashSet{CellPosition}?)"/>
+        internal static bool IsSolvable(Grid grid)
+        {
+            return IsSolvable(grid, out _);
+        }
+
+        /// <inheritdoc cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>
+        public static bool IsSolvable(NonogramAPI nonogram)
+        {
+            return IsSolvable(nonogram.grid);
         }
 
         /// <summary>
         /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved.
         /// </summary>
+        /// <param name="nonogram">The <c>NonogramAPI</c> instance to check solvability for.</param>
+        /// <param name="solution">The solution HashSet if <paramref name="nonogram"/> is solvable.
+        /// <c>null</c> if the puzzle is not solvable.</param>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        public static bool IsSolvable(NonogramAPI nonogram)
+        public static bool IsSolvable(NonogramAPI nonogram, out HashSet<CellPosition>? solution)
         {
-            return IsSolvable(nonogram.grid);
+            return IsSolvable(nonogram.grid, out solution);
         }
 
         /// <summary>
