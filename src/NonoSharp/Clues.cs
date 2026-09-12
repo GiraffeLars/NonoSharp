@@ -39,7 +39,7 @@ namespace NonoSharp
         /// <summary>
         /// Creates Clues instance, representing a collection of <see cref="Clue"/>s from <paramref name="clues"/>.
         /// </summary>
-        /// <param name="clues">List containing Clue instances to group in this instance</param>
+        /// <param name="clues">List containing Clue instances to group together as a Clues instance.</param>
         public Clues(List<Clue> clues)
         {
             this.clues = [.. clues]; // Copy list as we do not want unexpected modifications
@@ -263,7 +263,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks if all clues in this instance are completed and sets 
+        /// Checks if all clues in this instance are completed and sets <c>this.FullyCompleted</c> accordingly.
         /// </summary>
         /// <exclude />
         protected void SetFullyCompleted()
