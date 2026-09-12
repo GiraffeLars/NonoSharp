@@ -37,7 +37,6 @@ namespace NonoSharp
         internal static HashSet<CellPosition> Solve(Grid grid)
         {
             UniqueQueue<(bool, int)> queue = [];
-            HashSet<CellPosition> solution = [];
 
             for (int i = 0; i < grid.Width; i++)
             {
@@ -49,7 +48,7 @@ namespace NonoSharp
                 queue.Enqueue((false, j));
             }
 
-            HandleQueue(queue, grid, solution);
+            var solution = HandleQueue(queue, grid);
             return solution;
         }
 
@@ -84,12 +83,13 @@ namespace NonoSharp
         /// </summary>
         /// <param name="queue">Queue to clear.</param>
         /// <param name="grid">Grid to work with.</param>
-        /// <param name="setToFill">The HashSet to fill in with the solution. Set to null to not fill the solution.</param>
-        private static void HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid, HashSet<CellPosition>? setToFill)
+        /// <returns>The HashSet containing the solution after the queue has been cleared.</returns>
+        private static HashSet<CellPosition> HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid)
         {
             // Allocate changed list beforehand and keep reusing it, instead of building a new one each time
             // as enlarging the list is expensive.
             List<int> changed = [];
+            HashSet<CellPosition> solution = [];
             while (queue.Count > 0)
             {
                 changed.Clear();
@@ -109,12 +109,14 @@ namespace NonoSharp
                     if (line[i] == CellType.FILLED)
                     {
                         // Only append to the solution if the changed cell has been changed to FILLED
-                        setToFill?.Add(changedPos);
+                        solution.Add(changedPos);
                     }
                     
                     queue.Enqueue((!inColumn, i));
                 }
             }
+
+            return solution;
         }
 
         /// <summary>
