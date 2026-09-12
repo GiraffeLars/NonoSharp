@@ -179,10 +179,13 @@ namespace NonoSharp
                 }
             }
 
+            // TODO: Rework above to use returned/out from Solver (not yet implemented as of writing)
+
             Grid puzzleGrid = new(width, height, solution);
             grid = puzzleGrid;
             undoStack = [];
             redoStack = [];
+            Options = options ?? Options;
         }
 
         /// <summary>
