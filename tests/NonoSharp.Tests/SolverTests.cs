@@ -47,6 +47,47 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
+        public void TestSolveReturnsCorrectly()
+        {
+            // Solution:
+            // [O][ ][ ]
+            // [O][ ][ ]
+            // [O][O][O]
+            Grid grid = new Grid(3, 3);
+
+            HashSet<CellPosition> solution =
+            [
+                new CellPosition(0, 0),
+                new CellPosition(0, 1),
+                new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
+            ];
+            grid.SetSolution(solution);
+            HashSet<CellPosition> returned = Solver.Solve(grid);
+            Assert.Equal(solution, returned);
+        }
+
+        [Fact]
+        public void TestSolvableOutCorrect()
+        {
+            // Solution:
+            // [O][ ][ ]
+            // [O][ ][ ]
+            // [O][O][O]
+            Grid grid = new Grid(3, 3);
+
+            HashSet<CellPosition> solution =
+            [
+                new CellPosition(0, 0),
+                new CellPosition(0, 1),
+                new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
+            ];
+            grid.SetSolution(solution);
+
+            Solver.IsSolvable(new NonogramAPI(grid), out var returned);
+            Assert.Equal(solution, returned);
+        }
+
+        [Fact]
         public void TestSolvableCrossShape()
         {
             // Solution:
@@ -87,6 +128,20 @@ namespace NonoSharp.Tests
             grid.SetSolution(solution);
 
             Assert.False(Solver.IsSolvable(grid));
+        }
+
+        [Fact]
+        public void TestSolvableOutNullCorrect()
+        {
+            // An ambiguous grid, where there are two possible solutions according to the clues:
+            // [O][ ]
+            // [ ][O]
+
+            Grid grid = new Grid(2, 2);
+            HashSet<CellPosition> solution = [new CellPosition(0, 0), new CellPosition(1, 1)];
+            grid.SetSolution(solution);
+            Solver.IsSolvable(new NonogramAPI(grid), out var returned);
+            Assert.Null(returned);
         }
 
         [Fact]

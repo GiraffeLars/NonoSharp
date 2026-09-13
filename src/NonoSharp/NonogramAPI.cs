@@ -143,6 +143,9 @@ namespace NonoSharp
         /// <summary>
         /// Creates a <c>NonogramAPI</c> with a solution based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
         /// </summary>
+        /// <remarks>
+        /// The puzzle must be uniquely solvable.
+        /// </remarks>
         /// <param name="width">Width of the puzzle.</param>
         /// <param name="height">Height of the puzzle.</param>
         /// <param name="columnClues">Array of <see cref="Clues"/> instances, one for each column of the puzzle.</param>
@@ -151,6 +154,8 @@ namespace NonoSharp
         /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> and <paramref name="rowClues"/>
         /// do not match <paramref name="width"/> or <paramref name="height"/> respectively, 
         /// or when <paramref name="width"/> or <paramref name="height"/> are non-positive.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the puzzle constructed from the clues and 
+        /// dimensions is not uniquely solvable.</exception>
         public NonogramAPI(int width, int height, Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
         {
             if (width != columnClues.Length)
@@ -166,20 +171,12 @@ namespace NonoSharp
             }
 
             Grid toSolve = new(width, height, columnClues, rowClues);
-            Solver.Solve(toSolve);
-            HashSet<CellPosition> solution = [];
-            for (int i = 0; i < toSolve.Width; i++)
-            {
-                for (int j = 0; j < toSolve.Height; j++)
-                {
-                    if (toSolve.GetCell(i, j) == CellType.FILLED)
-                    {
-                        solution.Add(new CellPosition(i, j));
-                    }
-                }
-            }
+            bool solved = Solver.IsSolvable(toSolve, out var solution);
 
-            // TODO: Rework above to use returned/out from Solver (not yet implemented as of writing)
+            if (!solved || solution == null)
+            {
+                throw new PuzzleNotSolvableException("The puzzle constructed from given clues and dimensions is not uniquely solvable!");
+            }
 
             Grid puzzleGrid = new(width, height, solution);
             grid = puzzleGrid;

@@ -85,16 +85,19 @@ namespace NonoSharp
         /// <param name="paddingString">The padding used to pad out the clues when converting to string</param>
         /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
         /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
-        internal Grid(CellType[,] grid, HashSet<CellPosition> solution, int filled, int paddingString, int width, int height)
+        /// <param name="columnClues">Column clues</param>
+        /// <param name="rowClues">Row clues</param>
+        internal Grid(CellType[,] grid, HashSet<CellPosition> solution, int filled, int paddingString, int width, int height,
+            PuzzleClues[] columnClues, PuzzleClues[] rowClues)
         {
             this.grid = grid;
             this.filled = filled;
             this.paddingString = paddingString;
             Width = width;
             Height = height;
-            ColumnClues = new PuzzleClues[width];
-            RowClues = new PuzzleClues[height];
-            SetSolution(solution);
+            ColumnClues = columnClues;
+            RowClues = rowClues;
+            Solution = solution;
         }
 
 
@@ -465,9 +468,12 @@ namespace NonoSharp
 
         public bool IsSolved()
         {
-            if (filled != Solution.Count())
+            // We know the solution, so check if the solution is fully complete and not
+            // if all clues are satisfied as that is more expensive generally
+
+            if (filled != Solution.Count)
             {
-                return false; 
+                return false;
             }
 
             foreach (CellPosition p in Solution)
@@ -479,6 +485,48 @@ namespace NonoSharp
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Determines if the clues for all columns and rows are fully completed and satisfied,
+        /// without too many cells being filled. In other words, this checks if the grid is solved
+        /// by checking the clues.
+        /// </summary>
+        /// <remarks>
+        /// If possible, check whether the grid is solved with <see cref="IsSolved"/> as that
+        /// is computationally less expensive.
+        /// </remarks>
+        /// <returns></returns>
+        public bool AreAllCluesSatisfied()
+        {
+            for (int col = 0; col < Width; col++)
+            {
+                CellType[] line = GetColumnArray(col);
+                Clues clues = ColumnClues[col];
+
+                bool allSatisfied = AreAllCluesSatisfied(line, clues);
+                if (!allSatisfied) return false;
+            }
+
+            for (int row = 0; row < Height; row++)
+            {
+                CellType[] line = GetRowArray(row);
+                Clues clues = RowClues[row];
+
+                bool allSatisfied = AreAllCluesSatisfied(line, clues);
+                if (!allSatisfied) return false;
+            }
+
+            return true;
+        }
+
+        private bool AreAllCluesSatisfied(CellType[] line, Clues clues)
+        {
+            if (!clues.FullyCompleted) return false;
+
+            // Check if there are not too many cells filled
+            int filled = line.Where(c => c == CellType.FILLED).Count();
+            return filled == clues.TotalCellsInClues;
         }
 
         public override string ToString()
@@ -593,12 +641,14 @@ namespace NonoSharp
         public object Clone()
         {
             return new Grid(
-                (CellType[,]) grid.Clone(),
+                (CellType[,])grid.Clone(),
                 Solution,
                 filled,
                 paddingString,
                 Width,
-                Height
+                Height,
+                (PuzzleClues[])ColumnClues.Clone(),
+                (PuzzleClues[])RowClues.Clone()
             );
         }
     }

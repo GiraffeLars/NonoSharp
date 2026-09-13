@@ -5,7 +5,7 @@ using System.Text;
 namespace NonoSharp.Exceptions
 {
     /// <summary>
-    /// Raised when a built puzzle is not solvable but a playable instance was requested.
+    /// Raised when a constructed puzzle is not solvable but a playable instance was requested.
     /// </summary>
     public class PuzzleNotSolvableException : Exception
     {

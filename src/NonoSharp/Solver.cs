@@ -19,17 +19,23 @@ namespace NonoSharp
         /// <summary>
         /// Solves the puzzle of API instance <paramref name="nonogram"/> in-place.
         /// </summary>
+        /// <remarks>
+        /// If the given puzzle is not solvable, the returned solution will be incomplete.
+        /// To ensure a complete solution, use <see cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>.
+        /// </remarks>
         /// <param name="nonogram">Puzzle to solve.</param>
-        public static void Solve(NonogramAPI nonogram)
+        /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
+        public static HashSet<CellPosition> Solve(NonogramAPI nonogram)
         {
-            Solve(nonogram.grid);
+            return Solve(nonogram.grid);
         }
 
         /// <summary>
         /// Solves the grid <paramref name="grid"/> in-place.
         /// </summary>
         /// <param name="grid">Grid to solve.</param>
-        internal static void Solve(Grid grid)
+        /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
+        internal static HashSet<CellPosition> Solve(Grid grid)
         {
             UniqueQueue<(bool, int)> queue = [];
 
@@ -43,32 +49,54 @@ namespace NonoSharp
                 queue.Enqueue((false, j));
             }
 
-            HandleQueue(queue, grid);
+            var solution = HandleQueue(queue, grid);
+            return solution;
         }
 
         /// <summary>
         /// Determines whether a puzzle can be solved.
         /// </summary>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        internal static bool IsSolvable(Grid grid)
+        internal static bool IsSolvable(Grid grid, out HashSet<CellPosition>? solution)
         {
             // Grid to work on to calculate solutions (Copy of grid).
             Grid workingGrid = (Grid) grid.Clone();
-            Solve(workingGrid);
+            solution = Solve(workingGrid);
 
             // At the end of all iterations, check if the puzzle is solved.
             // The loop stops either if the puzzle is solved and no lines could be improved, or if the puzzle was not solved
             // and no cells could be filled with certainty.
-            return workingGrid.IsSolved();
+            bool solvable = workingGrid.AreAllCluesSatisfied();
+
+            if (!solvable)
+            {
+                solution = null;
+            }
+            return solvable;
+        }
+
+        /// <inheritdoc cref="IsSolvable(Grid, out HashSet{CellPosition}?)"/>
+        internal static bool IsSolvable(Grid grid)
+        {
+            return IsSolvable(grid, out _);
+        }
+
+        /// <inheritdoc cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>
+        public static bool IsSolvable(NonogramAPI nonogram)
+        {
+            return IsSolvable(nonogram.grid);
         }
 
         /// <summary>
         /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved.
         /// </summary>
+        /// <param name="nonogram">The <c>NonogramAPI</c> instance to check solvability for.</param>
+        /// <param name="solution">The solution HashSet if <paramref name="nonogram"/> is solvable.
+        /// <c>null</c> if the puzzle is not solvable.</param>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        public static bool IsSolvable(NonogramAPI nonogram)
+        public static bool IsSolvable(NonogramAPI nonogram, out HashSet<CellPosition>? solution)
         {
-            return IsSolvable(nonogram.grid);
+            return IsSolvable(nonogram.grid, out solution);
         }
 
         /// <summary>
@@ -77,29 +105,40 @@ namespace NonoSharp
         /// </summary>
         /// <param name="queue">Queue to clear.</param>
         /// <param name="grid">Grid to work with.</param>
-        private static void HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid)
+        /// <returns>The HashSet containing the solution after the queue has been cleared.</returns>
+        private static HashSet<CellPosition> HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid)
         {
+            // Allocate changed list beforehand and keep reusing it, instead of building a new one each time
+            // as enlarging the list is expensive.
+            List<int> changed = [];
+            HashSet<CellPosition> solution = [];
             while (queue.Count > 0)
             {
+                changed.Clear();
                 (bool inColumn, int index) = queue.Dequeue();
 
                 CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
                 Clues clues = inColumn ? grid.ColumnClues[index] : grid.RowClues[index];
 
-                LinkedList<int> changed = [];
+                
                 ImproveLine(line, clues, changed);
                 foreach (int i in changed)
                 {
-                    if (inColumn)
+                    CellPosition changedPos = inColumn ? new(index, i) : new(i, index);
+                    
+                    grid.SetCell(changedPos.X, changedPos.Y, line[i]);
+
+                    if (line[i] == CellType.FILLED)
                     {
-                        grid.SetCell(index, i, line[i]);
-                    } else
-                    {
-                        grid.SetCell(i, index, line[i]);
+                        // Only append to the solution if the changed cell has been changed to FILLED
+                        solution.Add(changedPos);
                     }
+                    
                     queue.Enqueue((!inColumn, i));
                 }
             }
+
+            return solution;
         }
 
         /// <summary>
@@ -107,8 +146,8 @@ namespace NonoSharp
         /// </summary>
         /// <param name="line">The line to improve in-place.</param>
         /// <param name="clues">Clues associated with <paramref name="line"/>.</param>
-        /// <param name="changedIndices">The LinkedList to append indices of the cells that are changed to.</param>
-        internal static void ImproveLine(CellType[] line, Clues clues, LinkedList<int> changedIndices)
+        /// <param name="changedIndices">The List to append indices of the cells that are changed to.</param>
+        internal static void ImproveLine(CellType[] line, Clues clues, List<int> changedIndices)
         { 
             List<CellType[]> perms = [];
             ComputePermutations(line, clues, perms);
@@ -144,7 +183,7 @@ namespace NonoSharp
                     // safely filled in
                     line[lineIndex] = baseCellType;
                     // Add the changed index to the list
-                    changedIndices.AddLast(lineIndex);
+                    changedIndices.Add(lineIndex);
                 }
             }
         }
