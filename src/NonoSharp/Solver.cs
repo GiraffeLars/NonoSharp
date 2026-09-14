@@ -27,15 +27,28 @@ namespace NonoSharp
         /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
         public static HashSet<CellPosition> Solve(NonogramAPI nonogram)
         {
-            return Solve(nonogram.grid);
+            return Solve(nonogram.puzzle);
         }
 
         /// <summary>
-        /// Solves the grid <paramref name="grid"/> in-place.
+        /// Solves <paramref name="puzzle"/> in-place.
         /// </summary>
-        /// <param name="grid">Grid to solve.</param>
+        /// <param name="puzzle">Puzle to solve</param>
+        /// <returns>The solution to <paramref name="puzzle"/>.</returns>
+        internal static HashSet<CellPosition> Solve(Puzzle puzzle)
+        {
+            return Solve(puzzle.Grid, puzzle.ColumnClues, puzzle.RowClues);
+        }
+
+
+        /// <summary>
+        /// Solves <paramref name="grid"/> in-place, based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
+        /// </summary>
+        /// <param name="grid">Grid to use when solving.</param>
+        /// <param name="columnClues">Column clues to base solving on.</param>
+        /// <param name="rowClues">Row clues to base solving on.</param>
         /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
-        internal static HashSet<CellPosition> Solve(Grid grid)
+        internal static HashSet<CellPosition> Solve(Grid grid, Clues[] columnClues, Clues[] rowClues)
         {
             UniqueQueue<(bool, int)> queue = [];
 
@@ -49,7 +62,7 @@ namespace NonoSharp
                 queue.Enqueue((false, j));
             }
 
-            var solution = HandleQueue(queue, grid);
+            var solution = HandleQueue(queue, grid, columnClues, rowClues);
             return solution;
         }
 
@@ -57,16 +70,25 @@ namespace NonoSharp
         /// Determines whether a puzzle can be solved.
         /// </summary>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        internal static bool IsSolvable(Grid grid, out HashSet<CellPosition>? solution)
+        internal static bool IsSolvable(Puzzle puzzle, out HashSet<CellPosition>? solution, bool inPlace = false)
         {
-            // Grid to work on to calculate solutions (Copy of grid).
-            Grid workingGrid = (Grid) grid.Clone();
-            solution = Solve(workingGrid);
+            Puzzle puzzleToWorkOn;
+            if (inPlace)
+            {
+                puzzleToWorkOn = puzzle;
+            }
+            else
+            {
+                // Puzzle to work on to calculate solutions (Copy of Puzzle).
+                puzzleToWorkOn = (Puzzle)puzzle.Clone();
 
+            }
+
+            solution = Solve(puzzleToWorkOn);
             // At the end of all iterations, check if the puzzle is solved.
             // The loop stops either if the puzzle is solved and no lines could be improved, or if the puzzle was not solved
             // and no cells could be filled with certainty.
-            bool solvable = workingGrid.AreAllCluesSatisfied();
+            bool solvable = puzzleToWorkOn.IsSolved();
 
             if (!solvable)
             {
@@ -75,17 +97,18 @@ namespace NonoSharp
             return solvable;
         }
 
-        /// <inheritdoc cref="IsSolvable(Grid, out HashSet{CellPosition}?)"/>
-        internal static bool IsSolvable(Grid grid)
+        /// <inheritdoc cref="IsSolvable(Puzzle, out HashSet{CellPosition}?, bool)"/>
+        internal static bool IsSolvable(Puzzle puzzle)
         {
-            return IsSolvable(grid, out _);
+            return IsSolvable(puzzle, out _);
         }
 
         /// <inheritdoc cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>
         public static bool IsSolvable(NonogramAPI nonogram)
         {
-            return IsSolvable(nonogram.grid);
+            return IsSolvable(nonogram.puzzle);
         }
+        
 
         /// <summary>
         /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved.
@@ -96,7 +119,50 @@ namespace NonoSharp
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         public static bool IsSolvable(NonogramAPI nonogram, out HashSet<CellPosition>? solution)
         {
-            return IsSolvable(nonogram.grid, out solution);
+            return IsSolvable(nonogram.puzzle, out solution);
+        }
+
+
+        /// <inheritdoc cref="IsSolvable(int, int, Clues[], Clues[], out HashSet{CellPosition}?)"/>
+        public static bool IsSolvable(int width, int height, Clues[] columnClues, Clues[] rowClues)
+        {
+            return IsSolvable(width, height, columnClues, rowClues, out _);
+        }
+
+        /// <summary>
+        /// Determines whether the puzzle constructed from the given dimensions and clues can be solved.
+        /// </summary>
+        /// <param name="width">Width of the puzzle to solve.</param>
+        /// <param name="height">Height of the puzzle to solve.</param>
+        /// <param name="columnClues">Column clues (usually shown on the top of the puzzle) for this puzzle.</param>
+        /// <param name="rowClues">Row clues (usually shown on the right of the puzzle) for this puzzle.</param>
+        /// <param name="solution">The solution HashSet if the puzzle is solvable.
+        /// <c>null</c> if the puzzle is not solvable.</param>
+        /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
+        /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> 
+        /// and <paramref name="rowClues"/> do not match <paramref name="width"/> 
+        /// or <paramref name="height"/> respectively.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"> Thrown when <paramref name="width"/> 
+        /// or <paramref name="height"/> are non-positive.</exception>
+        public static bool IsSolvable(int width, int height, Clues[] columnClues, Clues[] rowClues,
+            out HashSet<CellPosition>? solution)
+        {
+            if (width != columnClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
+                    $"must match ${nameof(width)} ({width})!");
+            }
+
+            if (height != rowClues.Length)
+            {
+                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
+                    $"must match ${nameof(height)} ({height})!");
+            }
+
+            Puzzle puzzle = new(width, height, columnClues, rowClues, null);
+
+            // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
+            return IsSolvable(puzzle, out solution, inPlace: true);
         }
 
         /// <summary>
@@ -105,8 +171,11 @@ namespace NonoSharp
         /// </summary>
         /// <param name="queue">Queue to clear.</param>
         /// <param name="grid">Grid to work with.</param>
+        /// <param name="columnClues">Column clues to determine moves with.</param>
+        /// <param name="rowClues">Row clues to determine moves with.</param>
         /// <returns>The HashSet containing the solution after the queue has been cleared.</returns>
-        private static HashSet<CellPosition> HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid)
+        private static HashSet<CellPosition> HandleQueue(UniqueQueue<(bool, int)> queue, Grid grid,
+            Clues[] columnClues, Clues[] rowClues)
         {
             // Allocate changed list beforehand and keep reusing it, instead of building a new one each time
             // as enlarging the list is expensive.
@@ -118,7 +187,7 @@ namespace NonoSharp
                 (bool inColumn, int index) = queue.Dequeue();
 
                 CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
-                Clues clues = inColumn ? grid.ColumnClues[index] : grid.RowClues[index];
+                Clues clues = inColumn ? columnClues[index] : rowClues[index];
 
                 
                 ImproveLine(line, clues, changed);

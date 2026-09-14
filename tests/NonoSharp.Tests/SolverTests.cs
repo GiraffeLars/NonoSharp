@@ -10,20 +10,20 @@ namespace NonoSharp.Tests
         public void TestOneCellSolvable()
         {
             // Basic solvable test, where grid is just one cell empty/filled
-            Grid grid = new Grid(1, 1);
+            Puzzle puzzle = new(1, 1, []);
 
-            // Empty grid
-            Assert.True(Solver.IsSolvable(grid));
+            // Empty grid and empty solution
+            Assert.True(Solver.IsSolvable(puzzle));
 
             HashSet<CellPosition> sol = [new CellPosition(0, 0)];
 
-            grid.SetSolution(sol);
+            puzzle.SetSolution(sol);
 
-            Assert.True(Solver.IsSolvable(grid));
+            Assert.True(Solver.IsSolvable(puzzle));
 
             // Check if the puzzle is still solvable after the user mistakingly placed a cross
-            grid.SetCell(0, 0, CellType.CROSS);
-            Assert.False(Solver.IsSolvable(grid));
+            puzzle.Grid.SetCell(0, 0, CellType.CROSS);
+            Assert.False(Solver.IsSolvable(puzzle));
         }
 
         [Fact]
@@ -33,17 +33,15 @@ namespace NonoSharp.Tests
             // [O][ ][ ]
             // [O][ ][ ]
             // [O][O][O]
-            Grid grid = new Grid(3, 3);
-
             HashSet<CellPosition> solution =
             [
                 new CellPosition(0, 0),
                 new CellPosition(0, 1),
                 new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
             ];
-            grid.SetSolution(solution);
+            Puzzle puzzle = new(3, 3, solution);
 
-            Assert.True(Solver.IsSolvable(grid));
+            Assert.True(Solver.IsSolvable(puzzle));
         }
 
         [Fact]
@@ -53,16 +51,14 @@ namespace NonoSharp.Tests
             // [O][ ][ ]
             // [O][ ][ ]
             // [O][O][O]
-            Grid grid = new Grid(3, 3);
-
             HashSet<CellPosition> solution =
             [
                 new CellPosition(0, 0),
                 new CellPosition(0, 1),
                 new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
             ];
-            grid.SetSolution(solution);
-            HashSet<CellPosition> returned = Solver.Solve(grid);
+            Puzzle puzzle = new(3, 3, solution);
+            HashSet<CellPosition> returned = Solver.Solve(puzzle);
             Assert.Equal(solution, returned);
         }
 
@@ -73,17 +69,15 @@ namespace NonoSharp.Tests
             // [O][ ][ ]
             // [O][ ][ ]
             // [O][O][O]
-            Grid grid = new Grid(3, 3);
-
             HashSet<CellPosition> solution =
             [
                 new CellPosition(0, 0),
                 new CellPosition(0, 1),
                 new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
             ];
-            grid.SetSolution(solution);
+            Puzzle puzzle = new(3, 3, solution);
 
-            Solver.IsSolvable(new NonogramAPI(grid), out var returned);
+            Solver.IsSolvable(puzzle, out var returned);
             Assert.Equal(solution, returned);
         }
 
@@ -94,17 +88,15 @@ namespace NonoSharp.Tests
             // [O][ ][O]
             // [ ][O][ ]
             // [O][ ][O]
-            Grid grid = new Grid(3, 3);
-
             HashSet<CellPosition> solution =
             [
                 new CellPosition(0, 0), new CellPosition(2, 0),
                 new CellPosition(1, 1),
                 new CellPosition(0, 2), new CellPosition(2, 2)
             ];
-            grid.SetSolution(solution);
+            Puzzle puzzle = new(3, 3, solution);
 
-            Assert.True(Solver.IsSolvable(grid));
+            Assert.True(Solver.IsSolvable(puzzle));
         }
 
         [Fact]
@@ -114,20 +106,18 @@ namespace NonoSharp.Tests
             // [O][ ]
             // [ ][O]
 
-            Grid grid = new Grid(2, 2);
             HashSet<CellPosition> solution = [new CellPosition(0, 0), new CellPosition(1, 1)];
-            grid.SetSolution(solution);
+            Puzzle puzzle = new(2, 2, solution);
 
-            Assert.False(Solver.IsSolvable(grid));
+            Assert.False(Solver.IsSolvable(puzzle));
 
             // Also test the other possibility for this ambigous grid
             // [ ][O]
             // [O][ ]
-            grid = new Grid(2, 2);
             solution = [new CellPosition(1, 0), new CellPosition(0, 1)];
-            grid.SetSolution(solution);
+            puzzle = new(2, 2, solution);
 
-            Assert.False(Solver.IsSolvable(grid));
+            Assert.False(Solver.IsSolvable(puzzle));
         }
 
         [Fact]
@@ -137,10 +127,9 @@ namespace NonoSharp.Tests
             // [O][ ]
             // [ ][O]
 
-            Grid grid = new Grid(2, 2);
             HashSet<CellPosition> solution = [new CellPosition(0, 0), new CellPosition(1, 1)];
-            grid.SetSolution(solution);
-            Solver.IsSolvable(new NonogramAPI(grid), out var returned);
+            Puzzle puzzle = new(2, 2, solution);
+            Solver.IsSolvable(puzzle, out var returned);
             Assert.Null(returned);
         }
 
@@ -151,17 +140,16 @@ namespace NonoSharp.Tests
             // placed cell at the edge, it is possible.
 
             // [ ][O][O][O]
-            Grid grid = new Grid(4, 1);
-
-            grid.SetSolution([
+            HashSet<CellPosition> solution = [
                 new CellPosition(1, 0), new CellPosition(2, 0), new CellPosition(3, 0)
-                ]);
+            ];
+            Puzzle puzzle = new(4, 1, solution);
 
             // To make sure that the info from the other clues are not used, we test ImproveLine
 
             // Copy to avoid changing the grid unintentionally
-            CellType[] line = (CellType[])grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.RowClues[0], []);
+            CellType[] line = (CellType[])puzzle.Grid.GetRowArray(0).Clone();
+            Solver.ImproveLine(line, puzzle.RowClues[0], []);
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
@@ -171,9 +159,9 @@ namespace NonoSharp.Tests
             Assert.NotEqual(CellType.FILLED, line[3]);
 
             // Now check if the line can correctly be solved with extra information
-            grid.SetCell(3, 0, CellType.FILLED);
-            line = (CellType[])grid.GetRowArray(0).Clone();
-            Solver.ImproveLine(line, grid.RowClues[0], []);
+            puzzle.Grid.SetCell(3, 0, CellType.FILLED);
+            line = (CellType[])puzzle.Grid.GetRowArray(0).Clone();
+            Solver.ImproveLine(line, puzzle.RowClues[0], []);
 
             // Check if 0th cell is not filled
             Assert.NotEqual(CellType.FILLED, line[0]);
@@ -186,10 +174,9 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
-        public void Test15x15Grid()
+        public void Test15x15Puzzle()
         {
-            Grid grid = new(15, 15);
-            grid.SetSolution([
+            HashSet<CellPosition> solution = [
                 new CellPosition(0, 0),
                 new CellPosition(0, 1), new CellPosition(0, 4), new CellPosition(0, 7), new CellPosition(0, 8), new CellPosition(0, 9),
                 new CellPosition(0, 10), new CellPosition(0, 12), new CellPosition(0, 13), new CellPosition(1, 1), new CellPosition(1, 3),
@@ -210,14 +197,13 @@ namespace NonoSharp.Tests
                 new CellPosition(12, 13), new CellPosition(13, 1), new CellPosition(13, 3), new CellPosition(13, 4), new CellPosition(13, 5),
                 new CellPosition(13, 6), new CellPosition(13, 7), new CellPosition(13, 10), new CellPosition(14, 0), new CellPosition(14, 3),
                 new CellPosition(14, 4), new CellPosition(14, 5), new CellPosition(14, 7), new CellPosition(14, 8), new CellPosition(14, 10),
-                new CellPosition(14, 13)]
-            );
-            Assert.False(Solver.IsSolvable(grid));
+                new CellPosition(14, 13)
+            ];
+            Puzzle puzzle = new(15, 15, solution);
+            Assert.False(Solver.IsSolvable(puzzle));
 
 
-            grid = new(15, 15);
-            grid.SetSolution(
-                [
+            solution = [
                 new CellPosition(0, 0),
                 new CellPosition(1, 0),    new CellPosition(2, 0),    new CellPosition(9, 0),    new CellPosition(10, 0),    new CellPosition(12, 0),
                 new CellPosition(14, 0),    new CellPosition(0, 1),    new CellPosition(10, 1),    new CellPosition(11, 1),    new CellPosition(12, 1),
@@ -242,9 +228,10 @@ namespace NonoSharp.Tests
                 new CellPosition(6, 13),    new CellPosition(7, 13),    new CellPosition(8, 13),    new CellPosition(13, 13),    new CellPosition(14, 13),
                 new CellPosition(1, 14),    new CellPosition(2, 14),    new CellPosition(6, 14),    new CellPosition(7, 14),    new CellPosition(12, 14),
                 new CellPosition(13, 14),    new CellPosition(14, 14),
-                ]);
+            ];
+            puzzle = new(15, 15, solution);
 
-            Assert.True(Solver.IsSolvable(grid));
+            Assert.True(Solver.IsSolvable(puzzle));
         }
     }
 }

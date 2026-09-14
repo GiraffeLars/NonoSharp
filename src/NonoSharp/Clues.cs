@@ -19,7 +19,7 @@ namespace NonoSharp
         /// <summary>
         /// Whether this line of Clues is fully completed (i.e. all clues are completed).
         /// </summary>
-        public bool FullyCompleted { get; private set; } = false;
+        public bool FullyCompleted { get; private set; } = true; // default value true, as an empty list of clues is always complete
 
         /// <summary>
         /// The total number of <see cref="Clue"/> instances contained in this Clues instance.
@@ -268,7 +268,7 @@ namespace NonoSharp
         /// <exclude />
         protected void SetFullyCompleted()
         {
-            foreach (Clue h in this)
+            foreach (Clue h in clues)
             {
                 if (!h.Completed)
                 {
@@ -289,7 +289,14 @@ namespace NonoSharp
         /// filled cells in the line), 0 must be the only number in the string. 0 is only allowed to appear <paramref name="str"/>
         /// on its own, with no other numbers.
         /// </remarks>
-        /// <param name="str">The string to convert</param>
+        /// <example>
+        /// The following code creates a <c>Clues</c> instance where the contained clues have 1, 2, 3 as their Number property
+        /// respectively, in the same ordering.
+        /// <code>
+        /// Clues instance = Clues.FromString("1 2 3");
+        /// </code>
+        /// </example>
+        /// <param name="str">The string to convert.</param>
         /// <returns>A Clues instance as above.</returns>
         /// <exception cref="FormatException">Thrown when any of the numbers is not a valid integer or 
         /// is of an incorrect format in any other way</exception>

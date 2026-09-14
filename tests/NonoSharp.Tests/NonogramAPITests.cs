@@ -11,9 +11,10 @@ namespace NonoSharp.Tests
 
         public NonogramAPITests()
         {
+            var options = new NonogramOptions() { EnableAutoCorrect = false, EnableAutoCross = false };
             // API for a 15x15 grid with an empty solution.
             // Don't generate random solvable solutions as this increases test time.
-            api = new NonogramAPI(new Grid(15, 15));
+            api = new NonogramAPI(new Puzzle(15, 15, null), options);
         }
 
         [Fact]
@@ -115,12 +116,12 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestAutoCross()
         {
-            Grid g = new Grid(5, 1);
-            NonogramAPI autoCrossAPI = new(g);
+            Puzzle p = new(5, 1, null);
+            NonogramAPI autoCrossAPI = new(p);
 
             // [O][X][O][O][X]
             HashSet<int> solXCoords = [0, 2, 3];
-            g.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
+            p.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
             autoCrossAPI.FillCell(0, 0);
 
             // Check if auto cross didn't trigger
@@ -147,14 +148,14 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestAutoCrossDisabled()
         {
-            Grid g = new Grid(5, 1);
+            Puzzle p = new(5, 1, null);
 
             NonogramOptions opts = new() { EnableAutoCross = false };
-            NonogramAPI autoCrossAPI = new(g) { Options = opts };
+            NonogramAPI autoCrossAPI = new(p) { Options = opts };
 
             // [O][X][O][O][X]
             HashSet<int> solXCoords = [0, 2, 3];
-            g.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
+            p.SetSolution([.. solXCoords.Select(x => new CellPosition(x, 0))]);
             autoCrossAPI.FillCell(0, 0);
             autoCrossAPI.FillCell(2, 0); autoCrossAPI.FillCell(3, 0);
 

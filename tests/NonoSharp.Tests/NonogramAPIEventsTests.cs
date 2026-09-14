@@ -12,7 +12,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestCellStateChangedEvent()
         {
-            NonogramAPI api = new(new Grid(1, 1));
+            NonogramAPI api = new(new Puzzle(1, 1, null));
             bool eventFired = false;
             object? sender = null;
             CellStateEventArgs? args = null;
@@ -40,10 +40,9 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestPuzzleSolvedEvent()
         {
-            // Create simple grid with only (0, 0) filled being correct
-            Grid g = new(1, 1);
-            g.SetSolution([new(0, 0)]);
-            NonogramAPI api = new(g);
+            // Create simple puzzle with only (0, 0) filled being correct
+            Puzzle p = new(1, 1, [new(0, 0)]);
+            NonogramAPI api = new(p);
 
             bool eventFired = false;
             object? sender = null;
@@ -65,10 +64,9 @@ namespace NonoSharp.Tests
         public void TestCorrectionEventCrossToFill()
         {
             // Create simple grid with only (0, 1) filled being correct
-            Grid g = new(1, 2);
-            g.SetSolution([new(0, 1)]);
-
-            NonogramAPI api = new(g) { Options = optsAutoCorrect };
+            Puzzle p = new(1, 2, [new(0, 1)]);
+            
+            NonogramAPI api = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
             object? sender = null;
@@ -97,11 +95,10 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestCorrectionEventFillToCross()
         {
-            // Create simple grid with only (0, 1) filled being correct
-            Grid g = new(2, 2);
-            g.SetSolution([new(1, 1)]);
+            // Create simple grid with only (1, 1) filled being correct
+            Puzzle p = new(2, 2, [new(1, 1)]);
 
-            NonogramAPI api = new(g) { Options = optsAutoCorrect };
+            NonogramAPI api = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
             object? sender = null;
@@ -133,9 +130,8 @@ namespace NonoSharp.Tests
             // Emptying a cell should not trigger correction
 
             // Create simple grid with only (0, 1) filled being correct
-            Grid g = new(1, 2);
-            g.SetSolution([new(0, 1)]);
-            NonogramAPI api = new(g) { Options = optsAutoCorrect };
+            Puzzle p = new(1, 2, [new(0, 1)]);
+            NonogramAPI api = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
 
@@ -152,9 +148,8 @@ namespace NonoSharp.Tests
         public void TestCorrectionEventDisabled()
         {
             // Create simple grid with only (0, 1) filled being correct
-            Grid g = new(1, 2);
-            g.SetSolution([new(0, 1)]);
-            NonogramAPI api = new(g) { Options = new() { EnableAutoCross = false } };
+            Puzzle p = new(1, 2, [new(0,1)]);
+            NonogramAPI api = new(p) { Options = new() { EnableAutoCross = false } };
 
             bool eventFired = false;
 

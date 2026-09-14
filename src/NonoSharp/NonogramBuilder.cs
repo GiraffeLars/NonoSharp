@@ -25,8 +25,8 @@ namespace NonoSharp
         /// Title of the puzzle. A null value means this puzzle has no title
         /// </summary>
         public string? Title {
-            get { return puzzle.Title; }
-            set { puzzle.Title = value; }
+            get { return puzzleDefinition.Title; }
+            set { puzzleDefinition.Title = value; }
         }
 
         private bool isSolvable = false;
@@ -34,7 +34,7 @@ namespace NonoSharp
 
         private readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
 
-        private readonly PuzzleDefinition puzzle;
+        private readonly PuzzleDefinition puzzleDefinition;
 
         /// <summary>
         /// Creates a new PuzzleBuilder instance with a width of <paramref name="width"/> and a height of
@@ -52,17 +52,17 @@ namespace NonoSharp
             Height = height;
 
             bool[] solution = new bool[width * height];
-            puzzle = new PuzzleDefinition(width, height, solution, title);
+            puzzleDefinition = new PuzzleDefinition(width, height, solution, title);
         }
 
         /// <summary>
-        /// Converts this puzzle to a Grid
+        /// Converts this puzzle to a <c>Puzzle</c> instance.
         /// </summary>
-        /// <returns>Grid with solution and dimensions corresponding to this builder</returns>
-        private Grid ConvertToGrid()
+        /// <returns>Puzzle with solution and dimensions corresponding to this builder</returns>
+        private Puzzle ConvertToPuzzle()
         {
-            Grid g = new(Width, Height, puzzle.ConvertBoolSolutionToPositions());
-            return g;
+            Puzzle p = new(Width, Height, puzzleDefinition.ConvertBoolSolutionToPositions());
+            return p;
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace NonoSharp
                 _solvableSemaphore.Wait();
                 if (!isSolvableDirty) return isSolvable;
 
-                bool solvable = Solver.IsSolvable(ConvertToGrid());
+                bool solvable = Solver.IsSolvable(ConvertToPuzzle());
 
                 UpdateSolvable(solvable);
                 
@@ -98,7 +98,7 @@ namespace NonoSharp
             try
             {
                 await _solvableSemaphore.WaitAsync();
-                bool solvable = await Task.Run(() => Solver.IsSolvable(ConvertToGrid()));
+                bool solvable = await Task.Run(() => Solver.IsSolvable(ConvertToPuzzle()));
 
                 UpdateSolvable(solvable);
                 return solvable;
@@ -132,7 +132,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
 
-            return new(ConvertToGrid());
+            return new(ConvertToPuzzle());
         }
 
 
@@ -147,7 +147,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("This puzzle is not uniquely solvable!");
             }
 
-            return new(ConvertToGrid());                                                                             
+            return new(ConvertToPuzzle());                                                                             
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
 
-            puzzle.SavePuzzle(path);
+            puzzleDefinition.SavePuzzle(path);
         }
 
 
@@ -189,7 +189,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
             
-            await puzzle.SavePuzzleAsync(path);
+            await puzzleDefinition.SavePuzzleAsync(path);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace NonoSharp
                 return;
             }
 
-            puzzle.SetDimensions(newWidth, newHeight);
+            puzzleDefinition.SetDimensions(newWidth, newHeight);
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace NonoSharp
             ValidateCoordinates(x, y);
 
             isSolvableDirty = true;
-            puzzle.SetSolutionAt(x, y, newValue);
+            puzzleDefinition.SetSolutionAt(x, y, newValue);
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace NonoSharp
         internal bool GetCell(int x, int y)
         {
             ValidateCoordinates(x, y);
-            return puzzle.GetSolutionAt(x, y);
+            return puzzleDefinition.GetSolutionAt(x, y);
         }
 
         /// <summary>
