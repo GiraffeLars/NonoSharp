@@ -7,7 +7,7 @@ namespace NonoSharp.Tests
 {
     public class NonogramBuilderTests
     {
-        NonogramBuilder builder;
+        private readonly NonogramBuilder builder;
         public NonogramBuilderTests()
         {
             builder = new(5, 5);
@@ -69,7 +69,7 @@ namespace NonoSharp.Tests
         public void TestFillCell()
         {
             builder.FillCell(0, 0);
-            Assert.True(builder.GetCell(0, 0));
+            Assert.Equal(CellType.FILLED, builder.GetCell(0, 0));
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace NonoSharp.Tests
             // Assume fill cell works as intended, is also tested
             builder.FillCell(0, 0);
             builder.EmptyCell(0, 0);
-            Assert.False(builder.GetCell(0, 0));
+            Assert.Equal(CellType.BLANK, builder.GetCell(0, 0));
         }
 
         [Fact]
