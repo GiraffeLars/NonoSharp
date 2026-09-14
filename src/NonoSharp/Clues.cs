@@ -19,7 +19,7 @@ namespace NonoSharp
         /// <summary>
         /// Whether this line of Clues is fully completed (i.e. all clues are completed).
         /// </summary>
-        public bool FullyCompleted { get; private set; } = false;
+        public bool FullyCompleted { get; private set; } = true; // default value true, as an empty list of clues is always complete
 
         /// <summary>
         /// The total number of <see cref="Clue"/> instances contained in this Clues instance.
@@ -268,7 +268,7 @@ namespace NonoSharp
         /// <exclude />
         protected void SetFullyCompleted()
         {
-            foreach (Clue h in this)
+            foreach (Clue h in clues)
             {
                 if (!h.Completed)
                 {

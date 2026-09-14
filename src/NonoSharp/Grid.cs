@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using NonoSharp.Events;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -8,211 +9,37 @@ namespace NonoSharp
     internal class Grid : ICloneable
     {
         private readonly CellType[,] grid;
-        internal HashSet<CellPosition> Solution {get; private set; }
-        private int filled = 0;
-        private int paddingString = 0;
+        public int Width { get { return grid.GetLength(0); } }
+        public int Height { get { return grid.GetLength(1); } }
 
-        public int Width { get; }
-        public int Height { get; }
+        /// <summary>
+        /// Amount of cells in the grid that are CellType.FILLED
+        /// </summary>
+        public int Filled { get; private set; } = 0;
 
-        public PuzzleClues[] ColumnClues { get; }
-        public PuzzleClues[] RowClues { get; }
+        // Events
+        /// <summary>
+        /// <c>CellStateChanged</c> is raised when one or more cell change to a new state.
+        /// </summary>
+        public event EventHandler<CellStateEventArgs>? CellStateChanged;
 
         /// <summary>
         /// Constructs a Grid.
         /// </summary>
         /// <param name="width">Width of the grid</param>
         /// <param name="height">Height of the grid</param>
-        /// <param name="solution">The solution for the grid</param>
-        /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
-        public Grid(int width, int height, HashSet<CellPosition> solution)
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive</exception>
+        public Grid(int width, int height)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0);
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0);
-            ArgumentNullException.ThrowIfNull(solution);
-            
-            this.Width = width;
-            this.Height = height;
 
             grid = new CellType[width, height];
-
-            ColumnClues = new PuzzleClues[width];
-            RowClues = new PuzzleClues[height];
-
-            SetSolution(solution);
         }
 
-        /// <summary>
-        /// Creates a <paramref name="width"/>×<paramref name="height"/> grid with an empty solution.
-        /// </summary>
-        /// <param name="width">Width of the grid</param>
-        /// <param name="height">Height of the grid</param>
-        public Grid(int width, int height) : this(width, height, []) { }
-
-
-        internal Grid(int width, int height, Clues[] columnClues, Clues[] rowClues)
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0);
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(height, 0);
-            if (width != columnClues.Length)
-            {
-                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
-                    $"must match ${nameof(width)} ({width})!");
-            }
-
-            if (height != rowClues.Length)
-            {
-                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
-                    $"must match ${nameof(height)} ({height})!");
-            }
-
-            Width = width;
-            Height = height;
-
-            // Initialize the clues as PuzzleClues
-            ColumnClues = [.. Enumerable.Range(0, width).Select(i => new PuzzleClues(true, i, columnClues[i].clues))];
-            RowClues = [.. Enumerable.Range(0, height).Select(i => new PuzzleClues(false, i, rowClues[i].clues))];
-            grid = new CellType[width, height];
-            Solution = [];
-        }
-
-        /// <summary>
-        /// Creates a full custom Grid
-        /// </summary>
-        /// <param name="grid">List of CellType, with data of filled in cells, etc.</param>
-        /// <param name="solution">Solution to this grid</param>
-        /// <param name="filled">How many cells are filled in. Should be consistent with <paramref name="grid"/>.</param>
-        /// <param name="paddingString">The padding used to pad out the clues when converting to string</param>
-        /// <param name="width">Width of the grid. Should be consistent with <paramref name="grid"/></param>
-        /// <param name="height">Height of the grid. Should be consistent with <paramref name="grid"/></param>
-        /// <param name="columnClues">Column clues</param>
-        /// <param name="rowClues">Row clues</param>
-        internal Grid(CellType[,] grid, HashSet<CellPosition> solution, int filled, int paddingString, int width, int height,
-            PuzzleClues[] columnClues, PuzzleClues[] rowClues)
+        private Grid(CellType[,] grid)
         {
             this.grid = grid;
-            this.filled = filled;
-            this.paddingString = paddingString;
-            Width = width;
-            Height = height;
-            ColumnClues = columnClues;
-            RowClues = rowClues;
-            Solution = solution;
-        }
-
-
-
-        /// <summary>
-        /// Makes the solution into a 2D array representation, just as <c>grid</c>
-        /// </summary>
-        /// <returns>2D array of <c>CellType</c> where each cell position in the solution is <c>CellType.FILLED</c></returns>
-        /// <exception cref="IndexOutOfRangeException">Thrown when any of the CellPositions
-        /// found in the solution is out of bounds.</exception>
-        private CellType[,] GridifySolution()
-        {
-            CellType[,] s = new CellType[Width, Height];
-
-            foreach (CellPosition p in Solution)
-            {
-                s[p.X, p.Y] = CellType.FILLED;
-            }
-
-            return s;
-        }
-
-        /// <summary>
-        /// Sets the solution to a Grid and sets the clues.
-        /// </summary>
-        /// <param name="solution"></param>
-        [MemberNotNull(nameof(Solution))]
-        internal void SetSolution(HashSet<CellPosition> solution)
-        { 
-            this.Solution = solution;
-            InitializeClues();
-        }
-
-        private void InitializeClues()
-            
-        {
-            for (int i = 0; i < Width; i++)
-            {
-                ColumnClues[i] = new(true, i);
-            }
-            for (int i = 0; i < Height; i++)
-            {
-                RowClues[i] = new(false, i);
-            }
-            SetClues(ColumnClues, true);
-            SetClues(RowClues, false);
-            
-        }
-
-        /// <summary>
-        /// Creates the clues for the solution of this grid.
-        /// </summary>
-        /// <param name="clues">Which clues to set, either <c>ColumnClues</c> or <c>RowClues</c></param>
-        /// <param name="isColumn">Whether we are setting the ColumnClues, corresponding to the <paramref name="clues"/> parameter</param>
-        private void SetClues(Clues[] clues, bool isColumn)
-        {
-            // Sets the clue limits based on whether we process the column clues
-            int xLimit = isColumn ? Width : Height;
-            int yLimit = isColumn ? Height : Width;
-
-            CellType[,] gridSol = GridifySolution();
-            for (int x = 0; x < xLimit; x++)
-            {
-                int count = 0;
-                for (int y = 0; y < yLimit; y++)
-                {
-                    CellType cell = isColumn ? gridSol[x, y] : gridSol[y, x];
-
-                    // If this is not a filled cell
-                    if (cell != CellType.FILLED)
-                    {
-                        // Add the new clue to the list
-                        AddClue(clues, x, count); // TODO if cells are split (i.e. empty between two patches), separate them with a 0
-                        count = 0;
-                        continue;
-                    }
-
-                    count++;
-                }
-
-                // Do final clue adding in case the last cell is filled
-                // Count minus 1 as it is increased by one even if unfilled
-                CellType lastCell = isColumn ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
-                if (count > 0 && lastCell == CellType.FILLED)
-                {
-                    AddClue(clues, x, count);
-                }
-                else if (clues[x].Count == 0)
-                {
-                    clues[x].Add(new Clue(0));
-                }
-
-                DoRowPaddingCount(clues[x].Count, isColumn);
-            }
-        }
-
-        private void AddClue(Clues[] clues, int pos, int count)
-        {
-            if (count > 0)
-            {
-                clues[pos].Add(new Clue(count));
-            }
-        }
-
-        private void DoRowPaddingCount(int count, bool isColumn)
-        {
-            if (!isColumn && count > paddingString)
-            {
-                paddingString = count; 
-            }
-        }
-
-        private String GetPadding()
-        {
-            return new string(' ', paddingString * 2);
         }
 
         /// <summary>
@@ -228,17 +55,15 @@ namespace NonoSharp
 
             if (grid[x, y] != CellType.FILLED && value == CellType.FILLED)
             {
-                filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
+                Filled++; // Keeps track of whether the same amount of cells are Filled as the solution for efficiency
             }
             else if (grid[x, y] == CellType.FILLED && value != CellType.FILLED)
             {
-                filled--;
+                Filled--;
             }
 
             grid[x, y] = value;
-
-            RowClues[y].DoCompletion(this);
-            ColumnClues[x].DoCompletion(this);
+            OnCellStateChanged(new([new(x, y)]));
         }
 
         /// <summary>
@@ -375,13 +200,16 @@ namespace NonoSharp
                 throw new ArgumentException("newRow must have the match the dimension of the grid!");
             }
 
+            List<CellPosition> changed = [];
             for (int i = 0; i < Width; i++)
             {
                 if (newRow[i] != GetCell(i, row))
                 {
-                    SetCell(i, row, newRow[i]);
+                    grid[i, row] = newRow[i];
+                    changed.Add(new(i, row));
                 }
             }
+            OnCellStateChanged(new(changed));
         }
 
         internal void SetColumn(int column, CellType[] newColumn)
@@ -394,20 +222,23 @@ namespace NonoSharp
                 throw new ArgumentException("newRow must have the match the dimension of the grid!");
             }
 
+            List<CellPosition> changed = [];
             for (int i = 0; i < Height; i++)
             {
                 if (newColumn[i] != GetCell(column, i))
                 {
-                    SetCell(column, i, newColumn[i]);
+                    grid[column, i] = newColumn[i];
+                    changed.Add(new(column, i));
                 }
             }
+            OnCellStateChanged(new(changed));
         }
 
         /// <summary>
-        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive filled in cells.  
+        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive Filled in cells.  
         /// </summary>
         /// <param name="line">The line to determine groups from</param>
-        /// <returns>A <c>LinkedList of int</c> where each entry is a separate group and each value is the total number of cells filled in this group</returns>
+        /// <returns>A <c>LinkedList of int</c> where each entry is a separate group and each value is the total number of cells Filled in this group</returns>
         private static LinkedList<int> GetGroups(CellType[] line)
         {
             LinkedList<int> groups = new();
@@ -432,7 +263,7 @@ namespace NonoSharp
                 }
             }
 
-            // Check if we ended on a filled cell in which case
+            // Check if we ended on a Filled cell in which case
             // groupSize > 0 and thus still needs to be added
             if (groupSize > 0)
             {
@@ -444,7 +275,7 @@ namespace NonoSharp
 
         /// <summary>
         /// Returns a linked list of each group present in row <paramref name="row"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in cells. See also <seealso cref="GetGroupsInColumn(int)"/>.
+        /// and each value is the total number of cells Filled in this group. A group is a collection of consecutive Filled in cells. See also <seealso cref="GetGroupsInColumn(int)"/>.
         /// </summary>
         /// <param name="row">The row in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>
@@ -456,7 +287,7 @@ namespace NonoSharp
 
         /// <summary>
         /// Returns a linked list of each group present in column <paramref name="col"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells filled in this group. A group is a collection of consecutive filled in cells. See also <seealso cref="GetGroupsInRow(int)"/>.
+        /// and each value is the total number of cells Filled in this group. A group is a collection of consecutive Filled in cells. See also <seealso cref="GetGroupsInRow(int)"/>.
         /// </summary>
         /// <param name="col">The column in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>
@@ -464,161 +295,6 @@ namespace NonoSharp
         {
             CellType[] line = GetColumnArray(col);
             return GetGroups(line);
-        }
-
-        public bool IsSolved()
-        {
-            // We know the solution, so check if the solution is fully complete and not
-            // if all clues are satisfied as that is more expensive generally
-
-            if (filled != Solution.Count)
-            {
-                return false;
-            }
-
-            foreach (CellPosition p in Solution)
-            {
-                if (grid[p.X, p.Y] != CellType.FILLED)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Determines if the clues for all columns and rows are fully completed and satisfied,
-        /// without too many cells being filled. In other words, this checks if the grid is solved
-        /// by checking the clues.
-        /// </summary>
-        /// <remarks>
-        /// If possible, check whether the grid is solved with <see cref="IsSolved"/> as that
-        /// is computationally less expensive.
-        /// </remarks>
-        /// <returns></returns>
-        public bool AreAllCluesSatisfied()
-        {
-            for (int col = 0; col < Width; col++)
-            {
-                CellType[] line = GetColumnArray(col);
-                Clues clues = ColumnClues[col];
-
-                bool allSatisfied = AreAllCluesSatisfied(line, clues);
-                if (!allSatisfied) return false;
-            }
-
-            for (int row = 0; row < Height; row++)
-            {
-                CellType[] line = GetRowArray(row);
-                Clues clues = RowClues[row];
-
-                bool allSatisfied = AreAllCluesSatisfied(line, clues);
-                if (!allSatisfied) return false;
-            }
-
-            return true;
-        }
-
-        private bool AreAllCluesSatisfied(CellType[] line, Clues clues)
-        {
-            if (!clues.FullyCompleted) return false;
-
-            // Check if there are not too many cells filled
-            int filled = line.Where(c => c == CellType.FILLED).Count();
-            return filled == clues.TotalCellsInClues;
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            String[] rowCluesStr = CreateRowCluesString();
-
-            sb.Append(CreateColumnCluesString());
-            //sb.AppendLine();
-
-            for (int y = 0; y < Height; y++)
-            {
-                sb.Append('\n');
-                sb.Append(rowCluesStr[y]);
-                for (int x = 0; x < Width; x++)
-                {
-                    char c = ' ';
-                    switch (GetCell(x, y))
-                    {
-                        case CellType.FILLED:
-                            c = 'O';
-                            break;
-                        case CellType.BLANK:
-                            c = ' ';
-                            break;
-                        case CellType.CROSS:
-                            c = 'X';
-                            break;
-                        
-                    }
-                    sb.Append($"[{c}]");
-                }
-                
-            }
-            return sb.ToString();
-        }
-
-        private String CreateColumnCluesString()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            bool newStringRow;
-            int lastFilled;
-            for (int y = 0; y < Height; y++)
-            {
-                sb.Append(GetPadding());
-                newStringRow = false;
-                lastFilled = 0;
-                for (int x = 0; x < Width; x++)
-                {
-                    Clues clues = ColumnClues[x];
-                    if (clues.Count > y)
-                    {
-                        // Add spaces for all columns with no clues until this column
-                        sb.Append(new string(' ', (x - lastFilled) * 3));
-                        sb.Append($" {clues[y].Number} ");
-                        
-                        newStringRow = true;
-                        lastFilled = x + 1;
-                    }
-                }
-
-                if (newStringRow)
-                {
-                    sb.AppendLine();
-                    newStringRow = false;
-                }
-                lastFilled = 0;
-            }
-            return sb.ToString();
-        }
-
-        private String[] CreateRowCluesString()
-        {
-            String[] cluesStr = new String[Height];
-
-            for (int i = 0; i < Height; i++)
-            {
-                int x;
-                StringBuilder sb = new StringBuilder();
-                Clues clues = RowClues[i];
-
-                for (x = 0; x < clues.Count; x++)
-                {
-                    sb.Append($"{clues[x].Number} ");
-                }
-
-                sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));
-                cluesStr[i] = sb.ToString();
-            }
-
-            return cluesStr;
         }
 
         /// <summary>
@@ -638,18 +314,39 @@ namespace NonoSharp
             return clone;
         }
 
+        /// <summary>
+        /// Gets/sets the value of the cell at (<paramref name="x"/>, <paramref name="y"/>).
+        /// The parameters are unchecked.
+        /// </summary>
+        public CellType this[int x, int y]
+        {
+            get
+            {
+                return grid[x, y];
+            }
+            set
+            {
+                grid[x, y] = value;
+                OnCellStateChanged(new([new(x, y)]));
+            }
+        }
+
         public object Clone()
         {
             return new Grid(
-                (CellType[,])grid.Clone(),
-                Solution,
-                filled,
-                paddingString,
-                Width,
-                Height,
-                (PuzzleClues[])ColumnClues.Clone(),
-                (PuzzleClues[])RowClues.Clone()
+                (CellType[,])grid.Clone()
             );
+        }
+
+        /// <summary>
+        /// Should be called when one or more cells have changed states.
+        /// </summary>
+        /// <param name="e">The event args corresponding to this event. Should contain the CellPositions of all
+        /// changed cells.</param>
+        /// <exclude />
+        protected internal virtual void OnCellStateChanged(CellStateEventArgs e)
+        {
+            CellStateChanged?.Invoke(this, e);
         }
     }
 

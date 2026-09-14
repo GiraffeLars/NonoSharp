@@ -11,30 +11,30 @@ namespace NonoSharp
     /// </summary>
     public class NonogramAPI
     {
-        internal Grid grid;
+        internal Puzzle puzzle;
 
         /// <summary>
         /// The width of the game grid
         /// </summary>
-        public int Width { get { return grid.Width; } }
+        public int Width { get { return puzzle.Width; } }
 
         /// <summary>
         /// The height of the game grid
         /// </summary>
-        public int Height { get { return grid.Height; } }
+        public int Height { get { return puzzle.Height; } }
 
         /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the columns of the grid.
         /// In Nonogram puzzles these are usually shown at the top of the grid.
         /// </summary>
-        public Clues[] ColumnClues { get { return grid.ColumnClues; } }
+        public Clues[] ColumnClues { get { return puzzle.ColumnClues; } }
 
 
         /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the rows of the grid.
         /// In Nonogram puzzles these are usually shown at the left side of the grid.
         /// </summary>
-        public Clues[] RowClues { get { return grid.RowClues; } }
+        public Clues[] RowClues { get { return puzzle.RowClues; } }
 
         /// <summary>
         /// The hints, i.e. the numbers on the side of a grid, for the columns of the grid.
@@ -77,7 +77,7 @@ namespace NonoSharp
             get {
                 // CellPositions coordinates are readonly, we can just make a new hashset and return that,
                 // avoids users modifying the solution
-                return [.. grid.Solution]; 
+                return [.. puzzle.Solution!]; 
             } 
         }
 
@@ -105,11 +105,12 @@ namespace NonoSharp
         /// </summary>
         public event EventHandler<CorrectionEventArgs>? CellCorrected;
 
-        internal NonogramAPI(Grid grid)
+        internal NonogramAPI(Puzzle puzzle, NonogramOptions? options = null)
         {
-            this.grid = grid;
+            this.puzzle = puzzle;
             undoStack = new LinkedList<ICommand>();
             redoStack = new LinkedList<ICommand>();
+            Options = options ?? Options;
 
             // The puzzle can switch between solved and unsolved when a cell changes state.
             // Thus, we can handle sending the puzzle solved event after a cell changes state.
@@ -130,14 +131,12 @@ namespace NonoSharp
         /// <param name="height">The height of the puzzle.</param>
         /// <param name="solution">The solution of the puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
-        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
         /// <exception cref="IndexOutOfRangeException">Thrown at least one of the <see cref="CellPosition"/>s found in
-        /// <paramref name="solution"/> is out of bounds of the grid.</exception>"
+        /// <paramref name="solution"/> is out of the bounds set by <paramref name="width"/> and <paramref name="height"/>.</exception>"
         public NonogramAPI(int width, int height, HashSet<CellPosition> solution,
-            NonogramOptions? options = null) : this(new(width, height, solution))
-        { 
-            Options = options ?? new NonogramOptions();
-        }
+            NonogramOptions? options = null) : this(new(width, height, solution), options)
+        { }
 
 
         /// <summary>
@@ -151,35 +150,24 @@ namespace NonoSharp
         /// <param name="columnClues">Array of <see cref="Clues"/> instances, one for each column of the puzzle.</param>
         /// <param name="rowClues">Array of <see cref="Clues"/> instances, one for each row of the puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
-        /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> and <paramref name="rowClues"/>
-        /// do not match <paramref name="width"/> or <paramref name="height"/> respectively, 
-        /// or when <paramref name="width"/> or <paramref name="height"/> are non-positive.</exception>
+        /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> 
+        /// and <paramref name="rowClues"/> do not match <paramref name="width"/> 
+        /// or <paramref name="height"/> respectively.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"> Thrown when <paramref name="width"/> 
+        /// or <paramref name="height"/> are non-positive.</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the puzzle constructed from the clues and 
         /// dimensions is not uniquely solvable.</exception>
         public NonogramAPI(int width, int height, Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
         {
-            if (width != columnClues.Length)
+            bool solvable = Solver.IsSolvable(width, height, columnClues, rowClues, out var solution);
+            if (!solvable || solution == null)
             {
-                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
-                    $"must match ${nameof(width)} ({width})!");
+                throw new PuzzleNotSolvableException(
+                    "The puzzle constructed from given clues and dimensions is not uniquely solvable!");
             }
 
-            if (height != rowClues.Length)
-            {
-                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
-                    $"must match ${nameof(height)} ({height})!");
-            }
-
-            Grid toSolve = new(width, height, columnClues, rowClues);
-            bool solved = Solver.IsSolvable(toSolve, out var solution);
-
-            if (!solved || solution == null)
-            {
-                throw new PuzzleNotSolvableException("The puzzle constructed from given clues and dimensions is not uniquely solvable!");
-            }
-
-            Grid puzzleGrid = new(width, height, solution);
-            grid = puzzleGrid;
+            Puzzle puzzle = new(width, height, solution);
+            this.puzzle = puzzle;
             undoStack = [];
             redoStack = [];
             Options = options ?? Options;
@@ -200,7 +188,7 @@ namespace NonoSharp
         /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
         /// <returns>NonogramAPI instance as described above.</returns>
-        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
         public static NonogramAPI CreateRandomPuzzle(int width, int height, int seed, NonogramOptions? options = null)
         {
             HashSet<CellPosition> solution = SolutionHelper.GenerateRandomSolution(width, height, seed);
@@ -230,7 +218,7 @@ namespace NonoSharp
         /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
         /// <returns>NonogramAPI instance as described above.</returns>
-        /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
         public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, int seed, NonogramOptions? options = null)
         {
             return await Task.Run(() => CreateRandomPuzzle(width, height, seed, options));
@@ -290,7 +278,7 @@ namespace NonoSharp
         {
             newType = DoAutoCorrect(x, y, newType);
             // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
-            bool mightAutoCross = newType == CellType.FILLED || grid.GetCell(x, y) == CellType.FILLED;
+            bool mightAutoCross = newType == CellType.FILLED || puzzle.Grid.GetCell(x, y) == CellType.FILLED;
 
             CellCommand initialCommand = CreateCellCommand(x, y, newType);
 
@@ -333,12 +321,12 @@ namespace NonoSharp
         /// <returns>Corrected cell type if auto correct is enabled, <paramref name="typeCellChangedTo"/> otherwise</returns>
         private CellType DoAutoCorrect(int x, int y, CellType typeCellChangedTo)
         {
-            if (!Options.EnableAutoCorrect)
+            if (!Options.EnableAutoCorrect || puzzle.Solution == null)
             {
                 return typeCellChangedTo;
             }
 
-            bool solutionHasCell = grid.Solution.Contains(new(x, y));
+            bool solutionHasCell = puzzle.Solution.Contains(new(x, y));
             if ((solutionHasCell && typeCellChangedTo == CellType.CROSS) || (!solutionHasCell && typeCellChangedTo == CellType.FILLED))
             {
                 CellType invertedType = typeCellChangedTo == CellType.FILLED ? CellType.CROSS : CellType.FILLED;
@@ -386,15 +374,15 @@ namespace NonoSharp
 
         private List<int> GetColumnAutoCross(int col)
         {
-            LinkedList<int> groups = grid.GetGroupsInColumn(col);
-            Clues clues = grid.ColumnClues[col];
+            LinkedList<int> groups = puzzle.Grid.GetGroupsInColumn(col);
+            Clues clues = puzzle.ColumnClues[col];
             List<int> posToCross = [];
 
             bool groupsMatchClues = DoGroupsMatchClues(groups, clues);
 
             if (groupsMatchClues)
             {
-                CellType[] column = grid.GetColumnArray(col);
+                CellType[] column = puzzle.Grid.GetColumnArray(col);
 
                 for (int i = 0; i < column.Length; i++)
                 {
@@ -410,15 +398,15 @@ namespace NonoSharp
 
         private List<int> GetRowAutoCross(int row)
         {
-            LinkedList<int> groups = grid.GetGroupsInRow(row);
-            Clues clues = grid.RowClues[row];
+            LinkedList<int> groups = puzzle.Grid.GetGroupsInRow(row);
+            Clues clues = puzzle.RowClues[row];
             List<int> posToCross = [];
 
             bool groupsMatchClues = DoGroupsMatchClues(groups, clues);
 
             if (groupsMatchClues)
             {
-                CellType[] rowCells = grid.GetRowArray(row);
+                CellType[] rowCells = puzzle.Grid.GetRowArray(row);
                 for (int i = 0; i < rowCells.Length; i++)
                 {
                     if (rowCells[i] == CellType.BLANK)
@@ -468,8 +456,8 @@ namespace NonoSharp
 
         private CellCommand CreateCellCommand(int x, int y, CellType newType)
         {
-            CellType oldType = grid.GetCell(x, y);
-            CellCommand c = new(x, y, grid, newType, oldType);
+            CellType oldType = puzzle.Grid.GetCell(x, y);
+            CellCommand c = new(x, y, puzzle.Grid, newType, oldType);
             return c;
         }
 
@@ -513,7 +501,7 @@ namespace NonoSharp
         /// of bounds of the grid</exception>
         public bool IsCellEmpty(int x, int y)
         {
-            return grid.GetCell(x, y) == CellType.BLANK;
+            return puzzle.Grid.GetCell(x, y) == CellType.BLANK;
         }
 
         /// <summary>
@@ -526,7 +514,7 @@ namespace NonoSharp
         /// of bounds of the grid</exception>
         public bool IsCellFilled(int x, int y)
         {
-            return grid.GetCell(x, y) == CellType.FILLED;
+            return puzzle.Grid.GetCell(x, y) == CellType.FILLED;
         }
 
 
@@ -540,7 +528,7 @@ namespace NonoSharp
         /// of bounds of the grid</exception>
         public bool IsCellCrossed(int x, int y)
         {
-            return grid.GetCell(x, y) == CellType.CROSS;
+            return puzzle.Grid.GetCell(x, y) == CellType.CROSS;
         }
 
         /// <summary>
@@ -549,7 +537,7 @@ namespace NonoSharp
         /// <returns>True if the puzzle is solved, false otherwise</returns>
         public bool IsPuzzleSolved()
         {
-            return grid.IsSolved();
+            return puzzle.IsSolved();
         }
 
         /// <summary>
@@ -587,7 +575,7 @@ namespace NonoSharp
         /// </summary>
         private void HandlePuzzleSolvedEvent()
         {
-            if (grid.IsSolved())
+            if (puzzle.IsSolved())
             {
                 OnPuzzleSolved();
             }
@@ -608,7 +596,7 @@ namespace NonoSharp
         public void SaveAsFile(string path, string? title = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzle = new(Width, Height, grid.Solution, title);
+            PuzzleDefinition puzzle = new(Width, Height, this.puzzle.Solution!, title);
             puzzle.SavePuzzle(path);
         }
 
@@ -627,8 +615,8 @@ namespace NonoSharp
         public async Task SaveAsFileAsync(string path, string? title = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzle = new PuzzleDefinition(Width, Height, grid.Solution, title);
-            await puzzle.SavePuzzleAsync(path);
+            PuzzleDefinition puzzleDef = new PuzzleDefinition(Width, Height, puzzle.Solution!, title);
+            await puzzleDef.SavePuzzleAsync(path);
         }
 
         /// <summary>
@@ -645,10 +633,10 @@ namespace NonoSharp
         public static NonogramAPI LoadPuzzle(string path, NonogramOptions? options = null) 
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(path);
+            PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
 
-            Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
-            return new(grid) { Options = options ?? new() };
+            Puzzle puzzle = ConvertPuzzleDefinitionToGrid(puzzleDef);
+            return new(puzzle) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -670,7 +658,7 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
 
-            Grid grid = ConvertPuzzleDefinitionToGrid(puzzle);
+            Puzzle grid = ConvertPuzzleDefinitionToGrid(puzzle);
             return new(grid) { Options = options ?? new()};
         }
 
@@ -688,10 +676,10 @@ namespace NonoSharp
         public static async Task<NonogramAPI> LoadPuzzleAsync(string path, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzle = await PuzzleDefinition.LoadPuzzleAsync(path);
+            PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path);
 
-            Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
-            return new(grid) { Options = options ?? new() };
+            Puzzle puzzle = await ConvertPuzzleDefinitionToGridAsync(puzzleDef);
+            return new(puzzle) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -715,27 +703,31 @@ namespace NonoSharp
         public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-            PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
+            PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(stream);
 
-            Grid grid = await ConvertPuzzleDefinitionToGridAsync(puzzle);
-            return new(grid) { Options = options ?? new() };
+            Puzzle puzzle = await ConvertPuzzleDefinitionToGridAsync(puzzleDef);
+            return new(puzzle) { Options = options ?? new() };
         }
 
-        private static Grid ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)
+        private static Puzzle ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)
         {
-            Grid grid = new Grid(definition.Width, definition.Height);
-            grid.SetSolution(definition.ConvertBoolSolutionToPositions());
-            return grid;
+            var solution = definition.ConvertBoolSolutionToPositions();
+            Puzzle puzzle = new Puzzle(definition.Width, definition.Height, solution);
+            return puzzle;
         }
 
-        private static async Task<Grid> ConvertPuzzleDefinitionToGridAsync(PuzzleDefinition definition)
+        private static async Task<Puzzle> ConvertPuzzleDefinitionToGridAsync(PuzzleDefinition definition)
         {
-            Grid grid = new Grid(definition.Width, definition.Height);
+            Puzzle puzzle = new(definition.Width, definition.Height, null);
 
-            HashSet<CellPosition> solution = definition.ConvertBoolSolutionToPositions();
 
-            await Task.Run(() => grid.SetSolution(solution));
-            return grid;
+
+            await Task.Run(() =>
+                {
+                    HashSet<CellPosition> solution = definition.ConvertBoolSolutionToPositions();
+                    puzzle.SetSolution(solution);
+                });
+            return puzzle;
         }
 
         /// <summary>
@@ -743,6 +735,6 @@ namespace NonoSharp
         /// their respective states and the clues at the sides.
         /// </summary>
         /// <returns>A string showing the current state of the game</returns>
-        public override String ToString() { return grid.ToString(); }
+        public override String ToString() { return puzzle.ToString(); }
     }
 }

@@ -21,13 +21,13 @@ namespace NonoSharp
         {
             Random random = seed.HasValue ? new Random(seed.Value) : new Random();
             HashSet<CellPosition> solution;
-            Grid g = new(width, height);
+            Puzzle p = new(width, height, null);
 
             do
             {
                 solution = GenerateRandomSet(width, height, random);
-                g.SetSolution(solution);
-            } while (!Solver.IsSolvable(g));
+                p.SetSolution(solution);
+            } while (!Solver.IsSolvable(p));
 
             return solution;
         }
