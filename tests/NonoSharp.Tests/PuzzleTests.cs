@@ -1,8 +1,4 @@
-﻿using NonoSharp;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-
-namespace NonoSharp.Tests
+﻿namespace NonoSharp.Tests
 {
     public class PuzzleTests
     {
@@ -20,23 +16,6 @@ namespace NonoSharp.Tests
                 sol.Add(new CellPosition(i, 0));
             }
             puzzle.SetSolution(sol);
-        }
-
-        private Puzzle GetBigPuzzle()
-        {
-            puzzle = new(15, 15, null);
-
-            // Solution where [X][X][O][O][X][X][O][O][X]...
-            //                  [X]....is correct
-            HashSet<CellPosition> sol = [];
-            for (int i = 0; i < 8; i++)
-            {
-                if (i <= 1 || i == 4 || i ==5) { continue; }
-                sol.Add(new CellPosition(i, 0));
-            }
-            puzzle.SetSolution(sol);
-
-            return puzzle;
         }
 
         private void FillInPuzzleSolution()

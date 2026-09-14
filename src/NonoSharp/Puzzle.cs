@@ -1,7 +1,4 @@
 ﻿using NonoSharp.Events;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace NonoSharp
@@ -48,12 +45,18 @@ namespace NonoSharp
         /// <summary>
         /// Constructs a Puzzle with already determined solution and clues.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="solution"/> is not validated to be correct according to <paramref name="columnClues"/> and
+        /// <paramref name="rowClues"/>.
+        /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are invalid dimensions.</exception>
-        internal Puzzle(int width, int height, Clues[] columnClues, Clues[] rowClues, HashSet<CellPosition>? solution) :
-            this(new(width, height), columnClues, rowClues, solution)
+        internal Puzzle(int width, int height, Clues[] columnClues, Clues[] rowClues,
+            HashSet<CellPosition>? solution) :
+            this(new(width, height), columnClues, rowClues, solution, 0)
         { }
 
-        private Puzzle(Grid grid, Clues[] columnClues, Clues[] rowClues, HashSet<CellPosition>? solution)
+        private Puzzle(Grid grid, Clues[] columnClues, Clues[] rowClues, HashSet<CellPosition>? solution,
+            int paddingString)
         {
             Grid = grid;
             ColumnClues = PuzzleClues.ArrayFromClues(columnClues, true);
@@ -182,9 +185,9 @@ namespace NonoSharp
         {
             if (!clues.FullyCompleted) return false;
 
-            // Check if there are not too many cells Filled
-            int Filled = line.Where(c => c == CellType.FILLED).Count();
-            return Filled == clues.TotalCellsInClues;
+            // Check if there are not too many cells filled
+            int filled = line.Where(c => c == CellType.FILLED).Count();
+            return filled == clues.TotalCellsInClues;
         }
 
         /// <summary>
@@ -210,7 +213,7 @@ namespace NonoSharp
                     if (cell != CellType.FILLED)
                     {
                         // Add the new clue to the list
-                        AddClue(clues, x, count); // TODO if cells are split (i.e. empty between two patches), separate them with a 0
+                        AddClue(clues, x, count); 
                         count = 0;
                         continue;
                     }
@@ -399,9 +402,9 @@ namespace NonoSharp
                 (Grid)Grid.Clone(),
                 ColumnClues,
                 RowClues,
-                newSol);
-
-            
+                newSol,
+                paddingString
+            );            
         }
     }
 }

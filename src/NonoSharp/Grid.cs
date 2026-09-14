@@ -1,8 +1,4 @@
 ﻿using NonoSharp.Events;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace NonoSharp
 {
@@ -55,7 +51,7 @@ namespace NonoSharp
 
             if (grid[x, y] != CellType.FILLED && value == CellType.FILLED)
             {
-                Filled++; // Keeps track of whether the same amount of cells are Filled as the solution for efficiency
+                Filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
             }
             else if (grid[x, y] == CellType.FILLED && value != CellType.FILLED)
             {
@@ -203,7 +199,7 @@ namespace NonoSharp
             List<CellPosition> changed = [];
             for (int i = 0; i < Width; i++)
             {
-                if (newRow[i] != GetCell(i, row))
+                if (newRow[i] != this[i, row])
                 {
                     grid[i, row] = newRow[i];
                     changed.Add(new(i, row));
@@ -225,7 +221,7 @@ namespace NonoSharp
             List<CellPosition> changed = [];
             for (int i = 0; i < Height; i++)
             {
-                if (newColumn[i] != GetCell(column, i))
+                if (newColumn[i] != this[column, i])
                 {
                     grid[column, i] = newColumn[i];
                     changed.Add(new(column, i));
@@ -235,10 +231,11 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive Filled in cells.  
+        /// Determines and returns the groups in <paramref name="line"/>. A group is a collection of consecutive filled-in cells.  
         /// </summary>
         /// <param name="line">The line to determine groups from</param>
-        /// <returns>A <c>LinkedList of int</c> where each entry is a separate group and each value is the total number of cells Filled in this group</returns>
+        /// <returns>A <c>LinkedList of int</c> where each entry is a separate group and each value is the total number
+        /// of cells filled in this group</returns>
         private static LinkedList<int> GetGroups(CellType[] line)
         {
             LinkedList<int> groups = new();
@@ -263,7 +260,7 @@ namespace NonoSharp
                 }
             }
 
-            // Check if we ended on a Filled cell in which case
+            // Check if we ended on a filled cell in which case
             // groupSize > 0 and thus still needs to be added
             if (groupSize > 0)
             {
@@ -275,7 +272,8 @@ namespace NonoSharp
 
         /// <summary>
         /// Returns a linked list of each group present in row <paramref name="row"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells Filled in this group. A group is a collection of consecutive Filled in cells. See also <seealso cref="GetGroupsInColumn(int)"/>.
+        /// and each value is the total number of cells Filled in this group. A group is a collection of consecutive 
+        /// filled-in cells. See also <seealso cref="GetGroupsInColumn(int)"/>.
         /// </summary>
         /// <param name="row">The row in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>
@@ -287,7 +285,8 @@ namespace NonoSharp
 
         /// <summary>
         /// Returns a linked list of each group present in column <paramref name="col"/> represented by a <c>LinkedList</c> of <c>int</c>s, where each entry is a separate group
-        /// and each value is the total number of cells Filled in this group. A group is a collection of consecutive Filled in cells. See also <seealso cref="GetGroupsInRow(int)"/>.
+        /// and each value is the total number of cells Filled in this group. A group is a collection of consecutive 
+        /// filled-in cells. See also <seealso cref="GetGroupsInRow(int)"/>.
         /// </summary>
         /// <param name="col">The column in the grid to get the rows from</param>
         /// <returns>A LinkedList as described above</returns>

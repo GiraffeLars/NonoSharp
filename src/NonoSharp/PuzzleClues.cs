@@ -10,10 +10,6 @@ namespace NonoSharp
     /// </summary>
     internal class PuzzleClues : Clues
     {
-        [Obsolete("Remove when Hints get removed")]
-        internal bool? colClues { get { return IsColumnClues; } }
-        [Obsolete("Remove when Hints get removed")]
-        internal int? pos { get { return Position; } }
         internal bool IsColumnClues { get; }
         internal int Position { get; }
 

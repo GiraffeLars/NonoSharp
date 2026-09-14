@@ -132,8 +132,8 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the puzzle constructed from the given dimensions and clues can be solved.
         /// </summary>
-        /// <param name="width">Width of the puzzle to solve</param>
-        /// <param name="height">Height of the puzzle to solve</param>
+        /// <param name="width">Width of the puzzle to solve.</param>
+        /// <param name="height">Height of the puzzle to solve.</param>
         /// <param name="columnClues">Column clues (usually shown on the top of the puzzle) for this puzzle.</param>
         /// <param name="rowClues">Row clues (usually shown on the right of the puzzle) for this puzzle.</param>
         /// <param name="solution">The solution HashSet if the puzzle is solvable.

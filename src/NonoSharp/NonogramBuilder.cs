@@ -58,7 +58,7 @@ namespace NonoSharp
         /// <summary>
         /// Converts this puzzle to a <c>Puzzle</c> instance.
         /// </summary>
-        /// <returns>Grid with solution and dimensions corresponding to this builder</returns>
+        /// <returns>Puzzle with solution and dimensions corresponding to this builder</returns>
         private Puzzle ConvertToPuzzle()
         {
             Puzzle p = new(Width, Height, puzzleDefinition.ConvertBoolSolutionToPositions());

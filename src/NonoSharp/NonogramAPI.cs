@@ -635,7 +635,7 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
 
-            Puzzle puzzle = ConvertPuzzleDefinitionToGrid(puzzleDef);
+            Puzzle puzzle = ConvertPuzzleDefinitionToPuzzle(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
         }
 
@@ -656,10 +656,10 @@ namespace NonoSharp
         public static NonogramAPI LoadPuzzle(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-            PuzzleDefinition puzzle = PuzzleDefinition.LoadPuzzle(stream);
+            PuzzleDefinition puzzleDefinition = PuzzleDefinition.LoadPuzzle(stream);
 
-            Puzzle grid = ConvertPuzzleDefinitionToGrid(puzzle);
-            return new(grid) { Options = options ?? new()};
+            Puzzle puzzle = ConvertPuzzleDefinitionToPuzzle(puzzleDefinition);
+            return new(puzzle) { Options = options ?? new()};
         }
 
         /// <summary>
@@ -678,7 +678,7 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path);
 
-            Puzzle puzzle = await ConvertPuzzleDefinitionToGridAsync(puzzleDef);
+            Puzzle puzzle = await ConvertPuzzleDefinitionToPuzzleAsync(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
         }
 
@@ -705,18 +705,18 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(stream);
 
-            Puzzle puzzle = await ConvertPuzzleDefinitionToGridAsync(puzzleDef);
+            Puzzle puzzle = await ConvertPuzzleDefinitionToPuzzleAsync(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
         }
 
-        private static Puzzle ConvertPuzzleDefinitionToGrid(PuzzleDefinition definition)
+        private static Puzzle ConvertPuzzleDefinitionToPuzzle(PuzzleDefinition definition)
         {
             var solution = definition.ConvertBoolSolutionToPositions();
-            Puzzle puzzle = new Puzzle(definition.Width, definition.Height, solution);
+            Puzzle puzzle = new(definition.Width, definition.Height, solution);
             return puzzle;
         }
 
-        private static async Task<Puzzle> ConvertPuzzleDefinitionToGridAsync(PuzzleDefinition definition)
+        private static async Task<Puzzle> ConvertPuzzleDefinitionToPuzzleAsync(PuzzleDefinition definition)
         {
             Puzzle puzzle = new(definition.Width, definition.Height, null);
 

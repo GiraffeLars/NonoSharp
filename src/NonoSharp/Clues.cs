@@ -290,10 +290,10 @@ namespace NonoSharp
         /// on its own, with no other numbers.
         /// </remarks>
         /// <example>
-        /// The following code creates a <c>Clues</c> instance where the contained clues have 1, 2, 3 as Number property
-        /// in the respective ordering.
+        /// The following code creates a <c>Clues</c> instance where the contained clues have 1, 2, 3 as their Number property
+        /// respectively, in the same ordering.
         /// <code>
-        /// Clues instance = Clues.FromString("1 2 3");4
+        /// Clues instance = Clues.FromString("1 2 3");
         /// </code>
         /// </example>
         /// <param name="str">The string to convert.</param>
