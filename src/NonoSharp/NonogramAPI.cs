@@ -635,7 +635,7 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
 
-            Puzzle puzzle = ConvertPuzzleDefinitionToPuzzle(puzzleDef);
+            Puzzle puzzle = new(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
         }
 
@@ -658,7 +658,7 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzleDefinition = PuzzleDefinition.LoadPuzzle(stream);
 
-            Puzzle puzzle = ConvertPuzzleDefinitionToPuzzle(puzzleDefinition);
+            Puzzle puzzle = new(puzzleDefinition);
             return new(puzzle) { Options = options ?? new()};
         }
 
@@ -678,7 +678,7 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path);
 
-            Puzzle puzzle = await ConvertPuzzleDefinitionToPuzzleAsync(puzzleDef);
+            Puzzle puzzle = new(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
         }
 
@@ -705,29 +705,8 @@ namespace NonoSharp
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(stream);
 
-            Puzzle puzzle = await ConvertPuzzleDefinitionToPuzzleAsync(puzzleDef);
+            Puzzle puzzle = new(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
-        }
-
-        private static Puzzle ConvertPuzzleDefinitionToPuzzle(PuzzleDefinition definition)
-        {
-            var solution = definition.ConvertBoolSolutionToPositions();
-            Puzzle puzzle = new(definition.Width, definition.Height, solution);
-            return puzzle;
-        }
-
-        private static async Task<Puzzle> ConvertPuzzleDefinitionToPuzzleAsync(PuzzleDefinition definition)
-        {
-            Puzzle puzzle = new(definition.Width, definition.Height, null);
-
-
-
-            await Task.Run(() =>
-                {
-                    HashSet<CellPosition> solution = definition.ConvertBoolSolutionToPositions();
-                    puzzle.SetSolution(solution);
-                });
-            return puzzle;
         }
 
         /// <summary>
