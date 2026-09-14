@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NonoSharp.Tests
 {
-    public class CluesTests
+    public class HintsTests
     {
         [Fact]
         public void TestCompletenessAfterFirstClue()

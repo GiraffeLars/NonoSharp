@@ -326,7 +326,12 @@ namespace NonoSharp
             }
             set
             {
+                if (grid[x, y] == value) return;
+                if (grid[x, y] == CellType.FILLED) Filled--;
+
                 grid[x, y] = value;
+
+                if (value == CellType.FILLED) Filled++;
                 OnCellStateChanged(new([new(x, y)]));
             }
         }

@@ -174,7 +174,7 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
-        public void Test15x15Grid()
+        public void Test15x15Puzzle()
         {
             HashSet<CellPosition> solution = [
                 new CellPosition(0, 0),

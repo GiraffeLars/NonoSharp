@@ -42,7 +42,6 @@ namespace NonoSharp.Tests
         {
             // Create simple puzzle with only (0, 0) filled being correct
             Puzzle p = new(1, 1, [new(0, 0)]);
-            p.SetSolution([new(0, 0)]);
             NonogramAPI api = new(p);
 
             bool eventFired = false;

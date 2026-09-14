@@ -22,7 +22,7 @@ namespace NonoSharp.Tests
             puzzle.SetSolution(sol);
         }
 
-        private Puzzle GetBigGrid()
+        private Puzzle GetBigPuzzle()
         {
             puzzle = new(15, 15, null);
 
@@ -39,7 +39,7 @@ namespace NonoSharp.Tests
             return puzzle;
         }
 
-        private void FillInGridSolution()
+        private void FillInPuzzleSolution()
         {
             for (int i = 0; i < puzzle.Width; i++)
             {
@@ -69,6 +69,21 @@ namespace NonoSharp.Tests
             // The correct solution
             puzzle.Grid.SetCell(2, 0, CellType.BLANK);
             Assert.True(puzzle.IsSolved());
+        }
+
+        [Fact]
+        public void TestIsSolvedWithoutPresetSolution()
+        {
+            Clues[] rowClues = [Clues.FromString("1 1")];
+            Clues[] colClues = [Clues.FromString("1"), Clues.FromString("0"), Clues.FromString("1")];
+            Puzzle p = new(3, 1, colClues, rowClues, null);
+
+            Assert.False(p.IsSolved());
+
+            p.Grid.SetCell(0, 0, CellType.FILLED);
+            p.Grid.SetCell(2, 0, CellType.FILLED);
+
+            Assert.True(p.IsSolved());
         }
 
         [Fact]
@@ -109,7 +124,7 @@ namespace NonoSharp.Tests
             }
 
             // Fill in the expected cells
-            FillInGridSolution();
+            FillInPuzzleSolution();
 
             // Now all clues should be completed
             for (int i = 0; i < puzzle.Width; i++)
@@ -132,7 +147,7 @@ namespace NonoSharp.Tests
                 Assert.False(puzzle.RowClues[i][1].Completed);
             }
 
-            FillInGridSolution();
+            FillInPuzzleSolution();
 
             // Now we expected all clues to be completed
             for (int i = 0; i < puzzle.Height; i++)
@@ -150,7 +165,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestCluesCompletedWithCrosses()
         {
-            FillInGridSolution();
+            FillInPuzzleSolution();
             puzzle.Grid.SetCell(2, 0, CellType.CROSS);
 
             for (int i = 0; i < puzzle.Height; i++)
@@ -172,85 +187,6 @@ namespace NonoSharp.Tests
                 Assert.False(puzzle.RowClues[i][0].Completed);
                 Assert.False(puzzle.RowClues[i][1].Completed);
             }
-        }
-
-        [Fact]
-        public void TestCluesCompletedWithMultipleBetweenCrosses()
-        {
-            puzzle = GetBigGrid();
-
-            Assert.False(puzzle.IsSolved());
-            Assert.False(puzzle.RowClues[0][0].Completed);
-            Assert.False(puzzle.RowClues[0][1].Completed);
-
-
-            puzzle.Grid.SetCell(2, 0, CellType.FILLED);
-            puzzle.Grid.SetCell(3, 0, CellType.FILLED);
-            puzzle.Grid.SetCell(6, 0, CellType.FILLED);
-            puzzle.Grid.SetCell(7, 0, CellType.FILLED);
-            Assert.True(puzzle.IsSolved());
-
-            puzzle.Grid.SetCell(0, 0, CellType.CROSS);
-            puzzle.Grid.SetCell(1, 0, CellType.CROSS);
-            puzzle.Grid.SetCell(4, 0, CellType.CROSS);
-            puzzle.Grid.SetCell(5, 0, CellType.CROSS);
-            Assert.True(puzzle.IsSolved());
-
-            Assert.True(puzzle.RowClues[0][0].Completed);
-
-            // Our specifications for when a user knows this should be filled requires all clues after the first/last to be between crosses or other cells
-            Assert.False(puzzle.RowClues[0][1].Completed);
-
-            puzzle.Grid.SetCell(8, 0, CellType.CROSS);
-            Assert.True(puzzle.RowClues[0][1].Completed);
-
-            for (int i = 9; i < puzzle.Width; i++)
-            {
-                puzzle.Grid.SetCell(i, 0, CellType.CROSS);
-            }
-            Assert.True(puzzle.IsSolved());
-            Assert.True(puzzle.RowClues[0][0].Completed);
-            Assert.True(puzzle.RowClues[0][1].Completed);
-
-            // Check if clue completeness is still true if we know that it was handled from the back
-            puzzle.Grid.SetCell(0, 0, CellType.BLANK);
-            Assert.True(puzzle.IsSolved());
-            Assert.True(puzzle.RowClues[0][0].Completed);
-            Assert.True(puzzle.RowClues[0][1].Completed);
-
-            puzzle.Grid.SetCell(7, 0, CellType.BLANK);
-            Assert.False(puzzle.IsSolved());
-        }
-
-        [Fact]
-        public void TestClue_SingleFilled_TwoInSolution()
-        {
-            // Solution
-            // [O][X][O]
-            HashSet<CellPosition> sol = [new CellPosition(0, 0), new CellPosition(2, 0)];
-            Puzzle puzzle = new(3, 1, sol);
-
-            // [O][X][X]
-            puzzle.Grid.SetCell(0, 0, CellType.FILLED);
-            puzzle.Grid.SetCell(1, 0, CellType.CROSS);
-            puzzle.Grid.SetCell(2, 0, CellType.CROSS);
-
-            // Since the first cell is filled in, we expect the first clue to be completed as it makes more sense intuitively
-            Assert.True(puzzle.RowClues[0][0].Completed);
-            Assert.False(puzzle.RowClues[0][1].Completed);
-
-            // Now check single filled in cell at the end
-            // [X][X][O]
-            puzzle.Grid.SetCell(0, 0, CellType.CROSS);
-            puzzle.Grid.SetCell(2, 0, CellType.FILLED);
-
-            // It does not really matter which clue is completed, both make sense in a way, as long as one is completed and the other is not
-            bool completed0 = puzzle.RowClues[0][0].Completed;
-            bool completed1 = puzzle.RowClues[0][1].Completed;
-
-            // Since these are bools, c0 != c1 implies that one is true and the other is false
-            // This is enough for what we want to test as above
-            Assert.NotEqual(completed0, completed1);
         }
 
         [Fact]

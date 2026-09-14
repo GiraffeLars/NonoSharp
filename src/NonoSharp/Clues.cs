@@ -289,7 +289,14 @@ namespace NonoSharp
         /// filled cells in the line), 0 must be the only number in the string. 0 is only allowed to appear <paramref name="str"/>
         /// on its own, with no other numbers.
         /// </remarks>
-        /// <param name="str">The string to convert</param>
+        /// <example>
+        /// The following code creates a <c>Clues</c> instance where the contained clues have 1, 2, 3 as Number property
+        /// in the respective ordering.
+        /// <code>
+        /// Clues instance = Clues.FromString("1 2 3");4
+        /// </code>
+        /// </example>
+        /// <param name="str">The string to convert.</param>
         /// <returns>A Clues instance as above.</returns>
         /// <exception cref="FormatException">Thrown when any of the numbers is not a valid integer or 
         /// is of an incorrect format in any other way</exception>
