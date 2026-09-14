@@ -51,8 +51,7 @@ namespace NonoSharp
             Width = width;
             Height = height;
 
-            bool[] solution = new bool[width * height];
-            puzzleDefinition = new PuzzleDefinition(width, height, solution, title);
+            puzzleDefinition = new PuzzleDefinition(width, height, [], title);
         }
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace NonoSharp
         /// <returns>Puzzle with solution and dimensions corresponding to this builder</returns>
         private Puzzle ConvertToPuzzle()
         {
-            Puzzle p = new(Width, Height, puzzleDefinition.ConvertBoolSolutionToPositions());
+            Puzzle p = new(puzzleDefinition);
             return p;
         }
 

@@ -3,15 +3,11 @@ using System.Text;
 
 namespace NonoSharp
 {
-    internal class Puzzle : ICloneable
+    internal class Puzzle : PuzzleDefinition, ICloneable
     {
-        public int Width { get { return Grid.Width; } }
-        public int Height { get { return Grid.Height; } }
-
         public PuzzleClues[] ColumnClues { get; }
         public PuzzleClues[] RowClues { get; }
 
-        internal HashSet<CellPosition>? Solution { get; private set; }
         public Grid Grid { get; }
         private int paddingString = 0;
 
@@ -32,7 +28,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="grid">Grid for this puzzle</param>
         /// <param name="solution">Solution of this puzzle.</param>
-        internal Puzzle(Grid grid, HashSet<CellPosition>? solution)
+        internal Puzzle(Grid grid, HashSet<CellPosition>? solution) : base(grid.Width, grid.Height, solution)
         {
             Grid = grid;
             ColumnClues = new PuzzleClues[grid.Width];
@@ -55,18 +51,29 @@ namespace NonoSharp
             this(new(width, height), columnClues, rowClues, solution, 0)
         { }
 
+        internal Puzzle(PuzzleDefinition definition) : base(definition.Width, definition.Height, definition.Solution, definition.Title)
+        {
+            Grid = new(definition.Width, definition.Height);
+
+            ColumnClues = new PuzzleClues[definition.Width];
+            RowClues = new PuzzleClues[definition.Height];
+            SetSolution(definition.Solution);
+
+            Grid.CellStateChanged += GridCellsChanged;
+        }
+
         private Puzzle(Grid grid, Clues[] columnClues, Clues[] rowClues, HashSet<CellPosition>? solution,
-            int paddingString)
+            int paddingString) : base(grid.Width, grid.Height, solution)
         {
             Grid = grid;
             ColumnClues = PuzzleClues.ArrayFromClues(columnClues, true);
             RowClues = PuzzleClues.ArrayFromClues(rowClues, false);
 
-            Solution = solution;
             DoCompletionAllClues(ColumnClues);
             DoCompletionAllClues(RowClues);
 
             Grid.CellStateChanged += GridCellsChanged;
+            this.paddingString = paddingString;
         }
 
         /// <summary>
