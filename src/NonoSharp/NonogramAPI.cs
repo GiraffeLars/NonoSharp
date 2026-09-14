@@ -14,12 +14,12 @@ namespace NonoSharp
         internal Puzzle puzzle;
 
         /// <summary>
-        /// The width of the game grid
+        /// The width of the game grid.
         /// </summary>
         public int Width { get { return puzzle.Width; } }
 
         /// <summary>
-        /// The height of the game grid
+        /// The height of the game grid.
         /// </summary>
         public int Height { get { return puzzle.Height; } }
 
@@ -82,7 +82,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// The <see cref="NonogramOptions"/> for this instance
+        /// The <see cref="NonogramOptions"/> for this instance.
         /// </summary>
         public NonogramOptions Options { get; set; } = new NonogramOptions();
 
@@ -91,7 +91,7 @@ namespace NonoSharp
 
         // Events
         /// <summary>
-        /// <c>CellStateChanged</c> is raised when one or more cell change to a new state.
+        /// <c>CellStateChanged</c> is raised when one or more cells change to a new state.
         /// </summary>
         public event EventHandler<CellStateEventArgs>? CellStateChanged;
 
@@ -101,7 +101,7 @@ namespace NonoSharp
         public event EventHandler? PuzzleSolved;
 
         /// <summary>
-        /// Raised when a cell is changed incorrectly and is therefore corrected to the expected state of this cell.
+        /// Raised when a cell is changed incorrectly and is therefore corrected to the expected state of the cell.
         /// </summary>
         public event EventHandler<CorrectionEventArgs>? CellCorrected;
 
@@ -132,8 +132,8 @@ namespace NonoSharp
         /// <param name="solution">The solution of the puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
-        /// <exception cref="IndexOutOfRangeException">Thrown at least one of the <see cref="CellPosition"/>s found in
-        /// <paramref name="solution"/> is out of the bounds set by <paramref name="width"/> and <paramref name="height"/>.</exception>"
+        /// <exception cref="IndexOutOfRangeException">Thrown when at least one of the <see cref="CellPosition"/>s found in
+        /// <paramref name="solution"/> is out of the bounds set by <paramref name="width"/> and <paramref name="height"/>.</exception>
         public NonogramAPI(int width, int height, HashSet<CellPosition> solution,
             NonogramOptions? options = null) : this(new(width, height, solution), options)
         { }
@@ -239,7 +239,17 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void FillCell(int x, int y)
         {
-            DoMove(x, y, CellType.FILLED);
+            SetCell(x, y, CellType.FILLED);
+        }
+
+        /// <summary>
+        /// Fills the cell at <paramref name="position"/>.
+        /// </summary>
+        /// <inheritdoc cref="FillCell(int,int)"/>
+        /// <param name="position">The position of the cell to fill.</param>
+        public void FillCell(CellPosition position)
+        {
+            FillCell(position.X, position.Y);
         }
 
         /// <summary>
@@ -251,7 +261,17 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void CrossCell(int x, int y)
         {
-            DoMove(x, y, CellType.CROSS);
+            SetCell(x, y, CellType.CROSS);
+        }
+
+        /// <summary>
+        /// Marks the cell at <paramref name="position"/> as crossed.
+        /// </summary>
+        /// <inheritdoc cref="CrossCell(int,int)"/>
+        /// <param name="position">The position of the cell to cross.</param>
+        public void CrossCell(CellPosition position)
+        {
+            CrossCell(position.X, position.Y);
         }
 
         /// <summary>
@@ -263,7 +283,31 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void EmptyCell(int x, int y)
         {
-            DoMove(x, y, CellType.BLANK);
+            SetCell(x, y, CellType.BLANK);
+        }
+
+        /// <summary>
+        /// Clears the cell at <paramref name="position"/>, returning it to blank.
+        /// </summary>
+        /// <inheritdoc cref="EmptyCell(int,int)"/>
+        /// <param name="position">The position of the cell to empty.</param>
+        public void EmptyCell(CellPosition position)
+        {
+            EmptyCell(position.X, position.Y);
+        }
+
+        /// <summary>
+        /// Sets the cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newCellType"/>.
+        /// </summary>
+        /// <param name="x">x-coordinate of the cell, zero-indexed from the left.</param>
+        /// <param name="y">y-coordinate of the cell, zero-indexed from the top.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or 
+        /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
+        /// <param name="newCellType">The CellType to set the cell at (<paramref name="x"/>, <paramref name="y"/>) to.</param>
+
+        public void SetCell(int x, int y, CellType newCellType)
+        {
+            DoMove(x, y, newCellType);
         }
 
         /// <summary>
@@ -494,47 +538,99 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is empty.
         /// </summary>
-        /// <param name="x">x-coordinate of cell to check</param>
-        /// <param name="y">y-coordinate of cell to check</param>
-        /// <returns>True if the cell is empty, false otherwise</returns>
+        /// <param name="x">x-coordinate of cell to check.</param>
+        /// <param name="y">y-coordinate of cell to check.</param>
+        /// <returns><c>true</c> if the cell is empty, <c>false</c> otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
-        /// of bounds of the grid</exception>
+        /// of bounds of the grid.</exception>
         public bool IsCellEmpty(int x, int y)
         {
-            return puzzle.Grid.GetCell(x, y) == CellType.BLANK;
+            return GetCell(x, y) == CellType.BLANK;
+        }
+
+        /// <summary>
+        /// Determines whether the cell at <paramref name="position"/> is empty.
+        /// </summary>
+        /// <param name="position">Position to check.</param>
+        /// <inheritdoc cref="IsCellEmpty(int, int)"/>
+        public bool IsCellEmpty(CellPosition position)
+        {
+            return IsCellEmpty(position.X, position.Y);
         }
 
         /// <summary>
         /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is filled.
         /// </summary>
-        /// <param name="x">x-coordinate of cell to check</param>
-        /// <param name="y">y-coordinate of cell to check</param>
-        /// <returns>True if the cell is filled, false otherwise</returns>
+        /// <param name="x">x-coordinate of cell to check.</param>
+        /// <param name="y">y-coordinate of cell to check.</param>
+        /// <returns><c>true</c> if the cell is filled, <c>false</c> otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
-        /// of bounds of the grid</exception>
+        /// of bounds of the grid.</exception>
         public bool IsCellFilled(int x, int y)
         {
-            return puzzle.Grid.GetCell(x, y) == CellType.FILLED;
+            return GetCell(x, y) == CellType.FILLED;
+        }
+
+        /// <summary>
+        /// Determines whether the cell at <paramref name="position"/> is filled.
+        /// </summary>
+        /// <inheritdoc cref="IsCellFilled(int,int)"/>
+        /// <param name="position">Position to check.</param>
+        public bool IsCellFilled(CellPosition position)
+        {
+            return IsCellFilled(position.X, position.Y);
         }
 
 
         /// <summary>
         /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is crossed.
         /// </summary>
-        /// <param name="x">x-coordinate of cell to check</param>
-        /// <param name="y">y-coordinate of cell to check</param>
-        /// <returns>True if the cell is crossed, false otherwise</returns>
+        /// <param name="x">x-coordinate of cell to check.</param>
+        /// <param name="y">y-coordinate of cell to check.</param>
+        /// <returns><c>true</c> if the cell is crossed, <c>false</c> otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
-        /// of bounds of the grid</exception>
+        /// of bounds of the grid.</exception>
         public bool IsCellCrossed(int x, int y)
         {
-            return puzzle.Grid.GetCell(x, y) == CellType.CROSS;
+            return GetCell(x, y) == CellType.CROSS;
+        }
+
+        /// <summary>
+        /// Determines whether the cell at <paramref name="position"/> is crossed.
+        /// </summary>
+        /// <inheritdoc cref="IsCellCrossed(int,int)"/>
+        /// <param name="position">Position to check.</param>
+        public bool IsCellCrossed(CellPosition position)
+        {
+            return IsCellCrossed(position.X, position.Y);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="CellType"/> of the cell located at (<paramref name="x"/>, <paramref name="y"/>).
+        /// </summary>
+        /// <param name="x">x-coordinate of the cell.</param>
+        /// <param name="y">y-coordinate of the cell.</param>
+        /// <returns>CellType of the cell at (<paramref name="x"/>, <paramref name="y"/>).</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
+        /// of bounds of the grid.</exception>
+        public CellType GetCell(int x, int y)
+        {
+            return puzzle.Grid.GetCell(x, y);
+        }
+
+        /// <summary>Gets the <see cref="CellType"/> of the cell at <paramref name="position"/>.</summary>
+        /// <returns>CellType of the cell at <paramref name="position"/>.</returns>
+        /// <inheritdoc cref="GetCell(int, int)"/>
+        /// <param name="position">The position of the cell.</param>
+        public CellType GetCell(CellPosition position)
+        {
+            return GetCell(position.X, position.Y);
         }
 
         /// <summary>
         /// Determines whether the puzzle is solved, i.e. the filled cells match the solution exactly.
         /// </summary>
-        /// <returns>True if the puzzle is solved, false otherwise</returns>
+        /// <returns><c>true</c> if the puzzle is solved, <c>false</c> otherwise.</returns>
         public bool IsPuzzleSolved()
         {
             return puzzle.IsSolved();
@@ -563,7 +659,7 @@ namespace NonoSharp
         /// <summary>
         /// Should be called when a cell was corrected to the expected type found in the solution.
         /// </summary>
-        /// <param name="e">Event args containing the changed cell, the requested state to change to and the corrected cell type</param>
+        /// <param name="e">Event args containing the changed cell, the requested state to change to and the corrected cell type.</param>
         /// <exclude />
         protected internal virtual void OnCellCorrected(CorrectionEventArgs e)
         {
@@ -582,17 +678,17 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. 
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>.
         /// If <paramref name="path"/> already exists, it is overwritten.
         /// </summary>
-        /// <param name="path">Path to save the puzzle at</param>
-        /// <param name="title">Optional title to give the puzzle</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed. 
+        /// <param name="path">Path to save the puzzle at.</param>
+        /// <param name="title">Optional title to give the puzzle.</param>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed.
         /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
-        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, 
-        /// e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails,
+        /// e.g. because of an I/O Exception. See the inner exception for more details.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
         public void SaveAsFile(string path, string? title = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
@@ -601,35 +697,35 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>. 
+        /// Saves a serialized version of the puzzle (that is, the solution and dimensions) to <paramref name="path"/>.
         /// If <paramref name="path"/> already exists, it is overwritten.
         /// </summary>
-        /// <param name="path">Path to save the puzzle at</param>
-        /// <param name="title">Optional title to give the puzzle</param>
-        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed. 
+        /// <param name="path">Path to save the puzzle at.</param>
+        /// <param name="title">Optional title to give the puzzle.</param>
+        /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed.
         /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
-        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. 
-        /// See the inner exception for more details</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
+        /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
+        /// See the inner exception for more details.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
         public async Task SaveAsFileAsync(string path, string? title = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzleDef = new PuzzleDefinition(Width, Height, puzzle.Solution!, title);
+            PuzzleDefinition puzzleDef = new(Width, Height, puzzle.Solution!, title);
             await puzzleDef.SavePuzzleAsync(path);
         }
 
         /// <summary>
         /// Loads the puzzle at <paramref name="path"/> and returns a new NonogramAPI instance.
         /// </summary>
-        /// <param name="path">Puzzle to load</param>
-        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
-        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
-        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <param name="path">Puzzle to load.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <returns>NonogramAPI instance of the puzzle located at the given path.</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
-        /// See the inner exception for more details</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
+        /// See the inner exception for more details.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
         public static NonogramAPI LoadPuzzle(string path, NonogramOptions? options = null) 
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
@@ -645,14 +741,14 @@ namespace NonoSharp
         /// <remarks>
         /// <paramref name="stream"/> is left open. Do not forget to close it.
         /// </remarks>
-        /// <param name="stream">Stream to read the puzzle from. 
-        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle, 
+        /// <param name="stream">Stream to read the puzzle from.
+        /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle,
         /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
-        /// <returns>NonogramAPI instance of the puzzle</returns>
-        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
-        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
+        /// <returns>NonogramAPI instance of the puzzle.</returns>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c>.</exception>
         public static NonogramAPI LoadPuzzle(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));

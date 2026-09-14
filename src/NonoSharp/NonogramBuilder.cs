@@ -12,17 +12,17 @@ namespace NonoSharp
     public class NonogramBuilder
     {
         /// <summary>
-        /// Height of the grid that is being created
+        /// Height of the grid that is being created.
         /// </summary>
         public int Width { get; private set; }
 
         /// <summary>
-        /// Height of the puzzle that is being created
+        /// Height of the puzzle that is being created.
         /// </summary>
         public int Height { get; private set; }
 
         /// <summary>
-        /// Title of the puzzle. A null value means this puzzle has no title
+        /// Title of the puzzle. A null value means this puzzle has no title.
         /// </summary>
         public string? Title {
             get { return puzzleDefinition.Title; }
@@ -40,11 +40,11 @@ namespace NonoSharp
         /// Creates a new PuzzleBuilder instance with a width of <paramref name="width"/> and a height of
         /// <paramref name="height"/>.
         /// </summary>
-        /// <param name="width">Width for the puzzle to create with this PuzzleBuilder</param>
-        /// <param name="height">Height for the puzzle to create with this PuzzleBuilder</param>
-        /// <param name="title">Optional title to give the puzzle</param>
+        /// <param name="width">Width for the puzzle to create with this PuzzleBuilder.</param>
+        /// <param name="height">Height for the puzzle to create with this PuzzleBuilder.</param>
+        /// <param name="title">Optional title to give the puzzle.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="width"/> or <paramref name="height"/>
-        /// is non-positive (&lt;= 0)</exception>
+        /// is non-positive (&lt;= 0).</exception>
         public NonogramBuilder(int width, int height, string? title = null)
         {
             ValidateDimensions(width, height);
@@ -57,7 +57,7 @@ namespace NonoSharp
         /// <summary>
         /// Converts this puzzle to a <c>Puzzle</c> instance.
         /// </summary>
-        /// <returns>Puzzle with solution and dimensions corresponding to this builder</returns>
+        /// <returns>Puzzle with solution and dimensions corresponding to this builder.</returns>
         private Puzzle ConvertToPuzzle()
         {
             Puzzle p = new(puzzleDefinition);
@@ -67,7 +67,7 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
-        /// <returns>True if it is uniquely solvable, false otherwise</returns>
+        /// <returns>True if it is uniquely solvable, false otherwise.</returns>
         public bool IsSolvable()
         {
             try
@@ -90,7 +90,7 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
-        /// <returns>True if it is uniquely solvable, false otherwise</returns>
+        /// <returns>True if it is uniquely solvable, false otherwise.</returns>
 
         public async Task<bool> IsSolvableAsync()
         {
@@ -113,7 +113,7 @@ namespace NonoSharp
         /// Updates the value in <c>this.isSolvable</c> and updates cache status.
         /// To avoid race conditions, first lock <c>_solvableSemaphore</c>
         /// </summary>
-        /// <param name="newSolvableValue">New value for isSolvable</param>
+        /// <param name="newSolvableValue">New value for isSolvable.</param>
         private void UpdateSolvable(bool newSolvableValue)
         {
             isSolvable = newSolvableValue;
@@ -123,7 +123,7 @@ namespace NonoSharp
         /// <summary>
         /// Converts this puzzle into a playable <see cref="NonogramAPI"/>.
         /// </summary>
-        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
         public NonogramAPI GetNonogramAPI()
         {
             if (!IsSolvable())
@@ -138,7 +138,7 @@ namespace NonoSharp
         /// <summary>
         /// Converts this puzzle into a playable <see cref="NonogramAPI"/> asynchronously.
         /// </summary>
-        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
         public async Task<NonogramAPI> GetNonogramAPIAsync()
         {
             if (!await IsSolvableAsync())
@@ -153,13 +153,13 @@ namespace NonoSharp
         /// Saves the built puzzle at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
         /// The puzzle must be uniquely solvable.
         /// </summary>
-        /// <param name="path">The path to save the puzzle to</param>
+        /// <param name="path">The path to save the puzzle to.</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, 
         /// when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
-        /// See the inner exception for more details</exception>
-        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        /// See the inner exception for more details.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
         public void SaveAsFile(string path)
         {
             if (!IsSolvable())
@@ -174,7 +174,7 @@ namespace NonoSharp
         /// <summary>
         /// Saves this puzzle asynchronously at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
         /// </summary>
-        /// <param name="path">The path to save the puzzle to</param>
+        /// <param name="path">The path to save the puzzle to.</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example,
         /// when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
@@ -214,9 +214,9 @@ namespace NonoSharp
         /// <summary>
         /// Sets the cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newValue"/>.
         /// </summary>
-        /// <param name="x">x-coordinate of cell to set</param>
-        /// <param name="y">y-coordinate of cell to set</param>
         /// <param name="newValue">New value of cell. True if it is supposed to be filled, false if empty</param>
+        /// <param name="x">x-coordinate.</param>
+        /// <param name="y">y-coordinate</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
         /// greater or equal to Width or Height respectively</exception>
         private void SetCell(int x, int y, bool newValue)
@@ -225,6 +225,36 @@ namespace NonoSharp
 
             isSolvableDirty = true;
             puzzleDefinition.SetSolutionAt(x, y, newValue);
+        }
+
+        /// <summary>
+        /// Sets the cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="newCellType"/>.
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to set.</param>
+        /// <param name="y">y-coordinate of cell to set.</param>
+        /// <param name="newCellType">The new <c>CellType</c>. Can not be <c>CellType.CROSS</c>.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="newCellType"/> is <c>CellType.CROSS</c></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
+        /// greater or equal to Width or Height respectively</exception>
+        public void SetCell(int x, int y, CellType newCellType)
+        {
+            if (newCellType == CellType.CROSS)
+            {
+                throw new ArgumentException("Can not cross cells when using NonogramBuilder!");
+            }
+
+            SetCell(x, y, newCellType == CellType.FILLED);
+        }
+
+        /// <summary>
+        /// Sets the cell at <paramref name="position"/> to <paramref name="newCellType"/>.
+        /// </summary>
+        /// <inheritdoc cref="SetCell(int,int,CellType)"/>
+        /// <param name="position">The position of the cell to set.</param>
+        /// <param name="newCellType">The new <c>CellType</c>. Can not be <c>CellType.CROSS</c>.</param>
+        public void SetCell(CellPosition position, CellType newCellType)
+        {
+            SetCell(position.X, position.Y, newCellType);
         }
 
         /// <summary>
@@ -276,65 +306,74 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Gets the raw value of the cell at (<paramref name="x"/>, <paramref name="y"/>).
-        /// This is true if it is filled, false if it is empty.
+        /// Gets the <c>CellType</c> of the cell at (<paramref name="x"/>, <paramref name="y"/>).
         /// </summary>
-        /// <param name="x">x-coordinate of cell to get</param>
-        /// <param name="y">y-coordinate of cell to get</param>
-        /// <returns>True if the cell is marked as filled in the solution, false if it is marked to be empty</returns>
+        /// <param name="x">x-coordinate of cell to get.</param>
+        /// <param name="y">y-coordinate of cell to get.</param>
+        /// <returns>The <c>CellType</c> of the cell at (<paramref name="x"/>, <paramref name="y"/>).</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is not within the
-        /// puzzle bounds </exception>
-        internal bool GetCell(int x, int y)
+        /// puzzle bounds.</exception>
+        public CellType GetCell(int x, int y)
         {
             ValidateCoordinates(x, y);
-            return puzzleDefinition.GetSolutionAt(x, y);
+            return puzzleDefinition.GetSolutionAt(x, y) ? CellType.FILLED : CellType.BLANK;
         }
 
         /// <summary>
-        /// Checks if Cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be filled in the solution.
+        /// Gets the <c>CellType</c> of the cell at <paramref name="position"/>.
         /// </summary>
-        /// <param name="x">x-coordinate of cell to check</param>
-        /// <param name="y">y-coordinate of cell to check</param>
-        /// <returns>True if the cell is expected to be filled, false otherwise</returns>
+        /// <inheritdoc cref="GetCell(int,int)"/>
+        /// <param name="position">The position of the cell.</param>
+        public CellType GetCell(CellPosition position)
+        {
+            return GetCell(position.X, position.Y);
+        }
+
+        /// <summary>
+        /// Checks if the cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be filled in the solution.
+        /// </summary>
+        /// <param name="x">x-coordinate of the cell to check.</param>
+        /// <param name="y">y-coordinate of the cell to check.</param>
+        /// <returns>True if the cell is expected to be filled, false otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is not within the
-        /// puzzle bounds </exception>
+        /// puzzle bounds.</exception>
         public bool IsCellFilled(int x, int y)
         {
-            return GetCell(x, y);
+            return GetCell(x, y) == CellType.FILLED;
         }
 
         /// <summary>
-        /// Checks if Cell at <paramref name="position"/> is expected to be filled in the solution.
+        /// Checks if a cell at <paramref name="position"/> is expected to be filled in the solution.
         /// </summary>
-        /// <param name="position">CellPosition to check</param>
-        /// <returns>True if the cell is expected to be filled, false otherwise</returns>
+        /// <param name="position">CellPosition to check.</param>
+        /// <returns>True if the cell is expected to be filled, false otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinates of <paramref name="position"/> are not within the
-        /// puzzle bounds </exception>
+        /// puzzle bounds.</exception>
         public bool IsCellFilled(CellPosition position)
         {
             return IsCellFilled(position.X, position.Y);
         }
 
         /// <summary>
-        /// Checks if Cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be empty in the solution.
+        /// Checks if a cell at (<paramref name="x"/>, <paramref name="y"/>) is expected to be empty in the solution.
         /// </summary>
-        /// <param name="x">x-coordinate of cell to check</param>
-        /// <param name="y">y-coordinate of cell to check</param>
-        /// <returns>True if the cell is expected to be empty, false otherwise</returns>
+        /// <param name="x">x-coordinate of the cell to check.</param>
+        /// <param name="y">y-coordinate of the cell to check.</param>
+        /// <returns><c>true</c> if the cell is expected to be empty, <c>false</c> otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is not within the
-        /// puzzle bounds </exception>
+        /// puzzle bounds.</exception>
         public bool IsCellEmpty(int x, int y)
         {
-            return !GetCell(x, y);
+            return !IsCellFilled(x, y);
         }
 
         /// <summary>
-        /// Checks if Cell at <paramref name="position"/> is expected to be empty in the solution.
+        /// Checks if a cell at <paramref name="position"/> is expected to be empty in the solution.
         /// </summary>
-        /// <param name="position">CellPosition to check</param>
-        /// <returns>True if the cell is expected to be empty, false otherwise</returns>
+        /// <param name="position">CellPosition to check.</param>
+        /// <returns><c>true</c> if the cell is expected to be empty, <c>false</c> otherwise.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinates of <paramref name="position"/> are not within the
-        /// puzzle bounds </exception>
+        /// puzzle bounds.</exception>
         public bool IsCellEmpty(CellPosition position)
         {
             return IsCellEmpty(position.X, position.Y);
@@ -343,10 +382,10 @@ namespace NonoSharp
         /// <summary>
         /// Validates the dimensions given by checking if this will construct a valid puzzle grid (i.e. dimensions are positive).
         /// </summary>
-        /// <param name="width">Width to check</param>
-        /// <param name="height">Height to check</param>
+        /// <param name="width">Width to check.</param>
+        /// <param name="height">Height to check.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="width"/> or <paramref name="height"/>
-        /// is non-positive (&lt;= 0)</exception>
+        /// is non-positive (&lt;= 0).</exception>
         private static void ValidateDimensions(int width, int height)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(width, 0, nameof(width));
@@ -356,10 +395,10 @@ namespace NonoSharp
         /// <summary>
         /// Validates whether x and y are in bounds.
         /// </summary>
-        /// <param name="x">x-coordinate to check</param>
-        /// <param name="y">y-coordinate to check</param>
+        /// <param name="x">x-coordinate to check.</param>
+        /// <param name="y">y-coordinate to check.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
-        /// greater or equal to Width or Height respectively</exception>
+        /// greater or equal to Width or Height respectively.</exception>
         private void ValidateCoordinates(int x, int y)
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(x, 0, nameof(x));
