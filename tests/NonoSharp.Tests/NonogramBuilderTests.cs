@@ -139,5 +139,57 @@ namespace NonoSharp.Tests
             CreateUnsolvablePuzzle();
             await Assert.ThrowsAsync<PuzzleNotSolvableException>(async () => await builder.GetNonogramAPIAsync());
         }
+
+        [Fact]
+        public void TestFromString()
+        {
+            Test3x3CornerPuzzle("O O\r\n   \r\nO O");
+            Test3x3CornerPuzzle("[O][ ][O]\n[ ][ ][ ]\n[O][ ][O]\n");
+        }
+
+        private void Test3x3CornerPuzzle(string puzzleString)
+        {
+            var builder = NonogramBuilder.FromString(puzzleString);
+
+            Assert.Equal(3, builder.Width);
+            Assert.Equal(3, builder.Height);
+
+            HashSet<CellPosition> solution = [
+                new(0,0), new(0, 2),
+                new(2, 0), new(2, 2)];
+            Assert.Equal(solution, builder.Solution);
+        }
+
+        [Fact]
+        public void TestIncorrectCharacter()
+        {
+            Assert.Throws<FormatException>(() => NonogramBuilder.FromString("a"));
+        }
+
+        [Fact]
+        public void TestEmptyLineStandalone()
+        {
+            var builder = NonogramBuilder.FromString("O\n \nO");
+            Assert.Equal(3, builder.Height);
+
+            builder = NonogramBuilder.FromString("O\n\nO");
+
+            // Height is expected to be 2 as the line between the \n's does not contain any cells and is therefore not considered
+            Assert.Equal(2, builder.Height);
+        }
+
+        [Fact]
+        public void TestCellBlocksParserExceptions()
+        {
+            Assert.Throws<FormatException>(() => NonogramBuilder.FromString("["));
+
+            // Throws an ArgumentOutOfRangeException since there are no cells and so width = 0
+            Assert.Throws<ArgumentOutOfRangeException>(() => NonogramBuilder.FromString("[]"));
+
+            Assert.Throws<FormatException>(() => NonogramBuilder.FromString("[[O]]"));
+            Assert.Throws<FormatException>(() => NonogramBuilder.FromString("[O]["));
+            Assert.Throws<FormatException>(() => NonogramBuilder.FromString("[O][X"));
+            Assert.Throws<FormatException>(() => NonogramBuilder.FromString("[O]X"));
+        }
     }
 }
