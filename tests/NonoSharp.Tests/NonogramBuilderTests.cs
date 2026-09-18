@@ -147,7 +147,7 @@ namespace NonoSharp.Tests
             Test3x3CornerPuzzle("[O][ ][O]\n[ ][ ][ ]\n[O][ ][O]\n");
         }
 
-        private void Test3x3CornerPuzzle(string puzzleString)
+        private static void Test3x3CornerPuzzle(string puzzleString)
         {
             var builder = NonogramBuilder.FromString(puzzleString);
 

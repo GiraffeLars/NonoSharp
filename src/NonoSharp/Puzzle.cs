@@ -1,4 +1,5 @@
 ﻿using NonoSharp.Events;
+using System.Collections.Frozen;
 using System.Text;
 
 namespace NonoSharp
@@ -20,7 +21,7 @@ namespace NonoSharp
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive</exception>
         /// <exception cref="IndexOutOfRangeException">Thrown when any of the CellPositions
         /// found in the solution is out of bounds.</exception>
-        internal Puzzle(int width, int height, HashSet<CellPosition>? solution) : this(new(width, height), solution)
+        internal Puzzle(int width, int height, IEnumerable<CellPosition>? solution) : this(new(width, height), solution)
         { }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="grid">Grid for this puzzle</param>
         /// <param name="solution">Solution of this puzzle.</param>
-        internal Puzzle(Grid grid, HashSet<CellPosition>? solution) : base(grid.Width, grid.Height, solution)
+        internal Puzzle(Grid grid, IEnumerable<CellPosition>? solution) : base(grid.Width, grid.Height, solution)
         {
             Grid = grid;
             ColumnClues = new PuzzleClues[grid.Width];
@@ -47,7 +48,7 @@ namespace NonoSharp
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are invalid dimensions.</exception>
         internal Puzzle(int width, int height, Clues[] columnClues, Clues[] rowClues,
-            HashSet<CellPosition>? solution) :
+            IEnumerable<CellPosition>? solution) :
             this(new(width, height), columnClues, rowClues, solution, 0)
         { }
 
@@ -62,7 +63,7 @@ namespace NonoSharp
             Grid.CellStateChanged += GridCellsChanged;
         }
 
-        private Puzzle(Grid grid, Clues[] columnClues, Clues[] rowClues, HashSet<CellPosition>? solution,
+        private Puzzle(Grid grid, Clues[] columnClues, Clues[] rowClues, IEnumerable<CellPosition>? solution,
             int paddingString) : base(grid.Width, grid.Height, solution)
         {
             Grid = grid;
@@ -80,9 +81,9 @@ namespace NonoSharp
         /// Sets the solution to the Puzzle and determines and sets the clues.
         /// </summary>
         /// <param name="solution">Solution for the puzzle</param>
-        internal void SetSolution(HashSet<CellPosition>? solution)
+        internal void SetSolution(IEnumerable<CellPosition>? solution)
         {
-            Solution = solution;
+            Solution = solution?.ToFrozenSet();
             InitializeClues();
         }
         /// <summary>
@@ -288,10 +289,8 @@ namespace NonoSharp
                 {
                     RowClues[pos.Y].DoCompletion(Grid);
                 }
-            }
-            
+            }   
         }
-
 
         public override string ToString()
         {
@@ -404,7 +403,7 @@ namespace NonoSharp
         /// <returns>New Puzzle instance, deep-cloned from this instance</returns>
         public object Clone()
         {
-            HashSet<CellPosition>? newSol = Solution != null ? [.. Solution] : null;
+            IEnumerable<CellPosition>? newSol = Solution != null ? [.. Solution] : null;
             return new Puzzle(
                 (Grid)Grid.Clone(),
                 ColumnClues,

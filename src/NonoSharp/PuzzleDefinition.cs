@@ -1,5 +1,6 @@
 ﻿using NonoSharp.Exceptions;
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,7 +16,7 @@ namespace NonoSharp
         public int Width { get; private set; }
         public int Height { get; private set; }
 
-        public HashSet<CellPosition>? Solution { get; protected set; }
+        public FrozenSet<CellPosition>? Solution { get; protected set; }
 
         /// <summary>
         /// Creates a puzzle definition
@@ -24,11 +25,11 @@ namespace NonoSharp
         /// <param name="height">Height of the puzzle</param>
         /// <param name="solution">The solution of the puzzle</param>
         /// <param name="title">Optional title of the puzzle</param>
-        internal PuzzleDefinition(int width, int height, HashSet<CellPosition>? solution, string? title = null)
+        internal PuzzleDefinition(int width, int height, IEnumerable<CellPosition>? solution, string? title = null)
         {
             this.Width = width;
             this.Height = height;
-            this.Solution = solution;
+            this.Solution = solution?.ToFrozenSet();
             this.Title = title;
         }
 
@@ -42,20 +43,6 @@ namespace NonoSharp
         {
             if (Solution == null) throw new InvalidOperationException("There is no solution for this puzzle!");
             return Solution.Contains(new(x, y));
-        }
-
-        internal void SetSolutionAt(int x, int y, bool filled)
-        {
-            if (Solution == null) throw new InvalidOperationException("There is no solution for this puzzle!");
-
-            CellPosition position = new(x, y);
-            if (filled)
-            {
-                Solution.Add(position);
-            } else
-            {
-                Solution.Remove(position);
-            }
         }
 
         /// <summary>
