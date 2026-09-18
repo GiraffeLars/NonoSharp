@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using NonoSharp.Exceptions;
@@ -29,6 +30,15 @@ namespace NonoSharp
             set { puzzleDefinition.Title = value; }
         }
 
+        /// <summary>
+        /// The solution that is being constructed with the builder. Cells contained in Solution
+        /// are the cells that will have to be filled to complete the final puzzle.
+        /// </summary>
+        public HashSet<CellPosition> Solution
+        {
+            get { return [.. puzzleDefinition.Solution!]; }
+        }
+
         private bool isSolvable = false;
         private bool isSolvableDirty = true;
 
@@ -55,6 +65,85 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Creates a <c>NonogramBuilder</c> instance constructed from <paramref name="puzzleString"/>.
+        /// </summary>
+        /// <remarks>
+        /// Expected formats for <paramref name="puzzleString"/> are of the following forms:
+        /// "OO O", "[O][ ][O]", where 'O' is a filled cell in the solution, and ' ' an empty one. 
+        /// 'X' is also accepted for an empty cell in the solution.
+        /// </remarks>
+        /// <example>
+        /// The following code creates a 3x3 <c>NonogramBuilder</c> with all four corners filled in the solution.
+        /// <code>
+        /// NonogramBuilder builder = NonogramBuilder
+        ///     .FromString("O O\n   \nO O").
+        /// </code>
+        /// Alternatively, the same can be achieved as follows:
+        /// <code>
+        /// NonogramBuilder builder = NonogramBuilder
+        ///     .FromString("[O][ ][O]\n[ ][ ][ ]\n[O][ ][O]").
+        /// </code>
+        /// </example>
+        /// <param name="puzzleString">The string to convert to an instance.</param>
+        /// <param name="title">Optional title to give the puzzle.</param>
+        /// <returns><c>NonogramBuilder</c> instance with dimensions and solution constructed from 
+        /// <paramref name="puzzleString"/>.</returns>
+        /// <exception cref="FormatException">Thrown when parsing fails. See the error message for details.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the width or height parsed from 
+        /// <paramref name="puzzleString"/> is non-positive.</exception>
+        public static NonogramBuilder FromString(string puzzleString, string? title = null)
+        {
+            // Ensures we can split no matter the line break type 
+            puzzleString = puzzleString.ReplaceLineEndings();
+            string[] rows = puzzleString.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+
+            int leftBrackets = rows[0].Count('[');
+            int rightBrackets = rows[0].Count(']');
+            if (leftBrackets != rightBrackets)
+            {
+                throw new FormatException($"Mismatched '[' and ']' characters in line 0! " +
+                    $"Found {leftBrackets} '[' characters but {rightBrackets} ']'!");
+            }
+
+            int width = rows[0].Length - leftBrackets - rightBrackets;
+            int height = rows.Length;
+            NonogramBuilder builder = new(width, height, title);
+
+
+            CellRowStringParser parser;
+            for (int y = 0; y < rows.Length; y++)
+            {
+                if (rows[y].Length != rows[0].Length) throw new FormatException($"The width of line {y} " +
+                    $"does not match the width of the preceding lines!");
+
+                if (leftBrackets > 0)
+                {
+                    parser = new CellBlocksParser(rows[y], y);
+                } else
+                {
+                    parser = new StandaloneCellsParser(rows[y], y);
+                }
+
+                ParseRowString(y, parser, builder);
+            }
+            return builder;
+        }
+
+        private static void ParseRowString(int rowNum, CellRowStringParser parser, NonogramBuilder builder)
+        {
+            int x = 0;
+
+            foreach (CellType cellType in parser.ParseCells())
+            {
+                if (cellType == CellType.FILLED)
+                {
+                    builder.FillCell(x, rowNum);
+                }
+                x++;
+            }   
+        }
+
+        /// <summary>
         /// Converts this puzzle to a <c>Puzzle</c> instance.
         /// </summary>
         /// <returns>Puzzle with solution and dimensions corresponding to this builder.</returns>
@@ -67,7 +156,7 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
-        /// <returns>True if it is uniquely solvable, false otherwise.</returns>
+        /// <returns><c>true</c> if it is uniquely solvable, <c>false</c> otherwise.</returns>
         public bool IsSolvable()
         {
             try
@@ -179,8 +268,8 @@ namespace NonoSharp
         /// when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
-        /// See the inner exception for more details</exception>
-        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable</exception>
+        /// See the inner exception for more details.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
         public async Task SaveAsFileAsync(string path)
         {
             if (!await IsSolvableAsync())
@@ -406,6 +495,154 @@ namespace NonoSharp
 
             ArgumentOutOfRangeException.ThrowIfLessThan(y, 0, nameof(y));
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(y, Height, nameof(y));
+        }
+    }
+
+    internal abstract class CellRowStringParser(string row, int lineNumber)
+    {
+        /// <summary>
+        /// The row containing the cells in string format
+        /// </summary>
+        protected readonly string row = row;
+
+        /// <summary>
+        /// The line number this parser is parsing
+        /// </summary>
+        private readonly int lineNumber = lineNumber;
+
+        /// <summary>
+        /// Parses the cells.
+        /// </summary>
+        /// <returns>IEnumerator of parsed cells</returns>
+        public abstract IEnumerable<CellType> ParseCells();
+
+        /// <summary>
+        /// Tries to parse <paramref name="cell"/> into a <c>CellType</c>.
+        /// </summary>
+        /// <param name="cell">cell character to parse</param>
+        /// <param name="result">Will be filled if <paramref name="cell"/> is either ' ', 'X', or 'O' and <c>null</c> otherwise.</param>
+        /// <returns></returns>
+        public static bool TryParseCell(char cell, out CellType? result)
+        {
+            switch (cell)
+            {
+                case ' ':
+                    result = CellType.BLANK;
+                    return true;
+                case 'X':
+                    result = CellType.CROSS;
+                    return true;
+                case 'O':
+                    result = CellType.FILLED;
+                    return true;
+                default:
+                    result = null;
+                    return false;
+            }
+        }
+
+        /// <inheritdoc cref="ParseCell(int, char)"/>
+        protected CellType ParseCell(char cell)
+        {
+            if (TryParseCell(cell, out var result) && result.HasValue)
+            {
+                return result.Value;
+            }
+            throw InvalidCharacterError(null, cell, ' ', 'X', 'O');
+        }
+
+        /// <summary>
+        /// Parses a cell such as ' ' or 'O'.
+        /// </summary>
+        /// <param name="position">The position in the line this character is at.</param>
+        /// <param name="cell">Cell character to parse</param>
+        /// <returns>CellType of parsed cell</returns>
+        /// <exception cref="FormatException">Invalid cell character</exception>
+        protected CellType ParseCell(int position, char cell)
+        {
+            if (TryParseCell(cell, out var result) && result.HasValue)
+            {
+                return result.Value;
+            }
+            throw InvalidCharacterError(position, cell, ' ', 'X', 'O');
+        }
+
+        protected FormatException Error(int? position, string message)
+        {
+            if (position.HasValue)
+            {
+                throw new FormatException($"Failed to parse line {lineNumber} at position {position.Value}: {message}");
+            } else
+            {
+                throw new FormatException($"Failed to parse line {lineNumber}: {message}");
+            }
+        }
+
+        protected FormatException InvalidCharacterError(int? position, char actual, params char[] expected)
+        {
+            return Error(position, $"Invalid character ('{actual}')! Expected one of the following: " +
+                $"{String.Join(", ", expected.Select(c => $"'{c}'"))}.");
+        }
+
+        protected FormatException InvalidCharacterError(int? position, char actual, char expected)
+        {
+            return Error(position, $"Invalid character ('{actual}')! Expected '{expected}'.");
+        }
+    }
+
+    /// <summary>
+    /// Parses cell rows in the forms such as "OO OX "
+    /// </summary>
+    internal class StandaloneCellsParser(string row, int lineNumber) : CellRowStringParser(row, lineNumber)
+    {
+        /// <inheritdoc/>
+        /// <exception cref="FormatException">Thrown when encountering an invalid character.</exception>
+        public override IEnumerable<CellType> ParseCells()
+        {
+            for (int i = 0; i < row.Length; i++)
+            {
+                yield return ParseCell(row[i]);
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Parses cell rows in forms such as "[O][O][ ][O][X][ ]"
+    /// </summary>
+    internal class CellBlocksParser(string row, int lineNumber) : CellRowStringParser(row, lineNumber)
+    {
+        /// <inheritdoc/>
+        /// <exception cref="FormatException">Thrown when a cell block is not of forms such as "[O]"</exception>
+        public override IEnumerable<CellType> ParseCells()
+        {
+            for (int i = 0; i < row.Length; i += 3)
+            {
+                CellType parsedAs;
+                if (row[i] != '[')
+                {
+                    throw InvalidCharacterError(i, row[i], '[');
+                }
+
+                if (i + 1 >= row.Length)
+                {
+                    throw Error(null, $"Incomplete line! Line ended with {row[i]} but more characters were expected.");
+                }
+
+                parsedAs = ParseCell(row[i + 1]);
+
+                if (i + 2 >= row.Length)
+                {
+                    throw Error(null, $"Incomplete line! Line ended with {row[i + 1]} but more characters were expected.");
+                }
+
+                if (row[i + 2] != ']')
+                {
+                    throw InvalidCharacterError(i + 2, row[i + 2], ']');
+                }
+
+                yield return parsedAs;
+            }
         }
     }
 }
