@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using NonoSharp.Exceptions;
 
@@ -13,7 +14,7 @@ namespace NonoSharp
     public class NonogramBuilder
     {
         /// <summary>
-        /// Height of the grid that is being created.
+        /// Width of the grid that is being created.
         /// </summary>
         public int Width { get; private set; }
 
@@ -25,26 +26,20 @@ namespace NonoSharp
         /// <summary>
         /// Title of the puzzle. A null value means this puzzle has no title.
         /// </summary>
-        public string? Title {
-            get { return puzzleDefinition.Title; }
-            set { puzzleDefinition.Title = value; }
-        }
+        public string? Title { get; set; }
 
         /// <summary>
         /// The solution that is being constructed with the builder. Cells contained in Solution
         /// are the cells that will have to be filled to complete the final puzzle.
         /// </summary>
-        public HashSet<CellPosition> Solution
-        {
-            get { return [.. puzzleDefinition.Solution!]; }
-        }
+        public IReadOnlySet<CellPosition> Solution => _readOnlySolution;
+        private readonly HashSet<CellPosition> _solution;
+        private readonly ReadOnlySet<CellPosition> _readOnlySolution;
 
         private bool isSolvable = false;
         private bool isSolvableDirty = true;
 
         private readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
-
-        private readonly PuzzleDefinition puzzleDefinition;
 
         /// <summary>
         /// Creates a new PuzzleBuilder instance with a width of <paramref name="width"/> and a height of
@@ -60,8 +55,9 @@ namespace NonoSharp
             ValidateDimensions(width, height);
             Width = width;
             Height = height;
-
-            puzzleDefinition = new PuzzleDefinition(width, height, [], title);
+            _solution = [];
+            _readOnlySolution = new(_solution);
+            Title = title;
         }
 
         /// <summary>
@@ -144,13 +140,21 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Converts this instance into a <c>PuzzleDefinition</c>.
+        /// </summary>
+        /// <returns><c>PuzzleDefinition</c> of this instance.</returns>
+        private PuzzleDefinition ToPuzzleDefinition()
+        {
+            return new(Width, Height, _solution, Title);
+        }
+
+        /// <summary>
         /// Converts this puzzle to a <c>Puzzle</c> instance.
         /// </summary>
         /// <returns>Puzzle with solution and dimensions corresponding to this builder.</returns>
-        private Puzzle ConvertToPuzzle()
+        private Puzzle ToPuzzle()
         {
-            Puzzle p = new(puzzleDefinition);
-            return p;
+            return new(ToPuzzleDefinition());
         }
 
         /// <summary>
@@ -164,7 +168,7 @@ namespace NonoSharp
                 _solvableSemaphore.Wait();
                 if (!isSolvableDirty) return isSolvable;
 
-                bool solvable = Solver.IsSolvable(ConvertToPuzzle());
+                bool solvable = Solver.IsSolvable(ToPuzzle());
 
                 UpdateSolvable(solvable);
                 
@@ -186,7 +190,7 @@ namespace NonoSharp
             try
             {
                 await _solvableSemaphore.WaitAsync();
-                bool solvable = await Task.Run(() => Solver.IsSolvable(ConvertToPuzzle()));
+                bool solvable = await Task.Run(() => Solver.IsSolvable(ToPuzzle()));
 
                 UpdateSolvable(solvable);
                 return solvable;
@@ -220,7 +224,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
 
-            return new(ConvertToPuzzle());
+            return new(ToPuzzle());
         }
 
 
@@ -235,7 +239,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("This puzzle is not uniquely solvable!");
             }
 
-            return new(ConvertToPuzzle());                                                                             
+            return new(ToPuzzle());                                                                             
         }
 
         /// <summary>
@@ -256,7 +260,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
 
-            puzzleDefinition.SavePuzzle(path);
+            ToPuzzleDefinition().SavePuzzle(path);
         }
 
 
@@ -277,7 +281,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
             
-            await puzzleDefinition.SavePuzzleAsync(path);
+            await ToPuzzleDefinition().SavePuzzleAsync(path);
         }
 
         /// <summary>
@@ -286,8 +290,6 @@ namespace NonoSharp
         /// </summary>
         /// <param name="newWidth">New width for the puzzle</param>
         /// <param name="newHeight">New height for the puzzle</param>
-        /// <exception cref="OverflowException">When <paramref name="newWidth"/> * <paramref name="newHeight"/>
-        /// causes overflow</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newWidth"/> or <paramref name="newHeight"/> are
         /// less than their respective old value</exception>
         public void SetDimensions(int newWidth, int newHeight)
@@ -297,7 +299,35 @@ namespace NonoSharp
                 return;
             }
 
-            puzzleDefinition.SetDimensions(newWidth, newHeight);
+            ArgumentOutOfRangeException.ThrowIfLessThan(newWidth, Width, nameof(newWidth));
+            ArgumentOutOfRangeException.ThrowIfLessThan(newHeight, Height, nameof(newHeight));
+
+            Width = newWidth;
+            Height = newHeight;
+        }
+
+        private void SetSolutionAt(int x, int y, bool filled)
+        {
+            if (Solution == null) throw new InvalidOperationException("There is no solution for this puzzle!");
+
+            try
+            {
+                _solvableSemaphore.Wait();
+
+                CellPosition position = new(x, y);
+                if (filled)
+                {
+                    _solution.Add(position);
+                }
+                else
+                {
+                    _solution.Remove(position);
+                }
+                isSolvableDirty = true;
+            } finally
+            {
+                _solvableSemaphore.Release();
+            }
         }
 
         /// <summary>
@@ -311,9 +341,7 @@ namespace NonoSharp
         private void SetCell(int x, int y, bool newValue)
         {
             ValidateCoordinates(x, y);
-
-            isSolvableDirty = true;
-            puzzleDefinition.SetSolutionAt(x, y, newValue);
+            SetSolutionAt(x, y, newValue);
         }
 
         /// <summary>
@@ -405,7 +433,7 @@ namespace NonoSharp
         public CellType GetCell(int x, int y)
         {
             ValidateCoordinates(x, y);
-            return puzzleDefinition.GetSolutionAt(x, y) ? CellType.FILLED : CellType.BLANK;
+            return _solution.Contains(new(x, y)) ? CellType.FILLED : CellType.BLANK;
         }
 
         /// <summary>

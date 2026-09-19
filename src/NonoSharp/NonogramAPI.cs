@@ -1,5 +1,6 @@
 ﻿using NonoSharp.Events;
 using NonoSharp.Exceptions;
+using System.Collections.Frozen;
 
 namespace NonoSharp
 {
@@ -7,7 +8,7 @@ namespace NonoSharp
     /// Class for the Nonogram API. Can be initialised with static methods such as 
     /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string, NonogramOptions)"/>, or
     /// by using the constructor with your own solution, 
-    /// <see cref="NonogramAPI(int, int, HashSet{CellPosition}, NonogramOptions)"/>.
+    /// <see cref="NonogramAPI(int, int, ISet{CellPosition}, NonogramOptions)"/>.
     /// </summary>
     public class NonogramAPI
     {
@@ -73,13 +74,7 @@ namespace NonoSharp
         /// The solution for the current puzzle, i.e. the cells (and only those cells) that must be filled
         /// for the puzzle to be solved.
         /// </summary>
-        public HashSet<CellPosition> Solution { 
-            get {
-                // CellPositions coordinates are readonly, we can just make a new hashset and return that,
-                // avoids users modifying the solution
-                return [.. puzzle.Solution!]; 
-            } 
-        }
+        public FrozenSet<CellPosition> Solution { get { return puzzle.Solution!; } }
 
         /// <summary>
         /// The <see cref="NonogramOptions"/> for this instance.
@@ -134,7 +129,7 @@ namespace NonoSharp
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
         /// <exception cref="IndexOutOfRangeException">Thrown when at least one of the <see cref="CellPosition"/>s found in
         /// <paramref name="solution"/> is out of the bounds set by <paramref name="width"/> and <paramref name="height"/>.</exception>
-        public NonogramAPI(int width, int height, HashSet<CellPosition> solution,
+        public NonogramAPI(int width, int height, ISet<CellPosition> solution,
             NonogramOptions? options = null) : this(new(width, height, solution), options)
         { }
 
