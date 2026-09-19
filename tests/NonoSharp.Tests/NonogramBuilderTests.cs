@@ -70,6 +70,7 @@ namespace NonoSharp.Tests
         {
             builder.FillCell(0, 0);
             Assert.Equal(CellType.FILLED, builder.GetCell(0, 0));
+            Assert.True(builder.Solution.Contains(new(0, 0)));
         }
 
         [Fact]
@@ -79,6 +80,7 @@ namespace NonoSharp.Tests
             builder.FillCell(0, 0);
             builder.EmptyCell(0, 0);
             Assert.Equal(CellType.BLANK, builder.GetCell(0, 0));
+            Assert.False(builder.Solution.Contains(new(0, 0)));
         }
 
         [Fact]

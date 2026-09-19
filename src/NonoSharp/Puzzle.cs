@@ -403,7 +403,7 @@ namespace NonoSharp
         /// <returns>New Puzzle instance, deep-cloned from this instance</returns>
         public object Clone()
         {
-            IEnumerable<CellPosition>? newSol = Solution != null ? [.. Solution] : null;
+            FrozenSet<CellPosition>? newSol = Solution != null ? [.. Solution] : null;
             return new Puzzle(
                 (Grid)Grid.Clone(),
                 ColumnClues,

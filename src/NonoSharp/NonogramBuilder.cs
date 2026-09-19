@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using NonoSharp.Exceptions;
 
@@ -31,8 +32,9 @@ namespace NonoSharp
         /// The solution that is being constructed with the builder. Cells contained in Solution
         /// are the cells that will have to be filled to complete the final puzzle.
         /// </summary>
-        public IReadOnlySet<CellPosition> Solution { get { return _solution; } }
+        public IReadOnlySet<CellPosition> Solution => _readOnlySolution;
         private readonly HashSet<CellPosition> _solution;
+        private readonly ReadOnlySet<CellPosition> _readOnlySolution;
 
         private bool isSolvable = false;
         private bool isSolvableDirty = true;
@@ -54,6 +56,7 @@ namespace NonoSharp
             Width = width;
             Height = height;
             _solution = [];
+            _readOnlySolution = new(_solution);
             Title = title;
         }
 
@@ -142,7 +145,7 @@ namespace NonoSharp
         /// <returns><c>PuzzleDefinition</c> of this instance.</returns>
         private PuzzleDefinition ToPuzzleDefinition()
         {
-            return new(Width, Height, Solution, Title);
+            return new(Width, Height, _solution, Title);
         }
 
         /// <summary>
@@ -298,7 +301,11 @@ namespace NonoSharp
 
             ArgumentOutOfRangeException.ThrowIfLessThan(newWidth, Width, nameof(newWidth));
             ArgumentOutOfRangeException.ThrowIfLessThan(newHeight, Height, nameof(newHeight));
+
+            Width = newWidth;
+            Height = newHeight;
         }
+
         private void SetSolutionAt(int x, int y, bool filled)
         {
             if (Solution == null) throw new InvalidOperationException("There is no solution for this puzzle!");
