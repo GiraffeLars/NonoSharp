@@ -12,9 +12,9 @@ namespace NonoSharp.Events
         /// <summary>
         /// List of the cells that were changed
         /// </summary>
-        public List<CellPosition> Cells { get; internal init; }
+        public IReadOnlyList<CellPosition> Cells { get; internal init; }
 
-        internal CellStateEventArgs(List<CellPosition> cells)
+        internal CellStateEventArgs(IReadOnlyList<CellPosition> cells)
         {
             this.Cells = cells;
         }

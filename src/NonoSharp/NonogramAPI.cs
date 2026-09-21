@@ -13,39 +13,40 @@ namespace NonoSharp
     public class NonogramAPI
     {
         internal Puzzle puzzle;
+        internal HistoryManager History { get; }
 
         /// <summary>
         /// The width of the game grid.
         /// </summary>
-        public int Width { get { return puzzle.Width; } }
+        public int Width => puzzle.Width;
 
         /// <summary>
         /// The height of the game grid.
         /// </summary>
-        public int Height { get { return puzzle.Height; } }
+        public int Height => puzzle.Height;
 
         /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the columns of the grid.
         /// In Nonogram puzzles these are usually shown at the top of the grid.
         /// </summary>
-        public Clues[] ColumnClues { get { return puzzle.ColumnClues; } }
+        public Clues[] ColumnClues => puzzle.ColumnClues;
 
 
         /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the rows of the grid.
         /// In Nonogram puzzles these are usually shown at the left side of the grid.
         /// </summary>
-        public Clues[] RowClues { get { return puzzle.RowClues; } }
+        public Clues[] RowClues => puzzle.RowClues;
 
         /// <summary>
         /// A boolean indicating whether an undo via <see cref="Undo"/> is possible.
         /// </summary>
-        public bool CanUndo { get { return undoStack.Count != 0; } }
+        public bool CanUndo => History.CanUndo;
 
         /// <summary>
         /// A boolean indicating whether a redo via <see cref="Redo"/> is possible.
         /// </summary>
-        public bool CanRedo { get { return redoStack.Count != 0; } }
+        public bool CanRedo => History.CanRedo;
 
         /// <summary>
         /// The solution for the current puzzle, i.e. the cells (and only those cells) that must be filled
@@ -57,9 +58,6 @@ namespace NonoSharp
         /// The <see cref="NonogramOptions"/> for this instance.
         /// </summary>
         public NonogramOptions Options { get; set; } = new NonogramOptions();
-
-        private readonly LinkedList<ICommand> undoStack;
-        private readonly LinkedList<ICommand> redoStack;
 
         // Events
         /// <summary>
@@ -80,9 +78,8 @@ namespace NonoSharp
         internal NonogramAPI(Puzzle puzzle, NonogramOptions? options = null)
         {
             this.puzzle = puzzle;
-            undoStack = new LinkedList<ICommand>();
-            redoStack = new LinkedList<ICommand>();
             Options = options ?? Options;
+            History = new();
 
             // The puzzle can switch between solved and unsolved when a cell changes state.
             // Thus, we can handle sending the puzzle solved event after a cell changes state.
@@ -140,8 +137,7 @@ namespace NonoSharp
 
             Puzzle puzzle = new(width, height, solution);
             this.puzzle = puzzle;
-            undoStack = [];
-            redoStack = [];
+            History = new();
             Options = options ?? Options;
             CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
         }
@@ -305,7 +301,7 @@ namespace NonoSharp
             if (!Options.EnableAutoCross || !mightAutoCross)
             {
                 // Only push this command and send event if auto-cross is not possible and return
-                PushCommand(initialCommand);
+                History.PushCommand(initialCommand);
                 OnCellStateChanged(new([.. initialCommand.GetChanges()]));
                 return;
             }
@@ -319,12 +315,12 @@ namespace NonoSharp
 
                 // Push the move and the auto-crosses to the stack together for one fluid undo for the player
                 CompositeCommand combinedCommand = CompositeCommand.Combine(initialCommand, autoCrossCommand);
-                PushCommand(combinedCommand);
+                History.PushCommand(combinedCommand);
                 OnCellStateChanged(new([.. combinedCommand.GetChanges()]));
             } else
             {
                 // Don't execute auto cross command and only push the initial command since the auto cross command is empty
-                PushCommand(initialCommand);
+                History.PushCommand(initialCommand);
                 OnCellStateChanged(new([.. initialCommand.GetChanges()]));
             }
         }
@@ -352,16 +348,6 @@ namespace NonoSharp
                 return invertedType;
             }
             return typeCellChangedTo;
-        }
-
-        /// <summary>
-        /// Pushes <paramref name="command"/> onto <c>undoStack</c> and clears <c>redoStack</c>.
-        /// </summary>
-        /// <param name="command">Command to push</param>
-        private void PushCommand(ICommand command)
-        {
-            undoStack.AddLast(command);
-            redoStack.Clear();
         }
 
         /// <summary>
@@ -481,16 +467,13 @@ namespace NonoSharp
         /// <summary>
         /// Undoes the last move (if any). Silently returns if there is no command to undo.
         /// </summary>
-        public void Undo()
+        public void Undo() 
         {
-            if (!CanUndo) return;
-
-            ICommand c = undoStack.Last!.Value; // We know for sure that this isn't null as non-empty
-            undoStack.RemoveLast();
-            c.Undo();
-            redoStack.AddLast(c);
-
-            OnCellStateChanged(new([.. c.GetChanges()]));
+            var changedCells = History.Undo();
+            if (changedCells != null)
+            {
+                OnCellStateChanged(new([.. changedCells]));
+            }
         }
 
         /// <summary>
@@ -498,14 +481,11 @@ namespace NonoSharp
         /// </summary>
         public void Redo()
         {
-            if (!CanRedo) return;
-
-            ICommand c = redoStack.Last!.Value;
-            redoStack.RemoveLast();
-            c.Execute();
-            undoStack.AddLast(c);
-
-            OnCellStateChanged(new([.. c.GetChanges()]));
+            var changedCells = History.Redo();
+            if (changedCells != null)
+            {
+                OnCellStateChanged(new(changedCells));
+            }
         }
 
         /// <summary>
