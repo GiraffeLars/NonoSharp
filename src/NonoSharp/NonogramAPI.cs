@@ -513,8 +513,8 @@ namespace NonoSharp
         /// <param name="x">x-coordinate of cell to check.</param>
         /// <param name="y">y-coordinate of cell to check.</param>
         /// <returns><c>true</c> if the cell is empty, <c>false</c> otherwise.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
-        /// of bounds of the grid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the cell to check is out
+        /// of the grid bounds.</exception>
         public bool IsCellEmpty(int x, int y)
         {
             return GetCell(x, y) == CellType.BLANK;
@@ -536,8 +536,8 @@ namespace NonoSharp
         /// <param name="x">x-coordinate of cell to check.</param>
         /// <param name="y">y-coordinate of cell to check.</param>
         /// <returns><c>true</c> if the cell is filled, <c>false</c> otherwise.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
-        /// of bounds of the grid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the cell to check is out
+        /// of the grid bounds.</exception>
         public bool IsCellFilled(int x, int y)
         {
             return GetCell(x, y) == CellType.FILLED;
@@ -560,8 +560,8 @@ namespace NonoSharp
         /// <param name="x">x-coordinate of cell to check.</param>
         /// <param name="y">y-coordinate of cell to check.</param>
         /// <returns><c>true</c> if the cell is crossed, <c>false</c> otherwise.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="x"/> or <paramref name="y"/> is out
-        /// of bounds of the grid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the cell to check is out
+        /// of the grid bounds.</exception>
         public bool IsCellCrossed(int x, int y)
         {
             return GetCell(x, y) == CellType.CROSS;
@@ -606,6 +606,30 @@ namespace NonoSharp
         public bool IsPuzzleSolved()
         {
             return puzzle.IsSolved();
+        }
+
+        /// <summary>
+        /// Determines whether the cell at (<paramref name="x"/>, <paramref name="y"/>) is correctly placed
+        /// according to the solution.
+        /// </summary>
+        /// <param name="x">x-coordinate of the cell to check.</param>
+        /// <param name="y">y-coordinate of the cell to check.</param>
+        /// <inheritdoc cref="IsCellCorrect(CellPosition)"/>
+        public bool IsCellCorrect(int x, int y)
+        {
+            return IsCellCorrect(new(x, y));
+        }
+
+        /// <summary>
+        /// Determines whether the cell at <paramref name="position"/> is correctly placed according to the solution.
+        /// </summary>
+        /// <param name="position">The position to check.</param>
+        /// <returns><c>true</c> if the cell is placed correctly, <c>false</c> otherwise.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the cell to check is out
+        /// of the grid bounds.</exception>
+        public bool IsCellCorrect(CellPosition position)
+        {
+            return IsCellFilled(position) == Solution.Contains(position);
         }
 
         /// <summary>
