@@ -171,6 +171,7 @@ namespace NonoSharp
             undoStack = [];
             redoStack = [];
             Options = options ?? Options;
+            CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
         }
 
         /// <summary>

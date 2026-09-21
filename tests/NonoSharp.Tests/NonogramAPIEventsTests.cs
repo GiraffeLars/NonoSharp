@@ -59,6 +59,18 @@ namespace NonoSharp.Tests
             Assert.Same(api, sender);
         }
 
+        [Fact]
+        public void TestPuzzleSolvedEventFromClues()
+        {
+            Clues[] a = [Clues.FromString("1")];
+            Clues[] b = [Clues.FromString("1")];
+
+            NonogramAPI api = new(1, 1, a, b);
+            bool eventFired = false;
+            api.PuzzleSolved += (s, e) => { eventFired = true; };
+            api.FillCell(0, 0);
+            Assert.True(eventFired);
+        }
 
         [Fact]
         public void TestCorrectionEventCrossToFill()
