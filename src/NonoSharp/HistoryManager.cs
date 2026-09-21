@@ -8,10 +8,28 @@ namespace NonoSharp
     {
         private readonly LinkedList<ICommand> undoStack;
         private readonly LinkedList<ICommand> redoStack;
+        private readonly Lock historyLock = new();
         
-        public bool CanUndo { get { return undoStack.Count != 0; } }
+        public bool CanUndo 
+        { 
+            get {
+                historyLock.Enter();
+                bool allowed = undoStack.Count != 0; 
+                historyLock.Exit();
+                return allowed;
+            } 
+        }
 
-        public bool CanRedo { get { return redoStack.Count != 0; } }
+        public bool CanRedo
+        {
+            get
+            {
+                historyLock.Enter();
+                bool allowed = redoStack.Count != 0;
+                historyLock.Exit();
+                return allowed;
+            }
+        }
 
         internal HistoryManager()
         {
@@ -25,8 +43,15 @@ namespace NonoSharp
         /// <param name="command">Command to push</param>
         public void PushCommand(ICommand command)
         {
-            undoStack.AddLast(command);
-            redoStack.Clear();
+            historyLock.Enter();
+            try
+            {
+                undoStack.AddLast(command);
+                redoStack.Clear();
+            } finally
+            {
+                historyLock.Exit();
+            }
         }
 
         /// <summary>
@@ -35,13 +60,18 @@ namespace NonoSharp
         /// <returns><c>IEnumerable</c> of changed cell positions if a move was undone, <c>null</c> otherwise.</returns>
         public IReadOnlyList<CellPosition>? Undo()
         {
-            if (!CanUndo) return null;
+            historyLock.Enter();
 
-            ICommand c = undoStack.Last!.Value; // We know for sure that this isn't null as non-empty
-            undoStack.RemoveLast();
-            c.Undo();
-            redoStack.AddLast(c);
-            return [.. c.GetChanges()];
+            try
+            {
+                if (!CanUndo) return null;
+
+                ICommand c = undoStack.Last!.Value; // We know for sure that this isn't null as non-empty
+                undoStack.RemoveLast();
+                c.Undo();
+                redoStack.AddLast(c);
+                return [.. c.GetChanges()];
+            } finally { historyLock.Exit(); }
         }
 
         /// <summary>
@@ -50,13 +80,17 @@ namespace NonoSharp
         /// <returns><c>IEnumerable</c> of changed cell positions if a move was redone, <c>null</c> otherwise.</returns>
         public IReadOnlyList<CellPosition>? Redo()
         {
-            if (!CanRedo) return null;
+            historyLock.Enter();
+            try
+            {
+                if (!CanRedo) return null;
 
-            ICommand c = redoStack.Last!.Value;
-            redoStack.RemoveLast();
-            c.Execute();
-            undoStack.AddLast(c);
-            return [.. c.GetChanges()];
+                ICommand c = redoStack.Last!.Value;
+                redoStack.RemoveLast();
+                c.Execute();
+                undoStack.AddLast(c);
+                return [.. c.GetChanges()];
+            } finally { historyLock.Exit(); }
         }
     }
 }
