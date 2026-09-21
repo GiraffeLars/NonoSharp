@@ -8,13 +8,14 @@ namespace NonoSharp
     /// </summary>
     public class Clues : ICloneable, IEnumerable<Clue>
     {
-        /// TODO: Switch to private/private protected if necessary when removing Hints
-        internal List<Clue> clues;
+        /// <summary> The list containing the <c>Clue</c> instances </summary>
+        /// <exclude/>
+        protected readonly List<Clue> clues;
 
         /// <summary>
         /// The total amount of filled cells these clues concern.
         /// </summary>
-        public int TotalCellsInClues { get; private protected set; } // TODO: Set to private set when removing Hints
+        public int TotalCellsInClues { get; private protected set; }
 
         /// <summary>
         /// Whether this line of Clues is fully completed (i.e. all clues are completed).
