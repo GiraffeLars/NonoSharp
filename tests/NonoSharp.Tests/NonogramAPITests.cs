@@ -220,6 +220,10 @@ namespace NonoSharp.Tests
 
             Assert.True(api.IsCellCorrect(cell.X, cell.Y));
             Assert.True(api.IsCellCorrect(cell));
+
+            api.CrossCell(cell);
+            Assert.False(api.IsCellCorrect(cell.X, cell.Y));
+            Assert.False(api.IsCellCorrect(cell));
         }
     }
 }
