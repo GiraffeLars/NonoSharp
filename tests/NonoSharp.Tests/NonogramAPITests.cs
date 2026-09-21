@@ -205,5 +205,21 @@ namespace NonoSharp.Tests
 
             Assert.Equal(expected, nonogram.Solution);
         }
+
+        [Fact]
+        public void TestIsCellCorrect()
+        {
+            CellPosition cell = new(0, 0);
+            HashSet<CellPosition> solution = [cell];
+            var api = new NonogramAPI(1, 1, solution);
+
+            Assert.False(api.IsCellCorrect(cell.X, cell.Y));
+            Assert.False(api.IsCellCorrect(cell));
+
+            api.FillCell(cell);
+
+            Assert.True(api.IsCellCorrect(cell.X, cell.Y));
+            Assert.True(api.IsCellCorrect(cell));
+        }
     }
 }
