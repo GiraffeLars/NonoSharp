@@ -33,7 +33,7 @@ namespace NonoSharp
         /// Undoes the last move (if any).
         /// </summary>
         /// <returns><c>IEnumerable</c> of changed cell positions if a move was undone, <c>null</c> otherwise.</returns>
-        public IEnumerable<CellPosition>? Undo()
+        public IReadOnlyList<CellPosition>? Undo()
         {
             if (!CanUndo) return null;
 
@@ -41,14 +41,14 @@ namespace NonoSharp
             undoStack.RemoveLast();
             c.Undo();
             redoStack.AddLast(c);
-            return c.GetChanges();
+            return [.. c.GetChanges()];
         }
 
         /// <summary>
         /// Redoes the last move (if any).
         /// </summary>
         /// <returns><c>IEnumerable</c> of changed cell positions if a move was redone, <c>null</c> otherwise.</returns>
-        public IEnumerable<CellPosition>? Redo()
+        public IReadOnlyList<CellPosition>? Redo()
         {
             if (!CanRedo) return null;
 
@@ -56,7 +56,7 @@ namespace NonoSharp
             redoStack.RemoveLast();
             c.Execute();
             undoStack.AddLast(c);
-            return c.GetChanges();
+            return [.. c.GetChanges()];
         }
     }
 }

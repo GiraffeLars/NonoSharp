@@ -468,7 +468,7 @@ namespace NonoSharp
         /// </summary>
         public void Undo() 
         {
-            IEnumerable<CellPosition>? changedCells = History.Undo();
+            var changedCells = History.Undo();
             if (changedCells != null)
             {
                 OnCellStateChanged(new([.. changedCells]));
@@ -480,10 +480,10 @@ namespace NonoSharp
         /// </summary>
         public void Redo()
         {
-            IEnumerable<CellPosition>? changedCells = History.Redo();
+            var changedCells = History.Redo();
             if (changedCells != null)
             {
-                OnCellStateChanged(new([.. changedCells]));
+                OnCellStateChanged(new(changedCells));
             }
         }
 
