@@ -69,7 +69,7 @@ namespace NonoSharp.Tests
         public void TestFillCell()
         {
             builder.FillCell(0, 0);
-            Assert.Equal(CellType.FILLED, builder.GetCell(0, 0));
+            Assert.Equal(CellType.Filled, builder.GetCell(0, 0));
             Assert.True(builder.Solution.Contains(new(0, 0)));
         }
 
@@ -79,7 +79,7 @@ namespace NonoSharp.Tests
             // Assume fill cell works as intended, is also tested
             builder.FillCell(0, 0);
             builder.EmptyCell(0, 0);
-            Assert.Equal(CellType.BLANK, builder.GetCell(0, 0));
+            Assert.Equal(CellType.Empty, builder.GetCell(0, 0));
             Assert.False(builder.Solution.Contains(new(0, 0)));
         }
 

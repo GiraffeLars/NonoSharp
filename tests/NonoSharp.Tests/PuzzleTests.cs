@@ -23,7 +23,7 @@
             for (int i = 0; i < puzzle.Width; i++)
             {
                 if (i == 2) { continue; }
-                puzzle.Grid.SetCell(i, 0, CellType.FILLED);
+                puzzle.Grid.SetCell(i, 0, CellType.Filled);
             }
         }
 
@@ -34,19 +34,19 @@
             Assert.False(puzzle.IsSolved());
 
             // One cell filled
-            puzzle.Grid.SetCell(0, 0, CellType.FILLED);
+            puzzle.Grid.SetCell(0, 0, CellType.Filled);
             Assert.False(puzzle.IsSolved());
 
 
             // All filled
             for (int i = 0; i < 5; i++)
             {
-                puzzle.Grid.SetCell(i, 0, CellType.FILLED);
+                puzzle.Grid.SetCell(i, 0, CellType.Filled);
             }
             Assert.False(puzzle.IsSolved());
 
             // The correct solution
-            puzzle.Grid.SetCell(2, 0, CellType.BLANK);
+            puzzle.Grid.SetCell(2, 0, CellType.Empty);
             Assert.True(puzzle.IsSolved());
         }
 
@@ -59,8 +59,8 @@
 
             Assert.False(p.IsSolved());
 
-            p.Grid.SetCell(0, 0, CellType.FILLED);
-            p.Grid.SetCell(2, 0, CellType.FILLED);
+            p.Grid.SetCell(0, 0, CellType.Filled);
+            p.Grid.SetCell(2, 0, CellType.Filled);
 
             Assert.True(p.IsSolved());
         }
@@ -112,7 +112,7 @@
             }
 
             // Finally, if we place a cell at the expected empty one, this should no longer be completed
-            puzzle.Grid.SetCell(2, 0, CellType.FILLED);
+            puzzle.Grid.SetCell(2, 0, CellType.Filled);
             Assert.False(puzzle.ColumnClues[2][0].Completed);
         }
 
@@ -136,8 +136,8 @@
             }
 
             // Test for completion if only the last clues are filled in
-            puzzle.Grid.SetCell(0, 0, CellType.BLANK);
-            puzzle.Grid.SetCell(1, 0, CellType.BLANK);
+            puzzle.Grid.SetCell(0, 0, CellType.Empty);
+            puzzle.Grid.SetCell(1, 0, CellType.Empty);
             Assert.True(puzzle.RowClues[0][1].Completed);
         }
 
@@ -145,7 +145,7 @@
         public void TestCluesCompletedWithCrosses()
         {
             FillInPuzzleSolution();
-            puzzle.Grid.SetCell(2, 0, CellType.CROSS);
+            puzzle.Grid.SetCell(2, 0, CellType.Cross);
 
             for (int i = 0; i < puzzle.Height; i++)
             {
@@ -153,14 +153,14 @@
                 Assert.True(puzzle.RowClues[i][1].Completed);
             }
 
-            puzzle.Grid.SetCell(1, 0, CellType.CROSS);
+            puzzle.Grid.SetCell(1, 0, CellType.Cross);
             for (int i = 0; i < puzzle.Height; i++)
             {
                 Assert.False(puzzle.RowClues[i][0].Completed);
                 Assert.True(puzzle.RowClues[i][1].Completed);
             }
 
-            puzzle.Grid.SetCell(4, 0, CellType.CROSS);
+            puzzle.Grid.SetCell(4, 0, CellType.Cross);
             for (int i = 0; i < puzzle.Height; i++)
             {
                 Assert.False(puzzle.RowClues[i][0].Completed);
@@ -171,8 +171,8 @@
         [Fact]
         public void TestClone()
         {
-            puzzle.Grid.SetCell(0, 0, CellType.FILLED);
-            puzzle.Grid.SetCell(1, 0, CellType.CROSS);
+            puzzle.Grid.SetCell(0, 0, CellType.Filled);
+            puzzle.Grid.SetCell(1, 0, CellType.Cross);
             Puzzle clone = (Puzzle)puzzle.Clone();
 
             Assert.Equal(puzzle.Width, clone.Width);

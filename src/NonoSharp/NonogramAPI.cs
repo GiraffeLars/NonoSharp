@@ -208,7 +208,7 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void FillCell(int x, int y)
         {
-            SetCell(x, y, CellType.FILLED);
+            SetCell(x, y, CellType.Filled);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void CrossCell(int x, int y)
         {
-            SetCell(x, y, CellType.CROSS);
+            SetCell(x, y, CellType.Cross);
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void EmptyCell(int x, int y)
         {
-            SetCell(x, y, CellType.BLANK);
+            SetCell(x, y, CellType.Empty);
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace NonoSharp
         {
             newType = DoAutoCorrect(x, y, newType);
             // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
-            bool mightAutoCross = newType == CellType.FILLED || puzzle.Grid.GetCell(x, y) == CellType.FILLED;
+            bool mightAutoCross = newType == CellType.Filled || puzzle.Grid.GetCell(x, y) == CellType.Filled;
 
             CellCommand initialCommand = CreateCellCommand(x, y, newType);
 
@@ -340,9 +340,9 @@ namespace NonoSharp
             }
 
             bool solutionHasCell = puzzle.Solution.Contains(new(x, y));
-            if ((solutionHasCell && typeCellChangedTo == CellType.CROSS) || (!solutionHasCell && typeCellChangedTo == CellType.FILLED))
+            if ((solutionHasCell && typeCellChangedTo == CellType.Cross) || (!solutionHasCell && typeCellChangedTo == CellType.Filled))
             {
-                CellType invertedType = typeCellChangedTo == CellType.FILLED ? CellType.CROSS : CellType.FILLED;
+                CellType invertedType = typeCellChangedTo == CellType.Filled ? CellType.Cross : CellType.Filled;
                 CorrectionEventArgs args = new(new(x, y), typeCellChangedTo, invertedType);
                 OnCellCorrected(args);
                 return invertedType;
@@ -362,13 +362,13 @@ namespace NonoSharp
 
             foreach (int i in GetColumnAutoCross(x))
             {
-                ICommand cmd = CreateCellCommand(x, i, CellType.CROSS);
+                ICommand cmd = CreateCellCommand(x, i, CellType.Cross);
                 autoCrossCommands.AddLast(cmd);
             }
 
             foreach (int i in GetRowAutoCross(y))
             {
-                ICommand cmd = CreateCellCommand(i, y, CellType.CROSS);
+                ICommand cmd = CreateCellCommand(i, y, CellType.Cross);
                 autoCrossCommands.AddLast(cmd);
             }
 
@@ -389,7 +389,7 @@ namespace NonoSharp
 
                 for (int i = 0; i < column.Length; i++)
                 {
-                    if (column[i] == CellType.BLANK)
+                    if (column[i] == CellType.Empty)
                     {
                         posToCross.Add(i);
                     }
@@ -412,7 +412,7 @@ namespace NonoSharp
                 CellType[] rowCells = puzzle.Grid.GetRowArray(row);
                 for (int i = 0; i < rowCells.Length; i++)
                 {
-                    if (rowCells[i] == CellType.BLANK)
+                    if (rowCells[i] == CellType.Empty)
                     {
                         posToCross.Add(i);
                     }
@@ -498,7 +498,7 @@ namespace NonoSharp
         /// of the grid bounds.</exception>
         public bool IsCellEmpty(int x, int y)
         {
-            return GetCell(x, y) == CellType.BLANK;
+            return GetCell(x, y) == CellType.Empty;
         }
 
         /// <summary>
@@ -521,7 +521,7 @@ namespace NonoSharp
         /// of the grid bounds.</exception>
         public bool IsCellFilled(int x, int y)
         {
-            return GetCell(x, y) == CellType.FILLED;
+            return GetCell(x, y) == CellType.Filled;
         }
 
         /// <summary>
@@ -545,7 +545,7 @@ namespace NonoSharp
         /// of the grid bounds.</exception>
         public bool IsCellCrossed(int x, int y)
         {
-            return GetCell(x, y) == CellType.CROSS;
+            return GetCell(x, y) == CellType.Cross;
         }
 
         /// <summary>

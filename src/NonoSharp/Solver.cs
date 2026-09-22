@@ -197,9 +197,9 @@ namespace NonoSharp
                     
                     grid.SetCell(changedPos.X, changedPos.Y, line[i]);
 
-                    if (line[i] == CellType.FILLED)
+                    if (line[i] == CellType.Filled)
                     {
-                        // Only append to the solution if the changed cell has been changed to FILLED
+                        // Only append to the solution if the changed cell has been changed to Filled
                         solution.Add(changedPos);
                     }
                     
@@ -228,7 +228,7 @@ namespace NonoSharp
 
             for (int lineIndex = 0; lineIndex < line.Length; lineIndex++)
             {
-                if (line[lineIndex] != CellType.BLANK)
+                if (line[lineIndex] != CellType.Empty)
                 {
                     // This cell was already filled in a previous iteration and should not be updated
                     // to avoid infinite loops
@@ -289,13 +289,13 @@ namespace NonoSharp
                 {
                     // If there are more filled cells after the clues have been processed, there are too many
                     // filled cells in the line. As such, this pernutation is invalid
-                    if (clone[i] == CellType.FILLED)
+                    if (clone[i] == CellType.Filled)
                     {
                         return;
                     }
 
                     // Cross out the cell otherwise, as all clues should have been satisfied
-                    clone[i] = CellType.CROSS;
+                    clone[i] = CellType.Cross;
                 }
 
                 found.Add(clone);
@@ -310,7 +310,7 @@ namespace NonoSharp
             }
 
             // Skip crossed (will never contribute to a clue, filled cells can contribute if they are the start of a clue)
-            if (permutation[cellIdx] == CellType.CROSS)
+            if (permutation[cellIdx] == CellType.Cross)
             {
                 PlaceClueBlocks(permutation, clues, clueIdx, cellIdx + 1, found);
                 return;
@@ -332,17 +332,17 @@ namespace NonoSharp
                 LinkedList<int> needToBeEmptied = new();
                 for (int i = 0; i < cluesNum; i++)
                 {
-                    if (permutation[cellIdx + i] == CellType.BLANK)
+                    if (permutation[cellIdx + i] == CellType.Empty)
                     {
-                        permutation[cellIdx + i] = CellType.FILLED;
+                        permutation[cellIdx + i] = CellType.Filled;
                         needToBeEmptied.AddLast(cellIdx + i);
                     }
                 }
 
                 // Place cross since space between clues is required to be empty
-                if (cellIdx + cluesNum < permutation.Length && permutation[cellIdx + cluesNum] == CellType.BLANK)
+                if (cellIdx + cluesNum < permutation.Length && permutation[cellIdx + cluesNum] == CellType.Empty)
                 {
-                    permutation[cellIdx + cluesNum] = CellType.CROSS;
+                    permutation[cellIdx + cluesNum] = CellType.Cross;
                     needToBeEmptied.AddLast(cellIdx + cluesNum);
                 }
 
@@ -351,16 +351,16 @@ namespace NonoSharp
                 // Undo filled cells
                 foreach (int cellToBeEmptied in needToBeEmptied)
                 {
-                    permutation[cellToBeEmptied] = CellType.BLANK;
+                    permutation[cellToBeEmptied] = CellType.Empty;
                 }
             }
 
             // A cell can be crossed as well, without any requirements
-            if (permutation[cellIdx] == CellType.BLANK)
+            if (permutation[cellIdx] == CellType.Empty)
             {
-                permutation[cellIdx] = CellType.CROSS;
+                permutation[cellIdx] = CellType.Cross;
                 PlaceClueBlocks(permutation, clues, clueIdx, cellIdx + 1, found);
-                permutation[cellIdx] = CellType.BLANK;
+                permutation[cellIdx] = CellType.Empty;
             }
         }
 
@@ -387,7 +387,7 @@ namespace NonoSharp
                 // If the end of the clue is not located at the last square of the grid,
                 // we need to check if the cell after filling the clue can be/is crossed
                 // Else, the placement is invalid since it won't satisfy the clue restrictions
-                if (permutation[cellIdx + cellsToPlace] == CellType.FILLED)
+                if (permutation[cellIdx + cellsToPlace] == CellType.Filled)
                 {
                     return false;
                 }
@@ -401,7 +401,7 @@ namespace NonoSharp
             {
                 // Check if this cell is crossed. Filled cells can be "skipped" and empty cells filled,
                 // but crossed cells must remain crossed
-                if (permutation[cellIdx] == CellType.CROSS)
+                if (permutation[cellIdx] == CellType.Cross)
                 {
                     return false;
                 }

@@ -9,7 +9,7 @@ namespace NonoSharp
         public int Height { get { return grid.GetLength(1); } }
 
         /// <summary>
-        /// Amount of cells in the grid that are CellType.FILLED
+        /// Amount of cells in the grid that are <see cref="CellType.Filled"/>.
         /// </summary>
         public int Filled { get; private set; } = 0;
 
@@ -49,11 +49,11 @@ namespace NonoSharp
         {
             ValidateInputCoordinates(x, y);
 
-            if (grid[x, y] != CellType.FILLED && value == CellType.FILLED)
+            if (grid[x, y] != CellType.Filled && value == CellType.Filled)
             {
                 Filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
             }
-            else if (grid[x, y] == CellType.FILLED && value != CellType.FILLED)
+            else if (grid[x, y] == CellType.Filled && value != CellType.Filled)
             {
                 Filled--;
             }
@@ -243,11 +243,11 @@ namespace NonoSharp
 
             foreach (CellType cell in line)
             {
-                if (groupSize == 0 && cell != CellType.FILLED)
+                if (groupSize == 0 && cell != CellType.Filled)
                 {
                     continue;
                 }
-                else if (cell != CellType.FILLED)
+                else if (cell != CellType.Filled)
                 {
                     // groupSize > 0, group ends here
                     groups.AddLast(groupSize);
@@ -255,7 +255,7 @@ namespace NonoSharp
                 }
                 else
                 {
-                    // cell == FILLED
+                    // cell == Filled
                     groupSize++;
                 }
             }
@@ -326,11 +326,11 @@ namespace NonoSharp
             set
             {
                 if (grid[x, y] == value) return;
-                if (grid[x, y] == CellType.FILLED) Filled--;
+                if (grid[x, y] == CellType.Filled) Filled--;
 
                 grid[x, y] = value;
 
-                if (value == CellType.FILLED) Filled++;
+                if (value == CellType.Filled) Filled++;
                 OnCellStateChanged(new([new(x, y)]));
             }
         }
