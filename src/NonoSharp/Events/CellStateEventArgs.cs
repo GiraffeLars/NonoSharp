@@ -14,7 +14,7 @@ namespace NonoSharp.Events
         /// </summary>
         public IReadOnlyList<CellPosition> Cells { get; internal init; }
 
-        internal CellStateEventArgs(IReadOnlyList<CellPosition> cells)
+        internal CellStateEventArgs(List<CellPosition> cells)
         {
             this.Cells = cells;
         }

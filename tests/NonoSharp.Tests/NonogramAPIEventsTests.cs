@@ -73,6 +73,19 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
+        public void TestCorrectedEventFromClues()
+        {
+            Clues[] a = [Clues.FromString("1")];
+            Clues[] b = [Clues.FromString("1")];
+
+            NonogramAPI api = new(1, 1, a, b, optsAutoCorrect);
+            bool eventFired = false;
+            api.CellCorrected += (s, e) => { eventFired = true; };
+            api.CrossCell(0, 0);
+            Assert.True(eventFired);
+        }
+
+        [Fact]
         public void TestCorrectionEventCrossToFill()
         {
             // Create simple grid with only (0, 1) filled being correct
