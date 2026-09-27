@@ -22,11 +22,11 @@
         public void TestSetCellOutOfBoundsExceptions()
         {
             Action[] acts = [
-                () => grid.SetCell(-1, 0, CellType.FILLED),
-                () => grid.SetCell(grid.Width, 0, CellType.FILLED),
-                () => grid.SetCell(0, -1, CellType.FILLED),
-                () => grid.SetCell(0, grid.Height, CellType.FILLED),
-                () => grid.SetCell(-1, -1, CellType.FILLED)
+                () => grid.SetCell(-1, 0, CellType.Filled),
+                () => grid.SetCell(grid.Width, 0, CellType.Filled),
+                () => grid.SetCell(0, -1, CellType.Filled),
+                () => grid.SetCell(0, grid.Height, CellType.Filled),
+                () => grid.SetCell(-1, -1, CellType.Filled)
             ];
 
             foreach (Action act in acts)
@@ -38,8 +38,8 @@
         [Fact]
         public void TestGetCell()
         {
-            grid[0, 0] = CellType.FILLED;
-            Assert.Equal(CellType.FILLED, grid.GetCell(0, 0));
+            grid[0, 0] = CellType.Filled;
+            Assert.Equal(CellType.Filled, grid.GetCell(0, 0));
         }
 
         [Fact]
@@ -63,16 +63,16 @@
         public void TestFilledCorrect()
         {
             Assert.Equal(0, grid.Filled);
-            grid.SetCell(0, 0, CellType.FILLED);
+            grid.SetCell(0, 0, CellType.Filled);
             Assert.Equal(1, grid.Filled);
         }
 
         [Fact]
         public void TestGroups()
         {
-            grid.SetCell(0, 0, CellType.FILLED);
-            grid.SetCell(2, 0, CellType.FILLED);
-            grid.SetCell(3, 0, CellType.FILLED);
+            grid.SetCell(0, 0, CellType.Filled);
+            grid.SetCell(2, 0, CellType.Filled);
+            grid.SetCell(3, 0, CellType.Filled);
 
             LinkedList<int> groups = grid.GetGroupsInRow(0);
             Assert.Equal(2, groups.Count);

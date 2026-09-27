@@ -89,7 +89,7 @@ namespace NonoSharp
         /// <summary>
         /// Makes the solution into a 2D array representation, just as <c>Grid</c>
         /// </summary>
-        /// <returns>2D array of <c>CellType</c> where each cell position in the solution is <c>CellType.FILLED</c></returns>
+        /// <returns>2D array of <c>CellType</c> where each cell position in the solution is <c>CellType.Filled</c></returns>
         /// <exception cref="IndexOutOfRangeException">Thrown when any of the CellPositions
         /// found in the solution is out of bounds.</exception>
         private CellType[,] GridifySolution()
@@ -98,7 +98,7 @@ namespace NonoSharp
 
             foreach (CellPosition p in Solution!)
             {
-                s[p.X, p.Y] = CellType.FILLED;
+                s[p.X, p.Y] = CellType.Filled;
             }
 
             return s;
@@ -143,7 +143,7 @@ namespace NonoSharp
 
                 foreach (CellPosition p in Solution)
                 {
-                    if (Grid[p.X, p.Y] != CellType.FILLED)
+                    if (Grid[p.X, p.Y] != CellType.Filled)
                     {
                         return false;
                     }
@@ -194,7 +194,7 @@ namespace NonoSharp
             if (!clues.FullyCompleted) return false;
 
             // Check if there are not too many cells filled
-            int filled = line.Where(c => c == CellType.FILLED).Count();
+            int filled = line.Where(c => c == CellType.Filled).Count();
             return filled == clues.TotalCellsInClues;
         }
 
@@ -218,7 +218,7 @@ namespace NonoSharp
                     CellType cell = isColumn ? gridSol[x, y] : gridSol[y, x];
 
                     // If this is not a filled cell
-                    if (cell != CellType.FILLED)
+                    if (cell != CellType.Filled)
                     {
                         // Add the new clue to the list
                         AddClue(clues, x, count); 
@@ -232,7 +232,7 @@ namespace NonoSharp
                 // Do final clue adding in case the last cell is filled
                 // Count minus 1 as it is increased by one even if unfilled
                 CellType lastCell = isColumn ? gridSol[x, yLimit - 1] : gridSol[yLimit - 1, x];
-                if (count > 0 && lastCell == CellType.FILLED)
+                if (count > 0 && lastCell == CellType.Filled)
                 {
                     AddClue(clues, x, count);
                 }
@@ -309,13 +309,13 @@ namespace NonoSharp
                     char c = ' ';
                     switch (Grid.GetCell(x, y))
                     {
-                        case CellType.FILLED:
+                        case CellType.Filled:
                             c = 'O';
                             break;
-                        case CellType.BLANK:
+                        case CellType.Empty:
                             c = ' ';
                             break;
-                        case CellType.CROSS:
+                        case CellType.Cross:
                             c = 'X';
                             break;
 

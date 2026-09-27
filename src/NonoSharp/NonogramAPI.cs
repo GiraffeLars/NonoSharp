@@ -210,7 +210,7 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void FillCell(int x, int y)
         {
-            SetCell(x, y, CellType.FILLED);
+            SetCell(x, y, CellType.Filled);
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void CrossCell(int x, int y)
         {
-            SetCell(x, y, CellType.CROSS);
+            SetCell(x, y, CellType.Cross);
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace NonoSharp
         /// <paramref name="y"/> falls outside the bounds of the grid.</exception>
         public void EmptyCell(int x, int y)
         {
-            SetCell(x, y, CellType.BLANK);
+            SetCell(x, y, CellType.Empty);
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace NonoSharp
         /// of the grid bounds.</exception>
         public bool IsCellEmpty(int x, int y)
         {
-            return GetCell(x, y) == CellType.BLANK;
+            return GetCell(x, y) == CellType.Empty;
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace NonoSharp
         /// of the grid bounds.</exception>
         public bool IsCellFilled(int x, int y)
         {
-            return GetCell(x, y) == CellType.FILLED;
+            return GetCell(x, y) == CellType.Filled;
         }
 
         /// <summary>
@@ -363,7 +363,7 @@ namespace NonoSharp
         /// of the grid bounds.</exception>
         public bool IsCellCrossed(int x, int y)
         {
-            return GetCell(x, y) == CellType.CROSS;
+            return GetCell(x, y) == CellType.Cross;
         }
 
         /// <summary>

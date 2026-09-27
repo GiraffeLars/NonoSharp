@@ -23,8 +23,8 @@ namespace NonoSharp.Tests
             Assert.DoesNotContain(clues, h => h.Completed);
 
             // Fill in the cells to test the described test case. Here, we do that by setting the 0th and 2nd cell as filled
-            line[0] = CellType.FILLED;
-            line[2] = CellType.FILLED;
+            line[0] = CellType.Filled;
+            line[2] = CellType.Filled;
 
             // Now, only 0 should be completed, as we do not require a cross for the first group
             clues.DoCompletion(line);
@@ -32,7 +32,7 @@ namespace NonoSharp.Tests
             Assert.True(clues[0].Completed);
 
             // Finally, check if adding a cross after the second group does not change the 2nd groups completed state
-            line[3] = CellType.CROSS;
+            line[3] = CellType.Cross;
             clues.DoCompletion(line);
 
             Assert.Single(clues, h => h.Completed);
@@ -106,35 +106,35 @@ namespace NonoSharp.Tests
             Assert.False(clues[1].Completed);
 
 
-            line[2] = CellType.FILLED;
-            line[3] = CellType.FILLED;
-            line[6] = CellType.FILLED;
-            line[7] = CellType.FILLED;
+            line[2] = CellType.Filled;
+            line[3] = CellType.Filled;
+            line[6] = CellType.Filled;
+            line[7] = CellType.Filled;
             clues.DoCompletion(line);
             Assert.False(clues[0].Completed);
             Assert.False(clues[1].Completed);
 
-            line[0] = CellType.CROSS;
-            line[1] = CellType.CROSS;
+            line[0] = CellType.Cross;
+            line[1] = CellType.Cross;
             clues.DoCompletion(line);
             Assert.True(clues[0].Completed);
             Assert.False(clues[1].Completed);
 
-            line[4] = CellType.CROSS;
-            line[5] = CellType.CROSS;
+            line[4] = CellType.Cross;
+            line[5] = CellType.Cross;
             clues.DoCompletion(line);
             Assert.True(clues[0].Completed);
 
             // Our specifications for when a user knows this should be filled requires all clues after the first/last to be between crosses or other cells
             Assert.False(clues[1].Completed);
 
-            line[8] = CellType.CROSS;
+            line[8] = CellType.Cross;
             clues.DoCompletion(line);
             Assert.True(clues[1].Completed);
 
             for (int i = 9; i < line.Length; i++)
             {
-                line[i] = CellType.CROSS;
+                line[i] = CellType.Cross;
             }
 
             clues.DoCompletion(line);
@@ -143,7 +143,7 @@ namespace NonoSharp.Tests
             Assert.True(clues.FullyCompleted);
 
             // Check if clue completeness is still true if we know that it was handled from the back
-            line[0] = CellType.BLANK;
+            line[0] = CellType.Empty;
 
             clues.DoCompletion(line);
             Assert.True(clues[0].Completed);
@@ -160,9 +160,9 @@ namespace NonoSharp.Tests
             CellType[] line = new CellType[3];
 
             // [O][X][X]
-            line[0] = CellType.FILLED;
-            line[1] = CellType.CROSS;
-            line[2] = CellType.CROSS;
+            line[0] = CellType.Filled;
+            line[1] = CellType.Cross;
+            line[2] = CellType.Cross;
             clues.DoCompletion(line);
 
             // Since the first cell is filled in, we expect the first clue to be completed as it makes more sense intuitively
@@ -171,8 +171,8 @@ namespace NonoSharp.Tests
 
             // Now check single filled in cell at the end
             // [X][X][O]
-            line[0] = CellType.CROSS;
-            line[2] = CellType.FILLED;
+            line[0] = CellType.Cross;
+            line[2] = CellType.Filled;
             clues.DoCompletion(line);
 
             // It does not really matter which clue is completed, both make sense in a way, as long as one is completed and the other is not

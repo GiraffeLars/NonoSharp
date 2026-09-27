@@ -117,7 +117,7 @@ namespace NonoSharp
 
             while (node != null && clueIndex < clues.Count)
             {
-                if (node.Value == CellType.CROSS && startedFromFirst && cellsFound == 0)
+                if (node.Value == CellType.Cross && startedFromFirst && cellsFound == 0)
                 {
                     // The player knows that all cells from the start should not be filled, then we treat this
                     // as if the first cell is placed at the first cell
@@ -128,14 +128,14 @@ namespace NonoSharp
                 // Check if we are allowed to mark this clue as completed
                 // A clue is allowed to be completed if it started from the first possible cell in the grid
                 // Or it has a cross
-                bool firstGroupCompleteFollowedByBlank = node.Value == CellType.BLANK && startedFromFirst;
-                if (node.Value == CellType.CROSS || firstGroupCompleteFollowedByBlank)
+                bool firstGroupCompleteFollowedByBlank = node.Value == CellType.Empty && startedFromFirst;
+                if (node.Value == CellType.Cross || firstGroupCompleteFollowedByBlank)
                 {
                     if (cellsFound == clues[clueIndex].Number)
                     {
                         clues[clueIndex]._completed = true;
                     }
-                    else if (node.Value == CellType.CROSS && cellsFound == 0)
+                    else if (node.Value == CellType.Cross && cellsFound == 0)
                     {
                         // Check if this is a cross while we have not yet started processing a new clue, then this can still be completed,
                         // As we have not invalidated any clue since crosses are like blank spaces
@@ -163,7 +163,7 @@ namespace NonoSharp
                     continue;
                 }
 
-                if (node.Value == CellType.BLANK && !startedFromFirst)
+                if (node.Value == CellType.Empty && !startedFromFirst)
                 {
                     // Now, we do not know whether the player knows that these clues are correct or not,
                     // as we require crosses between cells for cells not starting at the first index
@@ -202,7 +202,7 @@ namespace NonoSharp
 
             while (node != null && clueIndex >= 0 && clueIndex > forwardsFinalCheck)
             {
-                if (node.Value == CellType.CROSS && startedFromFirst && cellsFound == 0)
+                if (node.Value == CellType.Cross && startedFromFirst && cellsFound == 0)
                 {
                     // The player knows that all cells from the start should not be filled, then we treat this
                     // as if the first cell is placed at the first cell
@@ -213,13 +213,13 @@ namespace NonoSharp
                 // Check if we are allowed to mark this clue as completed
                 // A clue is allowed to be completed if it started from the first possible cell in the grid
                 // Or it has a cross
-                if (node.Value == CellType.CROSS || (node.Value == CellType.BLANK && startedFromFirst))
+                if (node.Value == CellType.Cross || (node.Value == CellType.Empty && startedFromFirst))
                 {
                     if (cellsFound == clues[clueIndex].Number)
                     {
                         clues[clueIndex]._completed = true;
                     }
-                    else if (node.Value == CellType.CROSS && cellsFound == 0)
+                    else if (node.Value == CellType.Cross && cellsFound == 0)
                     {
                         // Check if this is a cross while we have not yet started processing a new clue, then this can still be completed,
                         // As we have not invalidated any clue since crosses are like blank spaces
@@ -241,7 +241,7 @@ namespace NonoSharp
                     continue;
                 }
 
-                if (node.Value == CellType.BLANK)
+                if (node.Value == CellType.Empty)
                 {
                     // Now, we do not know whether the player knows that these clues are correct or not,
                     // as we require crosses between cells for cells not starting at the first index

@@ -113,8 +113,8 @@ namespace NonoSharp.Tests
             Assert.Equal(0, args.Cell.X);
             Assert.Equal(1, args.Cell.Y);
 
-            Assert.Equal(CellType.CROSS, args.Before);
-            Assert.Equal(CellType.FILLED, args.After);
+            Assert.Equal(CellType.Cross, args.Before);
+            Assert.Equal(CellType.Filled, args.After);
         }
 
         [Fact]
@@ -145,8 +145,8 @@ namespace NonoSharp.Tests
             Assert.Equal(1, args.Cell.X);
             Assert.Equal(0, args.Cell.Y);
 
-            Assert.Equal(CellType.FILLED, args.Before);
-            Assert.Equal(CellType.CROSS, args.After);
+            Assert.Equal(CellType.Filled, args.Before);
+            Assert.Equal(CellType.Cross, args.After);
         }
 
         [Fact]

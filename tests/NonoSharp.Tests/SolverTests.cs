@@ -22,7 +22,7 @@ namespace NonoSharp.Tests
             Assert.True(Solver.IsSolvable(puzzle));
 
             // Check if the puzzle is still solvable after the user mistakingly placed a cross
-            puzzle.Grid.SetCell(0, 0, CellType.CROSS);
+            puzzle.Grid.SetCell(0, 0, CellType.Cross);
             Assert.False(Solver.IsSolvable(puzzle));
         }
 
@@ -153,23 +153,23 @@ namespace NonoSharp.Tests
 
 
             // Check if the only information we get is expected; [ ][O][O][ ] is a must in this case
-            Assert.NotEqual(CellType.FILLED, line[0]);
-            Assert.Equal(CellType.FILLED, line[1]);
-            Assert.Equal(CellType.FILLED, line[2]);
-            Assert.NotEqual(CellType.FILLED, line[3]);
+            Assert.NotEqual(CellType.Filled, line[0]);
+            Assert.Equal(CellType.Filled, line[1]);
+            Assert.Equal(CellType.Filled, line[2]);
+            Assert.NotEqual(CellType.Filled, line[3]);
 
             // Now check if the line can correctly be solved with extra information
-            puzzle.Grid.SetCell(3, 0, CellType.FILLED);
+            puzzle.Grid.SetCell(3, 0, CellType.Filled);
             line = (CellType[])puzzle.Grid.GetRowArray(0).Clone();
             Solver.ImproveLine(line, puzzle.RowClues[0], []);
 
             // Check if 0th cell is not filled
-            Assert.NotEqual(CellType.FILLED, line[0]);
+            Assert.NotEqual(CellType.Filled, line[0]);
 
             // Check if others are filled
             for (int i = 1; i < line.Length; i++)
             {
-                Assert.Equal(CellType.FILLED, line[i]);
+                Assert.Equal(CellType.Filled, line[i]);
             }
         }
 

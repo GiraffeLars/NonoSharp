@@ -131,7 +131,7 @@ namespace NonoSharp
 
             foreach (CellType cellType in parser.ParseCells())
             {
-                if (cellType == CellType.FILLED)
+                if (cellType == CellType.Filled)
                 {
                     builder.FillCell(x, rowNum);
                 }
@@ -349,18 +349,18 @@ namespace NonoSharp
         /// </summary>
         /// <param name="x">x-coordinate of cell to set.</param>
         /// <param name="y">y-coordinate of cell to set.</param>
-        /// <param name="newCellType">The new <c>CellType</c>. Can not be <c>CellType.CROSS</c>.</param>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="newCellType"/> is <c>CellType.CROSS</c></exception>
+        /// <param name="newCellType">The new <c>CellType</c>. Can not be <see cref="CellType.Cross"/>.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="newCellType"/> is <c>CellType.Cross</c></exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when x or y are less than 0 or are
         /// greater or equal to Width or Height respectively</exception>
         public void SetCell(int x, int y, CellType newCellType)
         {
-            if (newCellType == CellType.CROSS)
+            if (newCellType == CellType.Cross)
             {
                 throw new ArgumentException("Can not cross cells when using NonogramBuilder!");
             }
 
-            SetCell(x, y, newCellType == CellType.FILLED);
+            SetCell(x, y, newCellType == CellType.Filled);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace NonoSharp
         /// </summary>
         /// <inheritdoc cref="SetCell(int,int,CellType)"/>
         /// <param name="position">The position of the cell to set.</param>
-        /// <param name="newCellType">The new <c>CellType</c>. Can not be <c>CellType.CROSS</c>.</param>
+        /// <param name="newCellType">The new <c>CellType</c>. Can not be <see cref="CellType.Cross"/>.</param>
         public void SetCell(CellPosition position, CellType newCellType)
         {
             SetCell(position.X, position.Y, newCellType);
@@ -433,7 +433,7 @@ namespace NonoSharp
         public CellType GetCell(int x, int y)
         {
             ValidateCoordinates(x, y);
-            return _solution.Contains(new(x, y)) ? CellType.FILLED : CellType.BLANK;
+            return _solution.Contains(new(x, y)) ? CellType.Filled : CellType.Empty;
         }
 
         /// <summary>
@@ -456,7 +456,7 @@ namespace NonoSharp
         /// puzzle bounds.</exception>
         public bool IsCellFilled(int x, int y)
         {
-            return GetCell(x, y) == CellType.FILLED;
+            return GetCell(x, y) == CellType.Filled;
         }
 
         /// <summary>
@@ -555,13 +555,13 @@ namespace NonoSharp
             switch (cell)
             {
                 case ' ':
-                    result = CellType.BLANK;
+                    result = CellType.Empty;
                     return true;
                 case 'X':
-                    result = CellType.CROSS;
+                    result = CellType.Cross;
                     return true;
                 case 'O':
-                    result = CellType.FILLED;
+                    result = CellType.Filled;
                     return true;
                 default:
                     result = null;

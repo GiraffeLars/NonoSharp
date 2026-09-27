@@ -12,17 +12,17 @@ namespace NonoSharp
         /// <summary>
         /// Represents an empty cell.
         /// </summary>
-        BLANK,
+        Empty,
 
         /// <summary>
         /// Represents a filled cell.
         /// </summary>
-        FILLED,
+        Filled,
 
         /// <summary>
         /// Represents a cell that is crossed.
         /// </summary>
-        CROSS
+        Cross
     }
 
 }
