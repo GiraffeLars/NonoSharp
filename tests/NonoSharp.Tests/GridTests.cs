@@ -1,4 +1,6 @@
-﻿namespace NonoSharp.Tests
+﻿using NonoSharp.Enums;
+
+namespace NonoSharp.Tests
 {
     public class GridTests
     {

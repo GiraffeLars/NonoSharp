@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using NonoSharp.Enums;
+using System.Collections;
 
 namespace NonoSharp
 {

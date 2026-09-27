@@ -1,4 +1,5 @@
-﻿using NonoSharp.Exceptions;
+﻿using NonoSharp.Enums;
+using NonoSharp.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;

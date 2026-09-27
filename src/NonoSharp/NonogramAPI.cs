@@ -1,4 +1,5 @@
-﻿using NonoSharp.Events;
+﻿using NonoSharp.Enums;
+using NonoSharp.Events;
 using NonoSharp.Exceptions;
 using System.Collections.Frozen;
 
@@ -24,6 +25,9 @@ namespace NonoSharp
         /// The height of the game grid.
         /// </summary>
         public int Height => puzzle.Height;
+
+        public Line[] Columns;
+        public Line[] Rows;
 
         /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the columns of the grid.
@@ -80,6 +84,9 @@ namespace NonoSharp
             this.puzzle = puzzle;
             Options = options ?? Options;
             History = new();
+            Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
+            Columns = [.. Enumerable.Range(0, Width).Select(i => new Line(i, LineType.Column, this))];
+
 
             // The puzzle can switch between solved and unsolved when a cell changes state.
             // Thus, we can handle sending the puzzle solved event after a cell changes state.
@@ -138,7 +145,9 @@ namespace NonoSharp
             Puzzle puzzle = new(width, height, solution);
             this.puzzle = puzzle;
             History = new();
-            Options = options ?? Options;
+            Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
+            Columns = [.. Enumerable.Range(0, Width).Select(i => new Line(i, LineType.Column, this))];
+
             CellStateChanged += (s, a) => { HandlePuzzleSolvedEvent(); };
         }
 

@@ -1,4 +1,5 @@
-﻿using NonoSharp.Events;
+﻿using NonoSharp.Enums;
+using NonoSharp.Events;
 
 namespace NonoSharp
 {
