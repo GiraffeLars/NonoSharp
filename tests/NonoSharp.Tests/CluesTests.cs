@@ -13,7 +13,7 @@ namespace NonoSharp.Tests
             // even if the user did not separate the groups of cells with a cross, only adding
             // a cross after the second group.
             // While in-line with "first clue does not need a cross to be marked as complete", it looks strange
-            Clues clues = new([new(1), new(1), new(1)]);
+            Clues clues = new([new Clue(1), new(1), new(1)]);
 
             // Setup a mock line
             CellType[] line = new CellType[6];
@@ -37,6 +37,18 @@ namespace NonoSharp.Tests
 
             Assert.Single(clues, h => h.Completed);
             Assert.True(clues[0].Completed);
+        }
+
+        [Fact]
+        public void TestParamsConstructor()
+        {
+            Clues clues = new(1, 2, 3);
+            Assert.Equal(3, clues.Count);
+            Assert.Equal(6, clues.TotalCellsInClues);
+            Assert.False(clues.FullyCompleted);
+            Assert.Equal(1, clues[0].Number);
+            Assert.Equal(2, clues[1].Number);
+            Assert.Equal(3, clues[2].Number);
         }
 
         [Fact]

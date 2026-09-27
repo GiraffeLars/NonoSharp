@@ -35,7 +35,24 @@ namespace NonoSharp
             this.clues = [];
             TotalCellsInClues = 0;
         }
-        
+
+        /// <summary>
+        /// Creates a Clues instance, representing a collection of <see cref="Clue"/>s from <paramref name="numbers"/>. Each
+        /// number in <paramref name="numbers"/> is converted into a <see cref="Clue"/> with Clue.Number matching the number.
+        /// </summary>
+        /// <param name="numbers">The numbers to create clues from.</param>
+        public Clues(params int[] numbers)
+        {
+            this.clues = new List<Clue>(numbers.Length);
+
+            TotalCellsInClues = 0;
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                this.clues.Add(new(numbers[i]));
+                TotalCellsInClues += numbers[i];
+            }
+            SetFullyCompleted();
+        }
 
         /// <summary>
         /// Creates Clues instance, representing a collection of <see cref="Clue"/>s from <paramref name="clues"/>.
