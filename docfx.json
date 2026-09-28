@@ -29,7 +29,8 @@
       {
         "files": [
           "images/**",
-          "docs/**.ns"
+          "docs/**.ns",
+          "docs/**.png"
         ]
       }
     ],

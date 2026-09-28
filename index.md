@@ -15,3 +15,6 @@ with installing the package by running the command below and browsing the
 ```shell
 dotnet package add NonoSharp
 ```
+
+## Source code
+NonoSharp's source code can be found on [GitHub](https://github.com/GiraffeLars/NonoSharp). 

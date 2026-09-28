@@ -80,3 +80,29 @@ builder.FillCell(3, 4); builder.FillCell(4, 4);
 // Save the constructed solution. Do not forget to catch the exceptions!
 builder.SaveAsFile("builder_example.ns");
 ```
+
+### Using the built-in solver
+The following example uses the built-in solver to solve the 3×3 puzzle shown below.
+
+
+<img src="solverExample.png" alt="Puzzle to solve" width="300"/>
+
+
+```csharp
+using NonoSharp;
+
+Clues[] columnClues =
+[
+    new Clues(3),
+    new Clues(1),
+    new Clues(3),
+];
+Clues[] rowClues =
+[
+    new Clues(3),
+    new Clues(1, 1),
+    new Clues(1, 1),
+];
+
+var solvable = Solver.IsSolvable(3, 3, columnClues, rowClues, out var solution);
+```
