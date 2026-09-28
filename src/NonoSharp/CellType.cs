@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NonoSharp.Enums
+namespace NonoSharp
 {
     /// <summary>
     /// Possible types of a cell on the puzzle grid.

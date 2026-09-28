@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NonoSharp.Enums;
 using NonoSharp.Events;
 
 namespace NonoSharp.Tests

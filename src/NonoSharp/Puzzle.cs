@@ -1,5 +1,4 @@
-﻿using NonoSharp.Enums;
-using NonoSharp.Events;
+﻿using NonoSharp.Events;
 using System.Collections.Frozen;
 using System.Text;
 

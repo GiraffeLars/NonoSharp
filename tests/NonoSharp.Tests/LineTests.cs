@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NonoSharp.Enums
+namespace NonoSharp.Tests
 {
-    public enum LineType
+    internal class LineTests
     {
-        Column,
-        Row,
     }
 }
