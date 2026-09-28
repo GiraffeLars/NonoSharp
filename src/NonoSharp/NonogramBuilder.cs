@@ -42,6 +42,19 @@ namespace NonoSharp
         private readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
 
         /// <summary>
+        /// Gets or sets the <c>CellType</c> of the cell at (<paramref name="x"/>, <paramref name="y"/>). Note that 
+        /// a cell cannot be set to <c>CellType.Cross</c>.
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to get/set.</param>
+        /// <param name="y">y-coordinate of cell to get/set.</param>
+        /// <returns><c>CellType</c> of cell at (<paramref name="x"/>, <paramref name="y"/>) in this NonogramBuilder instance.</returns>
+        public CellType this[int x, int y]
+        {
+            get => GetCell(x, y);
+            set => SetCell(x, y, value);
+        }
+
+        /// <summary>
         /// Creates a new PuzzleBuilder instance with a width of <paramref name="width"/> and a height of
         /// <paramref name="height"/>.
         /// </summary>
@@ -184,7 +197,6 @@ namespace NonoSharp
         /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
         /// <returns>True if it is uniquely solvable, false otherwise.</returns>
-
         public async Task<bool> IsSolvableAsync()
         {
             try
