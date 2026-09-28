@@ -48,8 +48,7 @@ namespace NonoSharp
             TotalCellsInClues = 0;
             for (int i = 0; i < numbers.Length; i++)
             {
-                this.clues.Add(new(numbers[i]));
-                TotalCellsInClues += numbers[i];
+                Add(new(numbers[i]));
             }
             SetFullyCompleted();
         }
