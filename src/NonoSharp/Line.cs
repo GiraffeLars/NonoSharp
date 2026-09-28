@@ -37,6 +37,11 @@ namespace NonoSharp
             this.nonogram = nonogram;
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="CellType"/> of the cell at the specified index in this line.
+        /// </summary>
+        /// <param name="index">Index to get/set.</param>
+        /// <returns>The <c>CellType</c> at <paramref name="index"/>.</returns>
         public CellType this[int index]
         {
             get

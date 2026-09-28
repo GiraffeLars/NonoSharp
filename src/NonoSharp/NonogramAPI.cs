@@ -25,7 +25,14 @@ namespace NonoSharp
         /// </summary>
         public int Height => puzzle.Height;
 
+        /// <summary>
+        /// The columns of this instance's puzzle grid.
+        /// </summary>
         public Line[] Columns;
+
+        /// <summary>
+        /// The rows of this instance's puzzle grid.
+        /// </summary>
         public Line[] Rows;
 
         /// <summary>
