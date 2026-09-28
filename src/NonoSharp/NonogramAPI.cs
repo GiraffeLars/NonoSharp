@@ -28,12 +28,12 @@ namespace NonoSharp
         /// <summary>
         /// The columns of this instance's puzzle grid.
         /// </summary>
-        public Line[] Columns;
+        public Line[] Columns { get; }
 
         /// <summary>
         /// The rows of this instance's puzzle grid.
         /// </summary>
-        public Line[] Rows;
+        public Line[] Rows { get; }
 
         /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the columns of the grid.
