@@ -5,12 +5,12 @@ using System.Collections.Frozen;
 namespace NonoSharp
 {
     /// <summary>
-    /// Class for the Nonogram API. Can be initialised with static methods such as 
+    /// Class for a Nonogram puzzle. Can be initialised with static methods such as 
     /// <see cref="CreateRandomPuzzle(int, int, NonogramOptions)"/> or <see cref="LoadPuzzle(string, NonogramOptions)"/>, or
     /// by using the constructor with your own solution, 
-    /// <see cref="NonogramAPI(int, int, ISet{CellPosition}, NonogramOptions)"/>.
+    /// <see cref="Nonogram(int, int, ISet{CellPosition}, NonogramOptions)"/>.
     /// </summary>
-    public class NonogramAPI
+    public class Nonogram
     {
         internal Puzzle puzzle;
         internal readonly MoveManager moveManager;
@@ -86,7 +86,7 @@ namespace NonoSharp
         /// </summary>
         public event EventHandler<CorrectionEventArgs>? CellCorrected;
 
-        internal NonogramAPI(Puzzle puzzle, NonogramOptions? options = null)
+        internal Nonogram(Puzzle puzzle, NonogramOptions? options = null)
         {
             this.puzzle = puzzle;
             Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
@@ -101,7 +101,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Creates a <c>NonogramAPI</c> instance with a width of <paramref name="width"/>, height of
+        /// Creates a <c>Nonogram</c> instance with a width of <paramref name="width"/>, height of
         /// <paramref name="height"/> and sets the solution to <paramref name="solution"/>.
         /// </summary>
         /// <remarks>
@@ -117,13 +117,13 @@ namespace NonoSharp
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
         /// <exception cref="IndexOutOfRangeException">Thrown when at least one of the <see cref="CellPosition"/>s found in
         /// <paramref name="solution"/> is out of the bounds set by <paramref name="width"/> and <paramref name="height"/>.</exception>
-        public NonogramAPI(int width, int height, ISet<CellPosition> solution,
+        public Nonogram(int width, int height, ISet<CellPosition> solution,
             NonogramOptions? options = null) : this(new(width, height, solution), options)
         { }
 
 
         /// <summary>
-        /// Creates a <c>NonogramAPI</c> with a solution based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
+        /// Creates a <c>Nonogram</c> with a solution based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
         /// </summary>
         /// <remarks>
         /// The puzzle must be uniquely solvable.
@@ -140,7 +140,7 @@ namespace NonoSharp
         /// or <paramref name="height"/> are non-positive.</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the puzzle constructed from the clues and 
         /// dimensions is not uniquely solvable.</exception>
-        public NonogramAPI(int width, int height, Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
+        public Nonogram(int width, int height, Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
         {
             bool solvable = Solver.IsSolvable(width, height, columnClues, rowClues, out var solution);
             if (!solvable || solution == null)
@@ -161,7 +161,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Creates an API instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
+        /// Creates a Nonogram instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <remarks>
@@ -174,24 +174,24 @@ namespace NonoSharp
         /// <param name="height">Height of the grid for the game.</param>
         /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
-        /// <returns>NonogramAPI instance as described above.</returns>
+        /// <returns>Nonogram instance as described above.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
-        public static NonogramAPI CreateRandomPuzzle(int width, int height, int seed, NonogramOptions? options = null)
+        public static Nonogram CreateRandomPuzzle(int width, int height, int seed, NonogramOptions? options = null)
         {
             HashSet<CellPosition> solution = SolutionHelper.GenerateRandomSolution(width, height, seed);
-            return new NonogramAPI(width, height, solution, options);
+            return new Nonogram(width, height, solution, options);
         }
 
         ///<inheritdoc cref="CreateRandomPuzzle(int, int, int, NonogramOptions?)"/>
-        public static NonogramAPI CreateRandomPuzzle(int width, int height, NonogramOptions? options = null)
+        public static Nonogram CreateRandomPuzzle(int width, int height, NonogramOptions? options = null)
         {
             HashSet<CellPosition> sol = SolutionHelper.GenerateRandomSolution(width, height);
-            return new NonogramAPI(width, height, sol, options);
+            return new Nonogram(width, height, sol, options);
         }
 
         /// <summary>
-        /// Creates an API instance with a random puzzle asynchronously by running 
-        /// <see cref="NonogramAPI.CreateRandomPuzzle(int, int, NonogramOptions)"/> on the ThreadPool
+        /// Creates a Nonogram instance with a random puzzle asynchronously by running 
+        /// <see cref="Nonogram.CreateRandomPuzzle(int, int, NonogramOptions)"/> on the ThreadPool
         /// as it is computionally expensive.
         /// </summary>
         /// <remarks>
@@ -204,15 +204,15 @@ namespace NonoSharp
         /// <param name="height">Height of the grid for the game.</param>
         /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
-        /// <returns>NonogramAPI instance as described above.</returns>
+        /// <returns>Nonogram instance as described above.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
-        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, int seed, NonogramOptions? options = null)
+        public async static Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed, NonogramOptions? options = null)
         {
             return await Task.Run(() => CreateRandomPuzzle(width, height, seed, options));
         }
 
         /// <inheritdoc cref="CreateRandomPuzzleAsync(int, int, int, NonogramOptions?)"/>
-        public async static Task<NonogramAPI> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
+        public async static Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
         {
             return await Task.Run(() => CreateRandomPuzzle(width, height, options));
         }
@@ -539,17 +539,17 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle at <paramref name="path"/> and returns a new NonogramAPI instance.
+        /// Loads the puzzle at <paramref name="path"/> and returns a new Nonogram instance.
         /// </summary>
         /// <param name="path">Puzzle to load.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
-        /// <returns>NonogramAPI instance of the puzzle located at the given path.</returns>
+        /// <returns>Nonogram instance of the puzzle located at the given path.</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
-        public static NonogramAPI LoadPuzzle(string path, NonogramOptions? options = null) 
+        public static Nonogram LoadPuzzle(string path, NonogramOptions? options = null) 
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
@@ -559,7 +559,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle in <paramref name="stream"/> and returns a new NonogramAPI instance.
+        /// Loads the puzzle in <paramref name="stream"/> and returns a new Nonogram instance.
         /// </summary>
         /// <remarks>
         /// <paramref name="stream"/> is left open. Do not forget to close it.
@@ -567,12 +567,12 @@ namespace NonoSharp
         /// <param name="stream">Stream to read the puzzle from.
         /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle,
         /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
-        /// <returns>NonogramAPI instance of the puzzle.</returns>
+        /// <returns>Nonogram instance of the puzzle.</returns>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c>.</exception>
-        public static NonogramAPI LoadPuzzle(Stream stream, NonogramOptions? options = null)
+        public static Nonogram LoadPuzzle(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzleDefinition = PuzzleDefinition.LoadPuzzle(stream);
@@ -582,17 +582,17 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Loads the puzzle at <paramref name="path"/> asynchronously and returns a new NonogramAPI instance.
+        /// Loads the puzzle at <paramref name="path"/> asynchronously and returns a new Nonogram instance.
         /// </summary>
         /// <param name="path">Puzzle to load</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>NonogramAPI instance of the puzzle located at the given path</returns>
+        /// <returns>Nonogram instance of the puzzle located at the given path</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
-        public static async Task<NonogramAPI> LoadPuzzleAsync(string path, NonogramOptions? options = null)
+        public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path);
@@ -603,7 +603,7 @@ namespace NonoSharp
 
         /// <summary>
         /// Loads the puzzle in <paramref name="stream"/> and then asynchronously converts the read data into a usable 
-        /// <see cref="NonogramAPI"/>.
+        /// <see cref="Nonogram"/>.
         /// </summary>
         /// <remarks>
         /// Contents of <paramref name="stream"/> are expected to be relatively small and is read synchronously. 
@@ -615,11 +615,11 @@ namespace NonoSharp
         /// the stream must consist of ONLY one valid puzzle, such as one provided by
         /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>A <c>NonogramAPI</c> instance of the puzzle loaded from the stream</returns>
+        /// <returns>A <c>Nonogram</c> instance of the puzzle loaded from the stream</returns>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
-        public static async Task<NonogramAPI> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
+        public static async Task<Nonogram> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(stream);

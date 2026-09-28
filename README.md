@@ -56,8 +56,8 @@ Documentation for the API is found on this repo's GitHub pages,
 using NonoSharp;
  
 // Creates a new random 10x10 puzzle. Generation is guaranteed to produce a solvable puzzle.
-// This method is also available asynchronously via NonogramAPI.CreateRandomPuzzleAsync
-var game = NonogramAPI.CreateRandomPuzzle(10, 10); // (width x height)
+// This method is also available asynchronously via Nonogram.CreateRandomPuzzleAsync
+var game = Nonogram.CreateRandomPuzzle(10, 10); // (width x height)
  
 // Fill in or cross a cell (coordinates are zero-indexed, (0, 0) is top-left)
 game.FillCell(2, 3);

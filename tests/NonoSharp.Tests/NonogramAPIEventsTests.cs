@@ -5,30 +5,30 @@ using NonoSharp.Events;
 
 namespace NonoSharp.Tests
 {
-    public class NonogramAPIEventsTests
+    public class NonogramEventsTests
     {
         private NonogramOptions optsAutoCorrect = new() { EnableAutoCorrect = true };
 
         [Fact]
         public void TestCellStateChangedEvent()
         {
-            NonogramAPI api = new(new Puzzle(1, 1, null));
+            Nonogram nonogram = new(new Puzzle(1, 1, null));
             bool eventFired = false;
             object? sender = null;
             CellStateEventArgs? args = null;
 
-            api.CellStateChanged += (s, e) =>
+            nonogram.CellStateChanged += (s, e) =>
             {
                 eventFired = true;
                 sender = s;
                 args = e;
             };
 
-            api.FillCell(0, 0);
+            nonogram.FillCell(0, 0);
             Assert.True(eventFired);
 
-            // Check whether the sender was the api
-            Assert.Same(api, sender);
+            // Check whether the sender was the nonogram
+            Assert.Same(nonogram, sender);
 
             // Check if only the 1x1 was changed and check if the args reflect this
             Assert.NotNull(args);
@@ -42,21 +42,21 @@ namespace NonoSharp.Tests
         {
             // Create simple puzzle with only (0, 0) filled being correct
             Puzzle p = new(1, 1, [new(0, 0)]);
-            NonogramAPI api = new(p);
+            Nonogram nonogram = new(p);
 
             bool eventFired = false;
             object? sender = null;
 
-            api.PuzzleSolved += (s, e) =>
+            nonogram.PuzzleSolved += (s, e) =>
             {
                 eventFired = true;
                 sender = s;
             };
 
-            api.FillCell(0, 0);
+            nonogram.FillCell(0, 0);
 
             Assert.True(eventFired);
-            Assert.Same(api, sender);
+            Assert.Same(nonogram, sender);
         }
 
         [Fact]
@@ -65,10 +65,10 @@ namespace NonoSharp.Tests
             Clues[] a = [Clues.FromString("1")];
             Clues[] b = [Clues.FromString("1")];
 
-            NonogramAPI api = new(1, 1, a, b);
+            Nonogram nonogram = new(1, 1, a, b);
             bool eventFired = false;
-            api.PuzzleSolved += (s, e) => { eventFired = true; };
-            api.FillCell(0, 0);
+            nonogram.PuzzleSolved += (s, e) => { eventFired = true; };
+            nonogram.FillCell(0, 0);
             Assert.True(eventFired);
         }
 
@@ -78,10 +78,10 @@ namespace NonoSharp.Tests
             Clues[] a = [Clues.FromString("1")];
             Clues[] b = [Clues.FromString("1")];
 
-            NonogramAPI api = new(1, 1, a, b, optsAutoCorrect);
+            Nonogram nonogram = new(1, 1, a, b, optsAutoCorrect);
             bool eventFired = false;
-            api.CellCorrected += (s, e) => { eventFired = true; };
-            api.CrossCell(0, 0);
+            nonogram.CellCorrected += (s, e) => { eventFired = true; };
+            nonogram.CrossCell(0, 0);
             Assert.True(eventFired);
         }
 
@@ -91,23 +91,23 @@ namespace NonoSharp.Tests
             // Create simple grid with only (0, 1) filled being correct
             Puzzle p = new(1, 2, [new(0, 1)]);
             
-            NonogramAPI api = new(p) { Options = optsAutoCorrect };
+            Nonogram nonogram = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
             object? sender = null;
             CorrectionEventArgs? args = null;
 
-            api.CellCorrected += (s, e) =>
+            nonogram.CellCorrected += (s, e) =>
             {
                 eventFired = true;
                 sender = s;
                 args = e;
             };
 
-            api.CrossCell(0, 1);
+            nonogram.CrossCell(0, 1);
 
             Assert.True(eventFired);
-            Assert.Same(api, sender);
+            Assert.Same(nonogram, sender);
             Assert.NotNull(args);
 
             Assert.Equal(0, args.Cell.X);
@@ -123,23 +123,23 @@ namespace NonoSharp.Tests
             // Create simple grid with only (1, 1) filled being correct
             Puzzle p = new(2, 2, [new(1, 1)]);
 
-            NonogramAPI api = new(p) { Options = optsAutoCorrect };
+            Nonogram nonogram = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
             object? sender = null;
             CorrectionEventArgs? args = null;
 
-            api.CellCorrected += (s, e) =>
+            nonogram.CellCorrected += (s, e) =>
             {
                 eventFired = true;
                 sender = s;
                 args = e;
             };
 
-            api.FillCell(1, 0);
+            nonogram.FillCell(1, 0);
 
             Assert.True(eventFired);
-            Assert.Same(api, sender);
+            Assert.Same(nonogram, sender);
             Assert.NotNull(args);
 
             Assert.Equal(1, args.Cell.X);
@@ -156,16 +156,16 @@ namespace NonoSharp.Tests
 
             // Create simple grid with only (0, 1) filled being correct
             Puzzle p = new(1, 2, [new(0, 1)]);
-            NonogramAPI api = new(p) { Options = optsAutoCorrect };
+            Nonogram nonogram = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
 
-            api.CellCorrected += (s, e) =>
+            nonogram.CellCorrected += (s, e) =>
             {
                 eventFired = true;
             };
 
-            api.EmptyCell(0, 1);
+            nonogram.EmptyCell(0, 1);
             Assert.False(eventFired);
         }
 
@@ -174,16 +174,16 @@ namespace NonoSharp.Tests
         {
             // Create simple grid with only (0, 1) filled being correct
             Puzzle p = new(1, 2, [new(0,1)]);
-            NonogramAPI api = new(p) { Options = new() { EnableAutoCross = false } };
+            Nonogram nonogram = new(p) { Options = new() { EnableAutoCross = false } };
 
             bool eventFired = false;
 
-            api.CellCorrected += (s, e) =>
+            nonogram.CellCorrected += (s, e) =>
             {
                 eventFired = true;
             };
 
-            api.CrossCell(0, 1);
+            nonogram.CrossCell(0, 1);
             Assert.False(eventFired);
         }
     }

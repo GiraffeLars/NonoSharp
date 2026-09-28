@@ -17,15 +17,15 @@ namespace NonoSharp
     public static class Solver
     {
         /// <summary>
-        /// Solves the puzzle of API instance <paramref name="nonogram"/> in-place.
+        /// Solves the puzzle of Nonogram instance <paramref name="nonogram"/> in-place.
         /// </summary>
         /// <remarks>
         /// If the given puzzle is not solvable, the returned solution will be incomplete.
-        /// To ensure a complete solution, use <see cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>.
+        /// To ensure a complete solution, use <see cref="IsSolvable(Nonogram, out HashSet{CellPosition}?)"/>.
         /// </remarks>
         /// <param name="nonogram">Puzzle to solve.</param>
         /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
-        public static HashSet<CellPosition> Solve(NonogramAPI nonogram)
+        public static HashSet<CellPosition> Solve(Nonogram nonogram)
         {
             return Solve(nonogram.puzzle);
         }
@@ -103,8 +103,8 @@ namespace NonoSharp
             return IsSolvable(puzzle, out _);
         }
 
-        /// <inheritdoc cref="IsSolvable(NonogramAPI, out HashSet{CellPosition}?)"/>
-        public static bool IsSolvable(NonogramAPI nonogram)
+        /// <inheritdoc cref="IsSolvable(Nonogram, out HashSet{CellPosition}?)"/>
+        public static bool IsSolvable(Nonogram nonogram)
         {
             return IsSolvable(nonogram.puzzle);
         }
@@ -113,11 +113,11 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the puzzle in <paramref name="nonogram"/> can be solved.
         /// </summary>
-        /// <param name="nonogram">The <c>NonogramAPI</c> instance to check solvability for.</param>
+        /// <param name="nonogram">The <c>Nonogram</c> instance to check solvability for.</param>
         /// <param name="solution">The solution HashSet if <paramref name="nonogram"/> is solvable.
         /// <c>null</c> if the puzzle is not solvable.</param>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        public static bool IsSolvable(NonogramAPI nonogram, out HashSet<CellPosition>? solution)
+        public static bool IsSolvable(Nonogram nonogram, out HashSet<CellPosition>? solution)
         {
             return IsSolvable(nonogram.puzzle, out solution);
         }

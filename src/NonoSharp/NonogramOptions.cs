@@ -5,7 +5,7 @@ using System.Text;
 namespace NonoSharp
 {
     /// <summary>
-    /// Class containing options for <see cref="NonogramAPI"/>
+    /// Class containing options for <see cref="Nonogram"/>
     /// </summary>
     public class NonogramOptions
     {
