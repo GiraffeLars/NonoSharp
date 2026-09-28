@@ -5,28 +5,28 @@ using NonoSharp;
 
 namespace NonoSharp.Tests
 {
-    public class NonogramAPITests
+    public class NonogramTests
     {
-        private readonly NonogramAPI api;
+        private readonly Nonogram nonogram;
 
-        public NonogramAPITests()
+        public NonogramTests()
         {
             var options = new NonogramOptions() { EnableAutoCorrect = false, EnableAutoCross = false };
-            // API for a 15x15 grid with an empty solution.
+            // Nonogram API for a 15x15 grid with an empty solution.
             // Don't generate random solvable solutions as this increases test time.
-            api = new NonogramAPI(new Puzzle(15, 15, null), options);
+            nonogram = new Nonogram(new Puzzle(15, 15, null), options);
         }
 
         [Fact]
         public void TestEmptyStart()
         {
-            for (int i = 0; i < api.Width; i++)
+            for (int i = 0; i < nonogram.Width; i++)
             {
-                for (int j = 0; j < api.Height; j++)
+                for (int j = 0; j < nonogram.Height; j++)
                 {
-                    Assert.False(api.IsCellFilled(i, j));
-                    Assert.False(api.IsCellCrossed(i, j));
-                    Assert.True(api.IsCellEmpty(i, j));
+                    Assert.False(nonogram.IsCellFilled(i, j));
+                    Assert.False(nonogram.IsCellCrossed(i, j));
+                    Assert.True(nonogram.IsCellEmpty(i, j));
                 }
             }
         }
@@ -34,90 +34,90 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestFill()
         {
-            Assert.True(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellFilled(0, 0));
-            Assert.False(api.IsCellCrossed(0, 0));
+            Assert.True(nonogram.IsCellEmpty(0, 0));
+            Assert.False(nonogram.IsCellFilled(0, 0));
+            Assert.False(nonogram.IsCellCrossed(0, 0));
 
-            api.FillCell(0, 0);
+            nonogram.FillCell(0, 0);
 
-            Assert.False(api.IsCellEmpty(0, 0));
-            Assert.True(api.IsCellFilled(0, 0));
-            Assert.False(api.IsCellCrossed(0, 0));
+            Assert.False(nonogram.IsCellEmpty(0, 0));
+            Assert.True(nonogram.IsCellFilled(0, 0));
+            Assert.False(nonogram.IsCellCrossed(0, 0));
         }
 
         [Fact]
         public void TestCross()
         {
-            Assert.True(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellFilled(0, 0));
-            Assert.False(api.IsCellCrossed(0, 0));
+            Assert.True(nonogram.IsCellEmpty(0, 0));
+            Assert.False(nonogram.IsCellFilled(0, 0));
+            Assert.False(nonogram.IsCellCrossed(0, 0));
 
-            api.CrossCell(0, 0);
+            nonogram.CrossCell(0, 0);
 
-            Assert.False(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellFilled(0, 0));
-            Assert.True(api.IsCellCrossed(0, 0));
+            Assert.False(nonogram.IsCellEmpty(0, 0));
+            Assert.False(nonogram.IsCellFilled(0, 0));
+            Assert.True(nonogram.IsCellCrossed(0, 0));
         }
 
         [Fact]
         public void TestEmpty()
         {
-            Assert.True(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellFilled(0, 0));
-            Assert.False(api.IsCellCrossed(0, 0));
+            Assert.True(nonogram.IsCellEmpty(0, 0));
+            Assert.False(nonogram.IsCellFilled(0, 0));
+            Assert.False(nonogram.IsCellCrossed(0, 0));
 
-            api.EmptyCell(0, 0);
+            nonogram.EmptyCell(0, 0);
 
-            Assert.True(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellFilled(0, 0));
-            Assert.False(api.IsCellCrossed(0, 0));
+            Assert.True(nonogram.IsCellEmpty(0, 0));
+            Assert.False(nonogram.IsCellFilled(0, 0));
+            Assert.False(nonogram.IsCellCrossed(0, 0));
 
             // Also check that cell is empty after it was filled in
-            api.FillCell(0, 0);
-            Assert.False(api.IsCellEmpty(0, 0));
-            api.EmptyCell(0, 0);
-            Assert.True(api.IsCellEmpty(0, 0));
+            nonogram.FillCell(0, 0);
+            Assert.False(nonogram.IsCellEmpty(0, 0));
+            nonogram.EmptyCell(0, 0);
+            Assert.True(nonogram.IsCellEmpty(0, 0));
         }
 
         [Fact]
         public void TestUndo()
         {
-            Assert.False(api.CanUndo);
-            api.FillCell(0, 0);
+            Assert.False(nonogram.CanUndo);
+            nonogram.FillCell(0, 0);
             // Don't check fill working correctly, that's not the purpose here
 
-            Assert.True(api.CanUndo);
-            api.Undo();
+            Assert.True(nonogram.CanUndo);
+            nonogram.Undo();
 
             // Check if move successfully undone, i.e. filled in cell is now empty again
-            Assert.False(api.CanUndo);
-            Assert.True(api.IsCellEmpty(0, 0));
-            Assert.False(api.IsCellFilled(0, 0));
+            Assert.False(nonogram.CanUndo);
+            Assert.True(nonogram.IsCellEmpty(0, 0));
+            Assert.False(nonogram.IsCellFilled(0, 0));
         }
 
         [Fact]
         public void TestRedo()
         {
-            Assert.False(api.CanRedo);
-            api.FillCell(0, 0);
-            Assert.False(api.CanRedo);
+            Assert.False(nonogram.CanRedo);
+            nonogram.FillCell(0, 0);
+            Assert.False(nonogram.CanRedo);
 
-            api.Undo();
-            Assert.True(api.CanRedo);
+            nonogram.Undo();
+            Assert.True(nonogram.CanRedo);
 
-            api.Redo();
+            nonogram.Redo();
 
             // Check if redo successfully undid the undo, i.e. change the now empty cell back to filled
-            Assert.False(api.CanRedo);
-            Assert.True(api.IsCellFilled(0, 0));
-            Assert.False(api.IsCellEmpty(0, 0));
+            Assert.False(nonogram.CanRedo);
+            Assert.True(nonogram.IsCellFilled(0, 0));
+            Assert.False(nonogram.IsCellEmpty(0, 0));
         }
 
         [Fact]
         public void TestAutoCross()
         {
             Puzzle p = new(5, 1, null);
-            NonogramAPI autoCrossAPI = new(p);
+            Nonogram autoCrossAPI = new(p);
 
             // [O][X][O][O][X]
             HashSet<int> solXCoords = [0, 2, 3];
@@ -151,7 +151,7 @@ namespace NonoSharp.Tests
             Puzzle p = new(5, 1, null);
 
             NonogramOptions opts = new() { EnableAutoCross = false };
-            NonogramAPI autoCrossAPI = new(p) { Options = opts };
+            Nonogram autoCrossAPI = new(p) { Options = opts };
 
             // [O][X][O][O][X]
             HashSet<int> solXCoords = [0, 2, 3];
@@ -176,19 +176,19 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestRNGSeed()
         {
-            var api_1 = NonogramAPI.CreateRandomPuzzle(15, 15, 12345);
-            var api_2 = NonogramAPI.CreateRandomPuzzle(15, 15, 12345);
+            var nonogram_1 = Nonogram.CreateRandomPuzzle(15, 15, 12345);
+            var nonogram_2 = Nonogram.CreateRandomPuzzle(15, 15, 12345);
 
-            Assert.True(api_1.Solution.SetEquals(api_2.Solution));
+            Assert.True(nonogram_1.Solution.SetEquals(nonogram_2.Solution));
         }
 
         [Fact]
         public async Task TestRNGSeedAsync()
         {
-            var api_1 = await NonogramAPI.CreateRandomPuzzleAsync(15, 15, 12345);
-            var api_2 = await NonogramAPI.CreateRandomPuzzleAsync(15, 15, 12345);
+            var nonogram_1 = await Nonogram.CreateRandomPuzzleAsync(15, 15, 12345);
+            var nonogram_2 = await Nonogram.CreateRandomPuzzleAsync(15, 15, 12345);
 
-            Assert.True(api_1.Solution.SetEquals(api_2.Solution));
+            Assert.True(nonogram_1.Solution.SetEquals(nonogram_2.Solution));
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace NonoSharp.Tests
         {
             Clues[] colClues = [[new(3)], [new(1), new(1)], [new(3)]];
             Clues[] rowClues = [[new(3)], [new(1), new(1)], [new(3)]];
-            NonogramAPI nonogram = new(3, 3, colClues, rowClues);
+            Nonogram nonogram = new(3, 3, colClues, rowClues);
             HashSet<CellPosition> expected = [
                 new(0,0), new(1,0), new(2, 0),
                 new(0,1), new(2,1),
@@ -211,19 +211,19 @@ namespace NonoSharp.Tests
         {
             CellPosition cell = new(0, 0);
             HashSet<CellPosition> solution = [cell];
-            var api = new NonogramAPI(1, 1, solution);
+            var nonogram = new Nonogram(1, 1, solution);
 
-            Assert.False(api.IsCellCorrect(cell.X, cell.Y));
-            Assert.False(api.IsCellCorrect(cell));
+            Assert.False(nonogram.IsCellCorrect(cell.X, cell.Y));
+            Assert.False(nonogram.IsCellCorrect(cell));
 
-            api.FillCell(cell);
+            nonogram.FillCell(cell);
 
-            Assert.True(api.IsCellCorrect(cell.X, cell.Y));
-            Assert.True(api.IsCellCorrect(cell));
+            Assert.True(nonogram.IsCellCorrect(cell.X, cell.Y));
+            Assert.True(nonogram.IsCellCorrect(cell));
 
-            api.CrossCell(cell);
-            Assert.False(api.IsCellCorrect(cell.X, cell.Y));
-            Assert.False(api.IsCellCorrect(cell));
+            nonogram.CrossCell(cell);
+            Assert.False(nonogram.IsCellCorrect(cell.X, cell.Y));
+            Assert.False(nonogram.IsCellCorrect(cell));
         }
     }
 }

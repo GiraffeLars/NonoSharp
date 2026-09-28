@@ -9,7 +9,7 @@ namespace NonoSharp
 {
     /// <summary>
     /// Builder class to create a custom Nonogram puzzle, and can at the final stage
-    /// be obtained as a <see cref="NonogramAPI"/> instance or be saved to a file.
+    /// be obtained as a <see cref="Nonogram"/> instance or be saved to a file.
     /// </summary>
     public class NonogramBuilder
     {
@@ -214,10 +214,10 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Converts this puzzle into a playable <see cref="NonogramAPI"/>.
+        /// Converts this puzzle into a playable <see cref="Nonogram"/> instance.
         /// </summary>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
-        public NonogramAPI GetNonogramAPI()
+        public Nonogram ToNonogram()
         {
             if (!IsSolvable())
             {
@@ -227,12 +227,19 @@ namespace NonoSharp
             return new(ToPuzzle());
         }
 
+        /// <inheritdoc cref="ToNonogram()"/>
+        [Obsolete("GetNonogramAPI() has been renamed and is deprecated. Use ToNonogram() instead. " +
+            "This method will be removed after v0.6.0")]
+        public Nonogram GetNonogramAPI()
+        {
+            return ToNonogram();
+        }
 
         /// <summary>
-        /// Converts this puzzle into a playable <see cref="NonogramAPI"/> asynchronously.
+        /// Converts this puzzle into a playable <see cref="Nonogram"/> asynchronously.
         /// </summary>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
-        public async Task<NonogramAPI> GetNonogramAPIAsync()
+        public async Task<Nonogram> ToNonogramAsync()
         {
             if (!await IsSolvableAsync())
             {
@@ -240,6 +247,14 @@ namespace NonoSharp
             }
 
             return new(ToPuzzle());                                                                             
+        }
+
+        /// <inheritdoc cref="ToNonogramAsync"/>
+        [Obsolete("GetNonogramAPIAsync() has been renamed and is deprecated. Use ToNonogramAsync() instead. " +
+            "This method will be removed after v0.6.0")]
+        public async Task<Nonogram> GetNonogramAPIAsync()
+        {
+            return await ToNonogramAsync();
         }
 
         /// <summary>

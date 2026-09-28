@@ -4,7 +4,7 @@ using System.Collections;
 namespace NonoSharp
 {
     /// <summary>
-    /// A line of a <see cref="NonogramAPI"/> puzzle.
+    /// A line of a <see cref="Nonogram"/> puzzle.
     /// </summary>
     public class Line : IEnumerable<CellType>
     {
@@ -28,9 +28,9 @@ namespace NonoSharp
         /// </summary>
         public Clues Clues => Type == LineType.Column ? nonogram.ColumnClues[Position] : nonogram.RowClues[Position];
 
-        private readonly NonogramAPI nonogram;
+        private readonly Nonogram nonogram;
 
-        internal Line(int position, LineType type, NonogramAPI nonogram)
+        internal Line(int position, LineType type, Nonogram nonogram)
         {
             Position = position;
             Type = type;

@@ -106,40 +106,40 @@ namespace NonoSharp.Tests
         {
             // Fill 1 cell to check if solution matches instead of using empty puzzle
             builder.FillCell(1, 1);
-            var api = builder.GetNonogramAPI();
+            var nonogram = builder.ToNonogram();
 
-            Assert.Equal(builder.Width, api.Width);
-            Assert.Equal(builder.Height, api.Height);
+            Assert.Equal(builder.Width, nonogram.Width);
+            Assert.Equal(builder.Height, nonogram.Height);
 
-            api.FillCell(1, 1);
-            Assert.True(api.IsPuzzleSolved());
+            nonogram.FillCell(1, 1);
+            Assert.True(nonogram.IsPuzzleSolved());
         }
 
         [Fact]
         public async Task TestSolvablePuzzleConversionAsync()
         {
             builder.FillCell(1, 1);
-            var api = await builder.GetNonogramAPIAsync();
+            var nonogram = await builder.ToNonogramAsync();
 
-            Assert.Equal(builder.Width, api.Width);
-            Assert.Equal(builder.Height, api.Height);
+            Assert.Equal(builder.Width, nonogram.Width);
+            Assert.Equal(builder.Height, nonogram.Height);
 
-            api.FillCell(1, 1);
-            Assert.True(api.IsPuzzleSolved());
+            nonogram.FillCell(1, 1);
+            Assert.True(nonogram.IsPuzzleSolved());
         }
 
         [Fact]
         public void TestUnsolvablePuzzleConversionException()
         {
             CreateUnsolvablePuzzle();
-            Assert.Throws<PuzzleNotSolvableException>(() => builder.GetNonogramAPI());
+            Assert.Throws<PuzzleNotSolvableException>(() => builder.ToNonogram());
         }
 
         [Fact]
         public async Task TestUnsolvablePuzzleConversionExceptionAsync()
         {
             CreateUnsolvablePuzzle();
-            await Assert.ThrowsAsync<PuzzleNotSolvableException>(async () => await builder.GetNonogramAPIAsync());
+            await Assert.ThrowsAsync<PuzzleNotSolvableException>(async () => await builder.ToNonogramAsync());
         }
 
         [Fact]
