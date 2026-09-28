@@ -57,8 +57,8 @@ namespace NonoSharp
         /// <summary>
         /// Undoes the last move (if any).
         /// </summary>
-        /// <returns><c>IEnumerable</c> of changed cell positions if a move was undone, <c>null</c> otherwise.</returns>
-        public IReadOnlyList<CellPosition>? Undo()
+        /// <returns><c>List</c> of changed cell positions if a move was undone, <c>null</c> otherwise.</returns>
+        public List<CellPosition>? Undo()
         {
             historyLock.Enter();
 
@@ -78,7 +78,7 @@ namespace NonoSharp
         /// Redoes the last move (if any).
         /// </summary>
         /// <returns><c>IEnumerable</c> of changed cell positions if a move was redone, <c>null</c> otherwise.</returns>
-        public IReadOnlyList<CellPosition>? Redo()
+        public List<CellPosition>? Redo()
         {
             historyLock.Enter();
             try
