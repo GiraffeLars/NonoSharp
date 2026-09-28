@@ -27,6 +27,16 @@ namespace NonoSharp
         public int Height => puzzle.Height;
 
         /// <summary>
+        /// The columns of this instance's puzzle grid.
+        /// </summary>
+        public Line[] Columns { get; }
+
+        /// <summary>
+        /// The rows of this instance's puzzle grid.
+        /// </summary>
+        public Line[] Rows { get; }
+
+        /// <summary>
         /// The clues, i.e. the numbers on the side of a grid, for the columns of the grid.
         /// In Nonogram puzzles these are usually shown at the top of the grid.
         /// </summary>
@@ -79,6 +89,9 @@ namespace NonoSharp
         internal NonogramAPI(Puzzle puzzle, NonogramOptions? options = null)
         {
             this.puzzle = puzzle;
+            Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
+            Columns = [.. Enumerable.Range(0, Width).Select(i => new Line(i, LineType.Column, this))];
+          
             moveManager = new(options, puzzle);
 
             moveManager.CellCorrected += (s, e) => OnCellCorrected(e);
@@ -139,6 +152,9 @@ namespace NonoSharp
             Puzzle puzzle = new(width, height, solution);
             this.puzzle = puzzle;
 
+            Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
+            Columns = [.. Enumerable.Range(0, Width).Select(i => new Line(i, LineType.Column, this))];
+          
             moveManager = new(options, puzzle);
             moveManager.CellCorrected += (s, e) => OnCellCorrected(e);
             CellStateChanged += (s, a) => HandlePuzzleSolvedEvent();
