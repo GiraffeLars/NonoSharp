@@ -296,7 +296,19 @@ namespace NonoSharp
         {
             var changes = moveManager.DoMove(x, y, newCellType);
             OnCellStateChanged(new(changes));
-        }        
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CellType"/> of the cell at (<paramref name="x"/>, <paramref name="y"/>).
+        /// </summary>
+        /// <param name="x">x-coordinate of cell to get/set.</param>
+        /// <param name="y">y-coordinate of cell to get/set.</param>
+        /// <returns>CellType of the cell located at (<paramref name="x"/>, <paramref name="y"/>).</returns>
+        public CellType this[int x, int y]
+        {
+            get => GetCell(x, y);
+            set => SetCell(x, y, value);
+        }
 
         /// <summary>
         /// Undoes the last move (if any). Silently returns if there is no command to undo.
