@@ -1,0 +1,43 @@
+name: Publish Documentation
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-and-publish-docs:
+    # https://dotnet.github.io/docfx/index.html#publish-to-github-pages
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install DocFX
+        run: dotnet tool update -g docfx
+
+      - name: Build Docs
+        run: docfx docfx.json
+        
+      - name: Inject Google Search Tag
+        run: |
+            META_TAG='<meta name="google-site-verification" content="${{ secrets.GOOGLE_TAG }}" />'
+            find ./_site -name "*.html" -exec sudo sed -i "s|</head>|$META_TAG\n</head>|g" {} +
+
+      - name: Upload Docs
+        uses: actions/upload-pages-artifact@v3
+        with: 
+          path: _site
+          
+      - name: Deploy Docs to GitHub Pages
+        uses: actions/deploy-pages@v4
