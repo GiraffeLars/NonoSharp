@@ -2,7 +2,7 @@
 A feature-rich Nonogram library for .NET10.0 featuring Nonogram puzzle playing, randomly generated puzzles, easy Nonogram creation, saving/loading pre-made puzzle solutions and a custom Nonogram solver.
 
 ## What is NonoSharp?
-NonoSharp is an API for C#, allowing for easy creation and playing of [Nonogram](https://en.wikipedia.org/wiki/Nonogram) (also known as Picross) puzzles.
+NonoSharp is a library for C#, allowing for easy creation and playing of [Nonogram](https://en.wikipedia.org/wiki/Nonogram) (also known as Picross) puzzles.
 Nonograms are Japanese puzzles where you fill in a picture based on clues given to you.
 The clues, either on the left-side or top-side of the grid, show how many groups there are in a given row/column and show how many cells each group consists of.
 By filling the grid one cell at a time, eventually you reach the solution.
@@ -15,7 +15,6 @@ Currently the library is split into the following components:
 
 ## Features
 - **A fully functional Nonogram game**, complete with clue checking and various other features
-- An abstracted **Nonogram API** allowing for game logic to be reused in other projects
 - **Custom Solver** to solve any Nonogram puzzle you might encounter
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
 - **Custom file format** optimised for file size to load and save puzzles
@@ -24,7 +23,7 @@ Currently the library is split into the following components:
 
 
 ## Documentation
-Documentation for the API is found on GitHub pages for the corresponding repo, 
+Documentation for the public API of the library is found on GitHub pages for the corresponding repo, 
 [here](https://giraffelars.github.io/NonoSharp/).
 
 ## Example usage
