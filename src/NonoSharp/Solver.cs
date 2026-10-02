@@ -31,6 +31,39 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Generates a solution for the puzzle defined by the given clues. 
+        /// </summary>
+        /// <remarks>
+        /// If the puzzle defined from the clues is not solvable, the returned solution will be incomplete.
+        /// To ensure a complete solution, use <see cref="IsSolvable(int, int, Clues[], Clues[], out HashSet{CellPosition}?)"/>.<br/>
+        /// The width and height of the puzzle are automatically determined from <paramref name="columnClues"/> 
+        /// and <paramref name="rowClues"/> respectively.
+        /// </remarks>
+        /// <param name="columnClues">The clues for the columns of the nonogram puzzle.</param>
+        /// <param name="rowClues">The clues for the rows of the nonogram puzzle.</param>
+        /// <returns>A <c>HashSet</c> of <c>CellPosition</c>s with the found solution.</returns>
+        public static HashSet<CellPosition> Solve(Clues[] columnClues, Clues[] rowClues)
+        {
+            int width = columnClues.Length;
+            int height = rowClues.Length;
+
+            Grid workGrid = new(width, height);
+            var solution = Solve(workGrid, columnClues, rowClues);
+
+            // Reset the clues to undo the work done during solving
+            foreach (var clues in columnClues)
+            {
+                clues.Reset();
+            }
+            foreach (var clues in rowClues)
+            {
+                clues.Reset();
+            }
+
+            return solution;
+        }
+
+        /// <summary>
         /// Solves <paramref name="puzzle"/> in-place.
         /// </summary>
         /// <param name="puzzle">Puzle to solve</param>

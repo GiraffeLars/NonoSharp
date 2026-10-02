@@ -63,6 +63,18 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
+        public void TestSolveFromClues()
+        {
+            // [O][O][O]
+            // [ ][O][ ]
+            Clues[] columnClues = [new(1), new(2), new(1)];
+            Clues[] rowClues = [new(3), new(1)];
+
+            HashSet<CellPosition> expectedSolution = [new(0, 0), new(1, 0), new(2, 0), new(1, 1)];
+            Assert.Equal(expectedSolution, Solver.Solve(columnClues, rowClues));
+        }
+
+        [Fact]
         public void TestSolvableOutCorrect()
         {
             // Solution:
