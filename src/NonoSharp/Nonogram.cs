@@ -161,7 +161,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Creates a Nonogram instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
+        /// Creates a Nonogram instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions, CancellationToken)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <remarks>
@@ -204,17 +204,22 @@ namespace NonoSharp
         /// <param name="height">Height of the grid for the game.</param>
         /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>Nonogram instance as described above.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
-        public async static Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed, NonogramOptions? options = null)
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        public static async Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed, 
+            NonogramOptions? options = null, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(() => CreateRandomPuzzle(width, height, seed, options));
+            HashSet<CellPosition> solution = await SolutionHelper.GenerateRandomSolutionAsync(width, height, cancellationToken, seed);
+            return new Nonogram(width, height, solution, options);
         }
 
-        /// <inheritdoc cref="CreateRandomPuzzleAsync(int, int, int, NonogramOptions?)"/>
-        public async static Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
+        /// <inheritdoc cref="CreateRandomPuzzleAsync(int, int, int, NonogramOptions?, CancellationToken)"/>
+        public static async Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(() => CreateRandomPuzzle(width, height, options));
+            HashSet<CellPosition> solution = await SolutionHelper.GenerateRandomSolutionAsync(width, height, cancellationToken, seed: null);
+            return new Nonogram(width, height, solution, options);
         }
 
         /// <summary>

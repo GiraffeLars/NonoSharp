@@ -225,5 +225,22 @@ namespace NonoSharp.Tests
             Assert.False(nonogram.IsCellCorrect(cell.X, cell.Y));
             Assert.False(nonogram.IsCellCorrect(cell));
         }
+
+        [Fact]
+        public async Task TestGenerateRandomCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                await Nonogram.CreateRandomPuzzleAsync(15, 15, cancellationToken: cts.Token);
+            });
+
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                await Nonogram.CreateRandomPuzzleAsync(15, 15, 12345, cancellationToken: cts.Token);
+            });
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace NonoSharp
         /// <param name="seed">Optional seed to use with randomisation.</param>
         /// <returns>HashSet of CellPositions containing the coordinates of cells that must be filled.</returns>
         /// <exception cref="ArgumentException">Thrown when width or height are non-positive.</exception>
-        public static HashSet<CellPosition> GenerateRandomSolution(int width, int height, int? seed = null)
+        internal static HashSet<CellPosition> GenerateRandomSolution(int width, int height, int? seed = null)
         {
             Random random = seed.HasValue ? new Random(seed.Value) : new Random();
             HashSet<CellPosition> solution;
@@ -28,6 +28,33 @@ namespace NonoSharp
                 solution = GenerateRandomSet(width, height, random);
                 p.SetSolution(solution);
             } while (!Solver.IsSolvable(p));
+
+            return solution;
+        }
+
+        /// <inheritdoc cref="GenerateRandomSolution(int, int, int?)"/>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        internal static async Task<HashSet<CellPosition>> GenerateRandomSolutionAsync(int width, int height, 
+            CancellationToken cancellationToken, int? seed = null)
+        {
+            Random random = seed.HasValue ? new Random(seed.Value) : new Random();
+
+            Puzzle p = new(width, height, null);
+            bool isSolvable = false;
+
+            var solution = await Task.Run(() =>
+            {
+                HashSet<CellPosition> solution;
+                do
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    solution = GenerateRandomSet(width, height, random);
+                    p.SetSolution(solution);
+
+                    isSolvable = Solver.IsSolvable(p);
+                } while (!isSolvable);
+                return solution;
+            });
 
             return solution;
         }
