@@ -171,16 +171,22 @@ namespace NonoSharp
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public static async Task<PuzzleDefinition> LoadPuzzleAsync(string path)
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        public static async Task<PuzzleDefinition> LoadPuzzleAsync(string path, CancellationToken cancellationToken)
         {
             byte[] serializedPuzzle;
 
             try
             {
-                serializedPuzzle = await File.ReadAllBytesAsync(path);
+                serializedPuzzle = await File.ReadAllBytesAsync(path, cancellationToken);
             }
             catch (Exception e)
             {
+                if (e is OperationCanceledException)
+                {
+                    throw;
+                }
+
                 throw new PuzzleLoadingFailedException("Failed to load puzzle!", e);
             }
 
