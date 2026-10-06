@@ -83,6 +83,8 @@ namespace NonoSharp
         /// <param name="rowClues">The clues for the rows of the nonogram puzzle.</param>
         /// <param name="cancellationToken">The token to monitor cancellation requests on.</param>
         /// <returns>A <c>HashSet</c> of <c>CellPosition</c>s with the found solution.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<HashSet<CellPosition>> SolveAsync(Clues[] columnClues, Clues[] rowClues, 
             CancellationToken cancellationToken = default)
         {
@@ -231,6 +233,8 @@ namespace NonoSharp
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A tuple containing a boolean, indicating whether the nonogram can be solved
         /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
             Nonogram nonogram, CancellationToken cancellationToken = default)
         {
@@ -290,6 +294,8 @@ namespace NonoSharp
         /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
         /// <exception cref="ArgumentException">Thrown when the length of <paramref name="columnClues"/> 
         /// or <paramref name="rowClues"/> are 0.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
             Clues[] columnClues, Clues[] rowClues, CancellationToken cancellationToken = default)
         {
