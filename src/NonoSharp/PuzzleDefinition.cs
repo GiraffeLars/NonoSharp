@@ -92,21 +92,31 @@ namespace NonoSharp
         /// See also <seealso cref="File.WriteAllBytesAsync(string, byte[], CancellationToken)"/>.
         /// </summary>
         /// <param name="path">The path to save the puzzle to</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public async Task SavePuzzleAsync(string path)
+        /// <exception cref="OperationCanceledException">Thrown when the operation was canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public async Task SavePuzzleAsync(string path, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             byte[] serialized = PuzzleSerializer.Serialize(this);
             // No SerializeAsync method as puzzles are usually small in terms of bytes.
             // This is also the reason that there are no async binarywriter/readers available in .NET
 
             try
             {
-                await File.WriteAllBytesAsync(path, serialized);
+                await File.WriteAllBytesAsync(path, serialized, cancellationToken);
             }
             catch (Exception e)
             {
+                if (e is OperationCanceledException)
+                {
+                    throw;
+                }
+
                 throw new PuzzleSavingFailedException("Failed to save puzzle!", e);
             }
         }
@@ -171,18 +181,26 @@ namespace NonoSharp
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        public static async Task<PuzzleDefinition> LoadPuzzleAsync(string path)
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        public static async Task<PuzzleDefinition> LoadPuzzleAsync(string path, CancellationToken cancellationToken)
         {
             byte[] serializedPuzzle;
 
             try
             {
-                serializedPuzzle = await File.ReadAllBytesAsync(path);
+                serializedPuzzle = await File.ReadAllBytesAsync(path, cancellationToken);
             }
             catch (Exception e)
             {
+                if (e is OperationCanceledException)
+                {
+                    throw;
+                }
+
                 throw new PuzzleLoadingFailedException("Failed to load puzzle!", e);
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             // Do not use an asynchronous deserializer as contents are expected to be small.
             return PuzzleSerializer.Deserialize(serializedPuzzle);

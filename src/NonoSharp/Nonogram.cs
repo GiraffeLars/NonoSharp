@@ -161,7 +161,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Creates a Nonogram instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions)"/> 
+        /// Creates a Nonogram instance with a random puzzle. See <see cref="CreateRandomPuzzleAsync(int, int, NonogramOptions, CancellationToken)"/> 
         /// for the asynchronous method.
         /// </summary>
         /// <remarks>
@@ -204,17 +204,22 @@ namespace NonoSharp
         /// <param name="height">Height of the grid for the game.</param>
         /// <param name="seed">The seed to use for randomisation when generating a puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>Nonogram instance as described above.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
-        public async static Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed, NonogramOptions? options = null)
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via <paramref name="cancellationToken"/>.</exception>
+        public static async Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed, 
+            NonogramOptions? options = null, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(() => CreateRandomPuzzle(width, height, seed, options));
+            HashSet<CellPosition> solution = await SolutionHelper.GenerateRandomSolutionAsync(width, height, cancellationToken, seed);
+            return new Nonogram(width, height, solution, options);
         }
 
-        /// <inheritdoc cref="CreateRandomPuzzleAsync(int, int, int, NonogramOptions?)"/>
-        public async static Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null)
+        /// <inheritdoc cref="CreateRandomPuzzleAsync(int, int, int, NonogramOptions?, CancellationToken)"/>
+        public static async Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, NonogramOptions? options = null, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(() => CreateRandomPuzzle(width, height, options));
+            HashSet<CellPosition> solution = await SolutionHelper.GenerateRandomSolutionAsync(width, height, cancellationToken, seed: null);
+            return new Nonogram(width, height, solution, options);
         }
 
         /// <summary>
@@ -525,17 +530,20 @@ namespace NonoSharp
         /// </summary>
         /// <param name="path">Path to save the puzzle at.</param>
         /// <param name="title">Optional title to give the puzzle.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed.
         /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
-        public async Task SaveAsFileAsync(string path, string? title = null)
+        /// <exception cref="OperationCanceledException">Thrown when the operation was canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public async Task SaveAsFileAsync(string path, string? title = null, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = new(Width, Height, puzzle.Solution!, title);
-            await puzzleDef.SavePuzzleAsync(path);
+            await puzzleDef.SavePuzzleAsync(path, cancellationToken);
         }
 
         /// <summary>
@@ -587,15 +595,19 @@ namespace NonoSharp
         /// <param name="path">Puzzle to load</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>Nonogram instance of the puzzle located at the given path</returns>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
         /// See the inner exception for more details</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
-        public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null)
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null, 
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path);
+            PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path, cancellationToken);
 
             Puzzle puzzle = new(puzzleDef);
             return new(puzzle) { Options = options ?? new() };
@@ -625,7 +637,7 @@ namespace NonoSharp
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(stream);
 
             Puzzle puzzle = new(puzzleDef);
-            return new(puzzle) { Options = options ?? new() };
+            return new(puzzle, options);
         }
 
         /// <summary>
