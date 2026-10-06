@@ -35,7 +35,7 @@ namespace NonoSharp
         /// </summary>
         /// <remarks>
         /// If the given puzzle is not solvable, the returned solution will be incomplete.
-        /// To ensure a complete solution, use <see cref="IsSolvableAsync(Nonogram, out HashSet{CellPosition}?, CancellationToken)"/>.
+        /// To ensure a complete solution, use <see cref="IsSolvableAsync(Nonogram, CancellationToken)"/>.
         /// </remarks>
         /// <param name="nonogram">The nonogram to solve in-place.</param>
         /// <param name="cancellationToken">The token to monitor cancellation requests on.</param>
@@ -173,17 +173,7 @@ namespace NonoSharp
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         internal static bool IsSolvable(Puzzle puzzle, out HashSet<CellPosition>? solution, bool inPlace = false)
         {
-            Puzzle puzzleToWorkOn;
-            if (inPlace)
-            {
-                puzzleToWorkOn = puzzle;
-            }
-            else
-            {
-                // Puzzle to work on to calculate solutions (Copy of Puzzle).
-                puzzleToWorkOn = (Puzzle)puzzle.Clone();
-
-            }
+            Puzzle puzzleToWorkOn = inPlace ? puzzle : (Puzzle)puzzle.Clone();
 
             solution = Solve(puzzleToWorkOn);
             // At the end of all iterations, check if the puzzle is solved.
@@ -196,6 +186,17 @@ namespace NonoSharp
                 solution = null;
             }
             return solvable;
+        }
+
+        internal static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
+            Puzzle puzzle, bool inPlace = false, CancellationToken cancellationToken = default)
+        {
+            Puzzle toWorkOn = inPlace ? puzzle : (Puzzle)puzzle.Clone();
+
+            var solution = await SolveAsync(toWorkOn, cancellationToken);
+
+            bool solvable = toWorkOn.IsSolved();
+            return (solvable, solvable ? solution : null);
         }
 
         /// <inheritdoc cref="IsSolvable(Puzzle, out HashSet{CellPosition}?, bool)"/>
@@ -221,6 +222,19 @@ namespace NonoSharp
         public static bool IsSolvable(Nonogram nonogram, out HashSet<CellPosition>? solution)
         {
             return IsSolvable(nonogram.puzzle, out solution);
+        }
+
+        /// <summary>
+        /// Asynchronously determines whether the puzzle in <paramref name="nonogram"/> can be solved.
+        /// </summary>
+        /// <param name="nonogram">The <c>Nonogram</c> to solve.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A tuple containing a boolean, indicating whether the nonogram can be solved
+        /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
+        public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
+            Nonogram nonogram, CancellationToken cancellationToken = default)
+        {
+            return await IsSolvableAsync(nonogram.puzzle, cancellationToken: cancellationToken);
         }
 
 
@@ -264,6 +278,27 @@ namespace NonoSharp
 
             // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
             return IsSolvable(puzzle, out solution, inPlace: true);
+        }
+
+        /// <summary>
+        /// Asynchronously determines whether the puzzle constructed from the given clues can be solved.
+        /// </summary>
+        /// <param name="columnClues">The column clues to use for solving.</param>
+        /// <param name="rowClues">The row clues to use for solving.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A tuple containing a boolean, indicating whether the nonogram can be solved
+        /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
+        /// <exception cref="ArgumentException">Thrown when the length of <paramref name="columnClues"/> 
+        /// or <paramref name="rowClues"/> are 0.</exception>
+        public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
+            Clues[] columnClues, Clues[] rowClues, CancellationToken cancellationToken = default)
+        {
+            int width = columnClues.Length;
+            int height = rowClues.Length;
+            Puzzle puzzle = new(width, height, columnClues, rowClues, null);
+
+            // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
+            return await IsSolvableAsync(puzzle, true, cancellationToken);
         }
 
         /// <summary>
