@@ -51,6 +51,7 @@ namespace NonoSharp
                     solution = GenerateRandomSet(width, height, random);
                     p.SetSolution(solution);
 
+                    cancellationToken.ThrowIfCancellationRequested();
                     isSolvable = Solver.IsSolvable(p);
                 } while (!isSolvable);
                 return solution;
