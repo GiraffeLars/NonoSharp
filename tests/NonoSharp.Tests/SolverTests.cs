@@ -186,6 +186,45 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
+        public async Task TestSolveAsyncCorrectness()
+        {
+            // Solution:
+            // [O][ ][ ]
+            // [O][ ][ ]
+            // [O][O][O]
+            HashSet<CellPosition> solution =
+            [
+                new CellPosition(0, 0),
+                new CellPosition(0, 1),
+                new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
+            ];
+            Nonogram nonogram = new(3, 3, solution);
+
+            var returned = await Solver.SolveAsync(nonogram);
+            Assert.Equal(solution, returned);
+        }
+
+        [Fact]
+        public async Task TestIsSolvableAsyncCorrectness()
+        {
+            // Solution:
+            // [O][ ][ ]
+            // [O][ ][ ]
+            // [O][O][O]
+            HashSet<CellPosition> solution =
+            [
+                new CellPosition(0, 0),
+                new CellPosition(0, 1),
+                new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
+            ];
+            Nonogram nonogram = new(3, 3, solution);
+
+            var returned = await Solver.IsSolvableAsync(nonogram);
+            Assert.True(returned.Item1);
+            Assert.Equal(solution, returned.Item2);
+        }
+
+        [Fact]
         public void Test15x15Puzzle()
         {
             HashSet<CellPosition> solution = [
