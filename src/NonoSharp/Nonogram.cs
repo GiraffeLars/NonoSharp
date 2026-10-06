@@ -530,17 +530,20 @@ namespace NonoSharp
         /// </summary>
         /// <param name="path">Path to save the puzzle at.</param>
         /// <param name="title">Optional title to give the puzzle.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization failed.
         /// For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
-        public async Task SaveAsFileAsync(string path, string? title = null)
+        /// <exception cref="OperationCanceledException">Thrown when the operation was canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public async Task SaveAsFileAsync(string path, string? title = null, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = new(Width, Height, puzzle.Solution!, title);
-            await puzzleDef.SavePuzzleAsync(path);
+            await puzzleDef.SavePuzzleAsync(path, cancellationToken);
         }
 
         /// <summary>

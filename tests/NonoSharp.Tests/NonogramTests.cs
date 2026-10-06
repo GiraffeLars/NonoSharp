@@ -254,5 +254,16 @@ namespace NonoSharp.Tests
                 await Nonogram.LoadPuzzleAsync("totally real path", cancellationToken: cts.Token);
             });
         }
+
+        [Fact]
+        public async Task TestSaveAsFileCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            {
+                await nonogram.SaveAsFileAsync("totally real path", cancellationToken: cts.Token);
+            });
+        }
     }
 }

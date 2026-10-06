@@ -176,9 +176,9 @@ namespace NonoSharp
         /// <returns><c>true</c> if it is uniquely solvable, <c>false</c> otherwise.</returns>
         public bool IsSolvable()
         {
+            _solvableSemaphore.Wait();
             try
             {
-                _solvableSemaphore.Wait();
                 if (!isSolvableDirty) return isSolvable;
 
                 bool solvable = Solver.IsSolvable(ToPuzzle());
@@ -196,12 +196,15 @@ namespace NonoSharp
         /// <summary>
         /// Determines whether the built puzzle is uniquely solvable.
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>True if it is uniquely solvable, false otherwise.</returns>
-        public async Task<bool> IsSolvableAsync()
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public async Task<bool> IsSolvableAsync(CancellationToken cancellationToken = default)
         {
+            await _solvableSemaphore.WaitAsync(cancellationToken);
             try
             {
-                await _solvableSemaphore.WaitAsync();
                 bool solvable = await Task.Run(() => Solver.IsSolvable(ToPuzzle()));
 
                 UpdateSolvable(solvable);
@@ -250,10 +253,13 @@ namespace NonoSharp
         /// <summary>
         /// Converts this puzzle into a playable <see cref="Nonogram"/> asynchronously.
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
-        public async Task<Nonogram> ToNonogramAsync()
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public async Task<Nonogram> ToNonogramAsync(CancellationToken cancellationToken = default)
         {
-            if (!await IsSolvableAsync())
+            if (!await IsSolvableAsync(cancellationToken))
             {
                 throw new PuzzleNotSolvableException("This puzzle is not uniquely solvable!");
             }
@@ -295,20 +301,23 @@ namespace NonoSharp
         /// Saves this puzzle asynchronously at <paramref name="path"/>. Specifically, the expected solution and dimension are stored.
         /// </summary>
         /// <param name="path">The path to save the puzzle to.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example,
         /// when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
-        public async Task SaveAsFileAsync(string path)
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public async Task SaveAsFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (!await IsSolvableAsync())
+            if (!await IsSolvableAsync(cancellationToken))
             {
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
             
-            await ToPuzzleDefinition().SavePuzzleAsync(path);
+            await ToPuzzleDefinition().SavePuzzleAsync(path, cancellationToken);
         }
 
         /// <summary>
@@ -337,10 +346,9 @@ namespace NonoSharp
         {
             if (Solution == null) throw new InvalidOperationException("There is no solution for this puzzle!");
 
+            _solvableSemaphore.Wait();
             try
             {
-                _solvableSemaphore.Wait();
-
                 CellPosition position = new(x, y);
                 if (filled)
                 {

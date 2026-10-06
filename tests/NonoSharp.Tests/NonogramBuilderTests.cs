@@ -193,5 +193,38 @@ namespace NonoSharp.Tests
             Assert.Throws<FormatException>(() => NonogramBuilder.FromString("[O][X"));
             Assert.Throws<FormatException>(() => NonogramBuilder.FromString("[O]X"));
         }
+
+        [Fact]
+        public async Task TestSaveAsFileCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            {
+                await builder.SaveAsFileAsync("totally real path", cancellationToken: cts.Token);
+            });
+        }
+
+        [Fact]
+        public async Task TestIsSolvableAsyncCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            {
+                await builder.IsSolvableAsync(cancellationToken: cts.Token);
+            });
+        }
+
+        [Fact]
+        public async Task TestToNonogramAsyncCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            {
+                await builder.ToNonogramAsync(cancellationToken: cts.Token);
+            });
+        }
     }
 }
