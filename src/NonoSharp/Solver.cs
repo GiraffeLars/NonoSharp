@@ -23,25 +23,32 @@ namespace NonoSharp
         /// If the given puzzle is not solvable, the returned solution will be incomplete.
         /// To ensure a complete solution, use <see cref="IsSolvable(Nonogram, out HashSet{CellPosition}?)"/>.
         /// </remarks>
-        /// <param name="nonogram">Puzzle to solve.</param>
-        /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
+        /// <inheritdoc cref="SolveAsync(Nonogram, CancellationToken)"/>
         public static HashSet<CellPosition> Solve(Nonogram nonogram)
         {
             return Solve(nonogram.puzzle);
         }
 
+
+        /// <summary>
+        /// Asynchronously solves the puzzle of Nonogram instance <paramref name="nonogram"/> in-place.
+        /// </summary>
+        /// <remarks>
+        /// If the given puzzle is not solvable, the returned solution will be incomplete.
+        /// To ensure a complete solution, use <see cref="IsSolvableAsync(Nonogram, CancellationToken)"/>.
+        /// </remarks>
+        /// <param name="nonogram">The nonogram to solve in-place.</param>
+        /// <param name="cancellationToken">The token to monitor cancellation requests on.</param>
+        /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
+        public static Task<HashSet<CellPosition>> SolveAsync(Nonogram nonogram, CancellationToken cancellationToken = default)
+        {
+            return SolveAsync(nonogram.puzzle, cancellationToken);
+        }
+
         /// <summary>
         /// Generates a solution for the puzzle defined by the given clues. 
         /// </summary>
-        /// <remarks>
-        /// If the puzzle defined from the clues is not solvable, the returned solution will be incomplete.
-        /// To ensure a complete solution, use <see cref="IsSolvable(int, int, Clues[], Clues[], out HashSet{CellPosition}?)"/>.<br/>
-        /// The width and height of the puzzle are automatically determined from <paramref name="columnClues"/> 
-        /// and <paramref name="rowClues"/> respectively.
-        /// </remarks>
-        /// <param name="columnClues">The clues for the columns of the nonogram puzzle.</param>
-        /// <param name="rowClues">The clues for the rows of the nonogram puzzle.</param>
-        /// <returns>A <c>HashSet</c> of <c>CellPosition</c>s with the found solution.</returns>
+        /// <inheritdoc cref="SolveAsync(Clues[], Clues[], CancellationToken)"/>
         public static HashSet<CellPosition> Solve(Clues[] columnClues, Clues[] rowClues)
         {
             int width = columnClues.Length;
@@ -64,6 +71,42 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Generates a solution for the puzzle defined by the given clues asynchronously. 
+        /// </summary>
+        /// <remarks>
+        /// If the puzzle defined from the clues is not solvable, the returned solution will be incomplete.
+        /// To ensure a complete solution, use <see cref="IsSolvable(int, int, Clues[], Clues[], out HashSet{CellPosition}?)"/>.<br/>
+        /// The width and height of the puzzle are automatically determined from <paramref name="columnClues"/> 
+        /// and <paramref name="rowClues"/> respectively.
+        /// </remarks>
+        /// <param name="columnClues">The clues for the columns of the nonogram puzzle.</param>
+        /// <param name="rowClues">The clues for the rows of the nonogram puzzle.</param>
+        /// <param name="cancellationToken">The token to monitor cancellation requests on.</param>
+        /// <returns>A <c>HashSet</c> of <c>CellPosition</c>s with the found solution.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public static async Task<HashSet<CellPosition>> SolveAsync(Clues[] columnClues, Clues[] rowClues, 
+            CancellationToken cancellationToken = default)
+        {
+            int width = columnClues.Length;
+            int height = rowClues.Length;
+
+            Grid workGrid = new(width, height);
+            var solution = await SolveAsync(workGrid, columnClues, rowClues, cancellationToken);
+
+            // Reset the clues to undo the work done during solving
+            foreach (var clues in columnClues)
+            {
+                clues.Reset();
+            }
+            foreach (var clues in rowClues)
+            {
+                clues.Reset();
+            }
+            return solution;
+        }
+
+        /// <summary>
         /// Solves <paramref name="puzzle"/> in-place.
         /// </summary>
         /// <param name="puzzle">Puzle to solve</param>
@@ -73,6 +116,11 @@ namespace NonoSharp
             return Solve(puzzle.Grid, puzzle.ColumnClues, puzzle.RowClues);
         }
 
+        /// <inheritdoc cref="Solve(Puzzle)"/>
+        internal static async Task<HashSet<CellPosition>> SolveAsync(Puzzle puzzle, CancellationToken cancellationToken)
+        {
+            return await SolveAsync(puzzle.Grid, puzzle.ColumnClues, puzzle.RowClues, cancellationToken);
+        }
 
         /// <summary>
         /// Solves <paramref name="grid"/> in-place, based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
@@ -85,18 +133,40 @@ namespace NonoSharp
         {
             UniqueQueue<(bool, int)> queue = [];
 
-            for (int i = 0; i < grid.Width; i++)
+            EnqueueAllLines(queue, grid.Width, grid.Height);
+
+            var solution = HandleQueue(queue, grid, columnClues, rowClues);
+            return solution;
+        }
+
+        /// <inheritdoc cref="Solve(Grid, Clues[], Clues[])"/>
+        internal static async Task<HashSet<CellPosition>> SolveAsync(Grid grid, Clues[] columnClues, Clues[] rowClues, 
+            CancellationToken cancellationToken)
+        {
+            UniqueQueue<(bool, int)> queue = [];
+            EnqueueAllLines(queue, grid.Width, grid.Height);
+
+            var solution = await HandleQueueAsync(queue, grid, columnClues, rowClues, cancellationToken);
+            return solution;
+        }
+
+        /// <summary>
+        /// Enqueues all lines in the queue. Modifies <paramref name="queue"/>.
+        /// </summary>
+        /// <param name="queue">The queue to enqueue the lines in.</param>
+        /// <param name="width">The width of the grid.</param>
+        /// <param name="height">The height of the grid.</param>
+        private static void EnqueueAllLines(UniqueQueue<(bool, int)> queue, int width, int height)
+        {
+            for (int i = 0; i < width; i++)
             {
                 queue.Enqueue((true, i));
             }
 
-            for (int j = 0; j < grid.Height; j++)
+            for (int j = 0; j < height; j++)
             {
                 queue.Enqueue((false, j));
             }
-
-            var solution = HandleQueue(queue, grid, columnClues, rowClues);
-            return solution;
         }
 
         /// <summary>
@@ -105,17 +175,7 @@ namespace NonoSharp
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         internal static bool IsSolvable(Puzzle puzzle, out HashSet<CellPosition>? solution, bool inPlace = false)
         {
-            Puzzle puzzleToWorkOn;
-            if (inPlace)
-            {
-                puzzleToWorkOn = puzzle;
-            }
-            else
-            {
-                // Puzzle to work on to calculate solutions (Copy of Puzzle).
-                puzzleToWorkOn = (Puzzle)puzzle.Clone();
-
-            }
+            Puzzle puzzleToWorkOn = inPlace ? puzzle : (Puzzle)puzzle.Clone();
 
             solution = Solve(puzzleToWorkOn);
             // At the end of all iterations, check if the puzzle is solved.
@@ -128,6 +188,17 @@ namespace NonoSharp
                 solution = null;
             }
             return solvable;
+        }
+
+        internal static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
+            Puzzle puzzle, bool inPlace = false, CancellationToken cancellationToken = default)
+        {
+            Puzzle toWorkOn = inPlace ? puzzle : (Puzzle)puzzle.Clone();
+
+            var solution = await SolveAsync(toWorkOn, cancellationToken);
+
+            bool solvable = toWorkOn.IsSolved();
+            return (solvable, solvable ? solution : null);
         }
 
         /// <inheritdoc cref="IsSolvable(Puzzle, out HashSet{CellPosition}?, bool)"/>
@@ -153,6 +224,21 @@ namespace NonoSharp
         public static bool IsSolvable(Nonogram nonogram, out HashSet<CellPosition>? solution)
         {
             return IsSolvable(nonogram.puzzle, out solution);
+        }
+
+        /// <summary>
+        /// Asynchronously determines whether the puzzle in <paramref name="nonogram"/> can be solved.
+        /// </summary>
+        /// <param name="nonogram">The <c>Nonogram</c> to solve.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A tuple containing a boolean, indicating whether the nonogram can be solved
+        /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
+            Nonogram nonogram, CancellationToken cancellationToken = default)
+        {
+            return await IsSolvableAsync(nonogram.puzzle, cancellationToken: cancellationToken);
         }
 
 
@@ -199,6 +285,29 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Asynchronously determines whether the puzzle constructed from the given clues can be solved.
+        /// </summary>
+        /// <param name="columnClues">The column clues to use for solving.</param>
+        /// <param name="rowClues">The row clues to use for solving.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A tuple containing a boolean, indicating whether the nonogram can be solved
+        /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
+        /// <exception cref="ArgumentException">Thrown when the length of <paramref name="columnClues"/> 
+        /// or <paramref name="rowClues"/> are 0.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// via <paramref name="cancellationToken"/>.</exception>
+        public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
+            Clues[] columnClues, Clues[] rowClues, CancellationToken cancellationToken = default)
+        {
+            int width = columnClues.Length;
+            int height = rowClues.Length;
+            Puzzle puzzle = new(width, height, columnClues, rowClues, null);
+
+            // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
+            return await IsSolvableAsync(puzzle, true, cancellationToken);
+        }
+
+        /// <summary>
         /// While there are elements in <paramref name="queue"/>, does a solve iteration.
         /// Cells changed after the line improvement iteration are enqueued as the different direction
         /// </summary>
@@ -216,35 +325,74 @@ namespace NonoSharp
             HashSet<CellPosition> solution = [];
             while (queue.Count > 0)
             {
-                changed.Clear();
-                (bool inColumn, int index) = queue.Dequeue();
-
-                CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
-                Clues clues = inColumn ? columnClues[index] : rowClues[index];
-
-                
-                ImproveLine(line, clues, changed);
-                foreach (int i in changed)
-                {
-                    CellPosition changedPos = inColumn ? new(index, i) : new(i, index);
-                    
-                    grid.SetCell(changedPos.X, changedPos.Y, line[i]);
-
-                    if (line[i] == CellType.Filled)
-                    {
-                        // Only append to the solution if the changed cell has been changed to Filled
-                        solution.Add(changedPos);
-                    }
-                    
-                    queue.Enqueue((!inColumn, i));
-                }
+                DequeueAndProcessLine(queue, grid, columnClues, rowClues, changed, solution);
             }
 
             return solution;
         }
 
+        /// <inheritdoc cref="HandleQueue"/>
+        private static Task<HashSet<CellPosition>> HandleQueueAsync(UniqueQueue<(bool, int)> queue, Grid grid,
+            Clues[] columnClues, Clues[] rowClues, CancellationToken cancellationToken)
+        {
+            // Allocate changed list beforehand and keep reusing it, instead of building a new one each time
+            // as enlarging the list is expensive.
+            List<int> changed = [];
+            HashSet<CellPosition> solution = [];
+
+            return Task.Run(() =>
+                { 
+                    while (queue.Count > 0)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        DequeueAndProcessLine(queue, grid, columnClues, rowClues, changed, solution);
+                    }
+                    return solution;
+                }
+            );
+        }
+
         /// <summary>
-        /// Does a solve iteration. Changed cells in the line are added to the <paramref name="changedIndices"/> list. 
+        /// Dequeues the current head from the queue and processes the line, improving it based 
+        /// on the clues using <see cref="ImproveLine(CellType[], Clues, List{int})"/>.
+        /// </summary>
+        /// <param name="queue">The queue dequeue a line from and enqueue changed cells to.</param>
+        /// <param name="grid">The grid to base the solution on.</param>
+        /// <param name="columnClues">The column clues to base the solution on.</param>
+        /// <param name="rowClues">The row clues to base the solution on.</param>
+        /// <param name="changed">The list to append indices of the cells that are changed to. Is cleared directly after calling
+        /// this method to avoid recreating new lists every call.</param>
+        /// <param name="solution">The set to add the positions of the cells that are changed to Filled.</param>
+        private static void DequeueAndProcessLine(UniqueQueue<(bool, int)> queue, Grid grid,
+            Clues[] columnClues, Clues[] rowClues, List<int> changed, HashSet<CellPosition> solution)
+        {
+            changed.Clear();
+            (bool inColumn, int index) = queue.Dequeue();
+
+            CellType[] line = inColumn ? grid.GetColumnArray(index) : grid.GetRowArray(index);
+            Clues clues = inColumn ? columnClues[index] : rowClues[index];
+
+
+            ImproveLine(line, clues, changed);
+            foreach (int i in changed)
+            {
+                CellPosition changedPos = inColumn ? new(index, i) : new(i, index);
+
+                grid.SetCell(changedPos.X, changedPos.Y, line[i]);
+
+                if (line[i] == CellType.Filled)
+                {
+                    // Only append to the solution if the changed cell has been changed to Filled
+                    solution.Add(changedPos);
+                }
+
+                queue.Enqueue((!inColumn, i));
+            }
+        }
+
+        /// <summary>
+        /// Does a solve iteration, determining which cells must be of certain types. 
+        /// Changed cells in the line are added to the <paramref name="changedIndices"/> list. 
         /// </summary>
         /// <param name="line">The line to improve in-place.</param>
         /// <param name="clues">Clues associated with <paramref name="line"/>.</param>
