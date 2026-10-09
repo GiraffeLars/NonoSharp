@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace NonoSharp
 {
@@ -196,6 +197,33 @@ namespace NonoSharp
             }
 
             return groupsMatchClues;
+        }
+
+        /// <summary>
+        /// Clears all cells in the puzzle grid.
+        /// </summary>
+        /// <returns>A list of the positions of the cleared cells.</returns>
+        public List<CellPosition> ClearCells()
+        {
+            List<CellPosition> cleared = [];
+            LinkedList<ICommand> commands = [];
+            for (int x = 0; x < puzzle.Width; x++)
+            {
+                for (int y = 0; y < puzzle.Height; y++)
+                {
+                    var currentType = puzzle.Grid.GetCell(x, y);
+                    if (puzzle.Grid.GetCell(x, y) != CellType.Empty)
+                    {
+                        cleared.Add(new(x, y));
+                        commands.AddLast(new CellCommand(x, y, puzzle.Grid, CellType.Empty, currentType));
+                    }
+                }
+            }
+
+            CompositeCommand composite = new(commands);
+            composite.Execute();
+            History.PushCommand(composite);
+            return cleared;
         }
 
         private CellCommand CreateCellCommand(int x, int y, CellType newType)

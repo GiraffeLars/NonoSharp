@@ -223,6 +223,22 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Resets the puzzle to its initial state, clearing all filled and crossed cells. 
+        /// Optionally, also clears the history.
+        /// </summary>
+        /// <param name="clearHistory">Whether to clear the history, i.e. the undo and redo stacks.</param>
+        public void Reset(bool clearHistory = false)
+        {
+            var changes = moveManager.ClearCells();
+
+            if (clearHistory)
+            {
+                History.Clear();
+            }
+            OnCellStateChanged(new(changes));
+        }
+
+        /// <summary>
         /// Fills the cell at (<paramref name="x"/>, <paramref name="y"/>).
         /// </summary>
         /// <param name="x">x-coordinate of the cell, zero-indexed from the left.</param>
@@ -300,7 +316,11 @@ namespace NonoSharp
         public void SetCell(int x, int y, CellType newCellType)
         {
             var changes = moveManager.DoMove(x, y, newCellType);
-            OnCellStateChanged(new(changes));
+
+            if (changes.Count > 0)
+            {
+                OnCellStateChanged(new(changes));
+            }
         }
 
         /// <summary>
