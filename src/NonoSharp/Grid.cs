@@ -48,7 +48,11 @@ namespace NonoSharp
         public void SetCell(int x, int y, CellType value)
         {
             ValidateInputCoordinates(x, y);
-            ChangeCell(x, y, value);
+            
+            if (ChangeCell(x, y, value))
+            {
+                OnCellStateChanged(new([new(x, y)]));
+            }
         }
 
         /// <summary>
@@ -95,10 +99,8 @@ namespace NonoSharp
                     changed.Add(pos);
                 }
             }
-            if (changed.Count > 0)
-            {
-                OnCellStateChanged(new(changed));
-            }
+
+            OnCellStateChanged(new(changed));
         }
 
         /// <summary>

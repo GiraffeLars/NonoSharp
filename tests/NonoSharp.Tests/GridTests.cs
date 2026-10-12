@@ -1,4 +1,6 @@
-﻿namespace NonoSharp.Tests
+﻿using NonoSharp.Events;
+
+namespace NonoSharp.Tests
 {
     public class GridTests
     {
@@ -33,6 +35,26 @@
             {
                 Assert.Throws<ArgumentOutOfRangeException>(act);
             }
+        }
+
+        [Fact]
+        public void TestSetCellFiresChangeEvent()
+        {
+            bool eventFired = false;
+            object? sender = null;
+            CellStateEventArgs? args = null;
+            grid.CellStateChanged += (s, e) =>
+            {
+                eventFired = true;
+                sender = s;
+                args = e;
+            };
+            grid.SetCell(0, 0, CellType.Filled);
+            Assert.True(eventFired);
+            Assert.Same(grid, sender);
+            Assert.NotNull(args);
+            Assert.Equal(0, args.Cells[0].X);
+            Assert.Equal(0, args.Cells[0].Y);
         }
 
         [Fact]

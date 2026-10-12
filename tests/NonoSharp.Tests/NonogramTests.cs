@@ -265,5 +265,33 @@ namespace NonoSharp.Tests
                 await nonogram.SaveAsFileAsync("totally real path", cancellationToken: cts.Token);
             });
         }
+
+        [Fact]
+        public void TestReset()
+        {
+            nonogram.FillCell(0, 0);
+            nonogram.CrossCell(1, 1);
+
+            nonogram.Reset(clearHistory: false);
+            for (int i = 0; i < nonogram.Width; i++)
+            {
+                for (int j = 0; j < nonogram.Height; j++)
+                {
+                    Assert.True(nonogram.IsCellEmpty(i, j));
+                }
+            }
+            Assert.True(nonogram.CanUndo);
+
+            nonogram.Undo();
+            nonogram.Reset(clearHistory: true);
+            for (int i = 0; i < nonogram.Width; i++)
+            {
+                for (int j = 0; j < nonogram.Height; j++)
+                {
+                    Assert.True(nonogram.IsCellEmpty(i, j));
+                }
+            }
+            Assert.False(nonogram.CanUndo);
+        }
     }
 }
