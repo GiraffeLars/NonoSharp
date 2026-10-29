@@ -54,18 +54,11 @@ namespace NonoSharp
             int width = columnClues.Length;
             int height = rowClues.Length;
 
-            Grid workGrid = new(width, height);
-            var solution = Solve(workGrid, columnClues, rowClues);
+            var columnCluesCloned = columnClues.Select(clues => (Clues) clues.Clone()).ToArray();
+            var rowCluesCloned = rowClues.Select(clues => (Clues) clues.Clone()).ToArray();
 
-            // Reset the clues to undo the work done during solving
-            foreach (var clues in columnClues)
-            {
-                clues.Reset();
-            }
-            foreach (var clues in rowClues)
-            {
-                clues.Reset();
-            }
+            Grid workGrid = new(width, height);
+            var solution = Solve(workGrid, columnCluesCloned, rowCluesCloned);
 
             return solution;
         }
@@ -91,18 +84,12 @@ namespace NonoSharp
             int width = columnClues.Length;
             int height = rowClues.Length;
 
-            Grid workGrid = new(width, height);
-            var solution = await SolveAsync(workGrid, columnClues, rowClues, cancellationToken);
+            var columnCluesCloned = columnClues.Select(clues => (Clues)clues.Clone()).ToArray();
+            var rowCluesCloned = rowClues.Select(clues => (Clues)clues.Clone()).ToArray();
 
-            // Reset the clues to undo the work done during solving
-            foreach (var clues in columnClues)
-            {
-                clues.Reset();
-            }
-            foreach (var clues in rowClues)
-            {
-                clues.Reset();
-            }
+            Grid workGrid = new(width, height);
+            var solution = await SolveAsync(workGrid, columnCluesCloned, rowCluesCloned, cancellationToken);
+
             return solution;
         }
 
