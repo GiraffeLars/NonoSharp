@@ -40,24 +40,19 @@ namespace NonoSharp
             Random random = seed.HasValue ? new Random(seed.Value) : new Random();
 
             Puzzle p = new(width, height, null);
-            bool isSolvable = false;
 
-            var solution = await Task.Run(() =>
+            (bool, HashSet<CellPosition>?) solvableResults;
+            do
             {
-                HashSet<CellPosition> solution;
-                do
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    solution = GenerateRandomSet(width, height, random);
-                    p.SetSolution(solution);
+                cancellationToken.ThrowIfCancellationRequested();
+                var solution = GenerateRandomSet(width, height, random);
+                p.SetSolution(solution);
 
-                    cancellationToken.ThrowIfCancellationRequested();
-                    isSolvable = Solver.IsSolvable(p);
-                } while (!isSolvable);
-                return solution;
-            });
+                cancellationToken.ThrowIfCancellationRequested();
+                solvableResults = await Solver.IsSolvableAsync(p);
+            } while (!solvableResults.Item1);
 
-            return solution;
+            return solvableResults.Item2!;
         }
 
         /// <summary>

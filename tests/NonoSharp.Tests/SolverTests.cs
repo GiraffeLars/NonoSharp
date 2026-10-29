@@ -186,6 +186,91 @@ namespace NonoSharp.Tests
         }
 
         [Fact]
+        public async Task TestSolveAsyncCorrectness()
+        {
+            // Solution:
+            // [O][ ][ ]
+            // [O][ ][ ]
+            // [O][O][O]
+            HashSet<CellPosition> solution =
+            [
+                new CellPosition(0, 0),
+                new CellPosition(0, 1),
+                new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
+            ];
+            Nonogram nonogram = new(3, 3, solution);
+
+            var returned = await Solver.SolveAsync(nonogram);
+            Assert.Equal(solution, returned);
+        }
+
+        [Fact]
+        public async Task TestSolveAsyncFromClues()
+        {
+            // [O][O][O]
+            // [ ][O][ ]
+            Clues[] columnClues = [new(1), new(2), new(1)];
+            Clues[] rowClues = [new(3), new(1)];
+            HashSet<CellPosition> expectedSolution = [new(0, 0), new(1, 0), new(2, 0), new CellPosition(1, 1)];
+            var returned = await Solver.SolveAsync(columnClues, rowClues);
+            Assert.Equal(expectedSolution, returned);
+        }
+
+        [Fact]
+        public async Task TestSolveAsyncCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await Solver.SolveAsync(new Nonogram(1, 1, new HashSet<CellPosition>()), cts.Token)
+            );
+        }
+
+        [Fact]
+        public async Task TestIsSolvableAsyncCorrectness()
+        {
+            // Solution:
+            // [O][ ][ ]
+            // [O][ ][ ]
+            // [O][O][O]
+            HashSet<CellPosition> solution =
+            [
+                new CellPosition(0, 0),
+                new CellPosition(0, 1),
+                new CellPosition(0, 2), new CellPosition(1, 2), new CellPosition(2, 2)
+            ];
+            Nonogram nonogram = new(3, 3, solution);
+
+            var returned = await Solver.IsSolvableAsync(nonogram);
+            Assert.True(returned.Item1);
+            Assert.Equal(solution, returned.Item2);
+        }
+
+        [Fact]
+        public async Task TestIsSolvableAsyncFromClues()
+        {
+            // [O][O][O]
+            // [ ][O][ ]
+            Clues[] columnClues = [new(1), new(2), new(1)];
+            Clues[] rowClues = [new(3), new(1)];
+            HashSet<CellPosition> expectedSolution = [new(0, 0), new(1, 0), new(2, 0), new CellPosition(1, 1)];
+            var returned = await Solver.IsSolvableAsync(columnClues, rowClues);
+            Assert.True(returned.Item1);
+            Assert.Equal(expectedSolution, returned.Item2);
+        }
+
+        [Fact]
+        public async Task TestIsSolvableAsyncCancellation()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await Solver.IsSolvableAsync(new Nonogram(1, 1, new HashSet<CellPosition>()), cts.Token)
+            );
+        }
+
+        [Fact]
         public void Test15x15Puzzle()
         {
             HashSet<CellPosition> solution = [
