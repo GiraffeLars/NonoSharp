@@ -316,11 +316,7 @@ namespace NonoSharp
         public void SetCell(int x, int y, CellType newCellType)
         {
             var changes = moveManager.DoMove(x, y, newCellType);
-
-            if (changes.Count > 0)
-            {
-                OnCellStateChanged(new(changes));
-            }
+            OnCellStateChanged(new(changes));
         }
 
         /// <summary>
