@@ -39,7 +39,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Sets the specified cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="value"/>.
+        /// Sets the specified cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="value"/>
         /// </summary>
         /// <param name="x">x-coordinate of cell to set</param>
         /// <param name="y">y-coordinate of cell to set</param>
@@ -48,59 +48,18 @@ namespace NonoSharp
         public void SetCell(int x, int y, CellType value)
         {
             ValidateInputCoordinates(x, y);
-            
-            if (ChangeCell(x, y, value))
+
+            if (grid[x, y] != CellType.Filled && value == CellType.Filled)
             {
-                OnCellStateChanged(new([new(x, y)]));
+                Filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
             }
-        }
-
-        /// <summary>
-        /// Changes the cell at (<paramref name="x"/>, <paramref name="y"/>) to <paramref name="value"/> 
-        /// if it is not already that value.
-        /// Input is not checked. Does not raise <c>CellStateChanged</c> event.
-        /// </summary>
-        /// <returns><c>true</c> if the cell was changed, <c>false</c> otherwise.</returns>
-        private bool ChangeCell(int x, int y, CellType value)
-        {
-            if (grid[x, y] != value)
+            else if (grid[x, y] == CellType.Filled && value != CellType.Filled)
             {
-                if (grid[x, y] != CellType.Filled && value == CellType.Filled)
-                {
-                    Filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
-                }
-                else if (grid[x, y] == CellType.Filled && value != CellType.Filled)
-                {
-                    Filled--;
-                }
-                grid[x, y] = value;
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Sets the cells in <paramref name="newValues"/> to their corresponding values. Raises <c>CellStateChanged</c> 
-        /// for all changed cells in one go.
-        /// </summary>
-        /// <param name="newValues">The cells to change with their new types</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when any of the cell positions are out of bounds.</exception>
-        public void SetCells(Dictionary<CellPosition, CellType> newValues)
-        {
-            List<CellPosition> changed = [];
-            foreach (var kvp in newValues)
-            {
-                CellPosition pos = kvp.Key;
-                CellType value = kvp.Value;
-
-                ValidateInputCoordinates(pos.X, pos.Y);
-                if (ChangeCell(pos.X, pos.Y, value))
-                {
-                    changed.Add(pos);
-                }
+                Filled--;
             }
 
-            OnCellStateChanged(new(changed));
+            grid[x, y] = value;
+            OnCellStateChanged(new([new(x, y)]));
         }
 
         /// <summary>
@@ -338,6 +297,23 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Deep copies <paramref name="toClone"/>
+        /// </summary>
+        /// <param name="toClone">The clues array to clone</param>
+        /// <returns>Deep copy of <c>toClone</c></returns>
+        private Clues[] CloneClues(Clues[] toClone)
+        {
+            Clues[] clone = new Clues[toClone.Length];
+
+            for (int i = 0; i < toClone.Length; i++)
+            {
+                clone[i] = (Clues) toClone[i].Clone();
+            }
+
+            return clone;
+        }
+
+        /// <summary>
         /// Gets/sets the value of the cell at (<paramref name="x"/>, <paramref name="y"/>).
         /// The parameters are unchecked.
         /// </summary>
@@ -349,10 +325,13 @@ namespace NonoSharp
             }
             set
             {
-                if (ChangeCell(x, y, value))
-                {
-                    OnCellStateChanged(new([new(x, y)]));
-                }
+                if (grid[x, y] == value) return;
+                if (grid[x, y] == CellType.Filled) Filled--;
+
+                grid[x, y] = value;
+
+                if (value == CellType.Filled) Filled++;
+                OnCellStateChanged(new([new(x, y)]));
             }
         }
 

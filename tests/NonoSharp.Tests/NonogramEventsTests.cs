@@ -186,5 +186,31 @@ namespace NonoSharp.Tests
             nonogram.CrossCell(0, 1);
             Assert.False(eventFired);
         }
+
+        [Fact]
+        public void TestResetEvent()
+        {
+            Nonogram nonogram = new(new Puzzle(1, 1, null));
+            bool eventFired = false;
+            object? sender = null;
+            IReadOnlyList<CellPosition>? cells = null;
+
+            nonogram.FillCell(0, 0);
+            nonogram.CellStateChanged += (s, e) => 
+            { 
+                eventFired = true;
+                sender = s;
+                cells = e.Cells;
+            };
+
+            nonogram.Reset();
+            Assert.True(eventFired);
+            Assert.Same(nonogram, sender);
+
+            Assert.NotNull(cells);
+            Assert.Single(cells);
+            Assert.Equal(0, cells[0].X);
+            Assert.Equal(0, cells[0].Y);
+        }
     }
 }
