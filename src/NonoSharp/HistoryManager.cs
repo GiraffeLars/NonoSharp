@@ -92,5 +92,19 @@ namespace NonoSharp
                 return [.. c.GetChanges()];
             } finally { historyLock.Exit(); }
         }
+
+        /// <summary>
+        /// Clears the full history, that is, both the undo and redo stacks.
+        /// </summary>
+        public void Clear()
+        {
+            historyLock.Enter();
+            try
+            {
+                undoStack.Clear();
+                redoStack.Clear();
+            }
+            finally { historyLock.Exit(); }
+        }
     }
 }
