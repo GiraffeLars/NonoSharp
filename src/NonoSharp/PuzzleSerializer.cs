@@ -1,5 +1,6 @@
 ﻿using NonoSharp.Exceptions;
 using System.Text;
+using System.Text.Json;
 
 namespace NonoSharp
 {
@@ -9,6 +10,7 @@ namespace NonoSharp
         public static int Version { get; } = 0;
 
         private const int INDENTATION_SPACES = 4; // Number of spaces to use for indentation in JSON output
+        private static readonly JsonSerializerOptions jsonSerializerOptions = new() { RespectNullableAnnotations = true };
 
         /// <summary>
         /// Serializes <paramref name="puzzle"/>.
@@ -23,7 +25,8 @@ namespace NonoSharp
             try
             {
                 totalCells = checked(puzzle.Width * puzzle.Height);
-            } catch (OverflowException)
+            }
+            catch (OverflowException)
             {
                 throw new PuzzleSerializationFailedException("This puzzle is too large to serialize!");
             }
@@ -310,9 +313,9 @@ namespace NonoSharp
                 sb.AppendLine($"    \"title\": \"{puzzle.Title}\",");
             }
 
-            sb.Append($"    \"columns\": ");
+            sb.Append("    \"columns\": ");
             sb.Append(ConvertCluesToJSONLists(puzzle.ColumnClues, 1));
-            sb.Append($"    \"rows\": ");
+            sb.Append("    \"rows\": ");
             sb.Append(ConvertCluesToJSONLists(puzzle.RowClues, 1, trailingComma: false));
             sb.AppendLine("}");
             return sb.ToString();
@@ -355,5 +358,28 @@ namespace NonoSharp
 
             return sb.ToString();
         }
+
+        public static Puzzle FromJSON(string json)
+        {
+            JSONNonogramFormat deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(json, jsonSerializerOptions)
+                ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+
+            Clues[] columnClues = [.. deserialised.columns.Select(nums => new Clues(nums))];
+            Clues[] rowClues = [.. deserialised.rows.Select(nums => new Clues(nums))];
+
+
+            if (!Solver.IsSolvable(columnClues, rowClues, out var solution))
+            {
+                throw new PuzzleNotSolvableException("The puzzle contained in the JSON is not solvable!");
+            }
+            return new(columnClues, rowClues, solution) { Title = deserialised.title };
+        }
+    }
+
+    internal class JSONNonogramFormat
+    {
+        public String? title { get; set; }
+        public required int[][] columns { get; set; }
+        public required int[][] rows { get; set; }
     }
 }

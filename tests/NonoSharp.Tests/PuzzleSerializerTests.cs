@@ -306,5 +306,36 @@ namespace NonoSharp.Tests
 
             Assert.Equal(expected, PuzzleSerializer.ToJSON(puzzle));
         }
+
+        [Fact]
+        public void TestFromJSON()
+        {
+            string json = """
+                {
+                    "title": "test",
+                    "columns": [
+                        [1, 2, 3],
+                        [1, 1]
+                    ],
+                    "rows": [
+                        [4, 5, 6],
+                        [2, 2],
+                        [3, 3]
+                    ]
+                }
+                """ + Environment.NewLine;
+
+            var deserialised = PuzzleSerializer.FromJSON(json);
+            Assert.Null(deserialised.Title);
+            Assert.Equal(2, deserialised.Width);
+            Assert.Equal(3, deserialised.Height);
+
+            Assert.Equal([1, 2, 3], deserialised.ColumnClues[0].Select(c => c.Number));
+            Assert.Equal([1, 1], deserialised.ColumnClues[1].Select(c => c.Number));
+
+            Assert.Equal([4, 5, 6], deserialised.RowClues[0].Select(c => c.Number));
+            Assert.Equal([2, 2], deserialised.RowClues[1].Select(c => c.Number));
+            Assert.Equal([3, 3], deserialised.RowClues[2].Select(c => c.Number));
+        }
     }
 }
