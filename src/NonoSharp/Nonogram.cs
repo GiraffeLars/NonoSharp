@@ -560,6 +560,15 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Converts this Nonogram's clues and title into a JSON format.
+        /// </summary>
+        /// <returns>A string representing this puzzle in a JSON format.</returns>
+        public string ToJSON()
+        {
+            return PuzzleSerializer.ToJSON(puzzle);
+        }
+
+        /// <summary>
         /// Loads the puzzle at <paramref name="path"/> and returns a new Nonogram instance.
         /// </summary>
         /// <param name="path">Puzzle to load.</param>

@@ -270,13 +270,41 @@ namespace NonoSharp.Tests
             }
 
             // Check if all added cells are empty
-            for (int x = oldWidth;  x < newPuzzle.Width; x++)
+            for (int x = oldWidth; x < newPuzzle.Width; x++)
             {
                 for (int y = oldHeight; y < newPuzzle.Height; y++)
                 {
                     Assert.False(newPuzzle.GetSolutionAt(x, y));
                 }
             }
+        }
+
+        [Fact]
+        public void TestToJSON()
+        {
+            string expected = """
+                {
+                    "title": "test",
+                    "columns": [
+                        [1, 2, 3],
+                        [1, 1]
+                    ],
+                    "rows": [
+                        [4, 5, 6],
+                        [2, 2]
+                    ]
+                }
+                """ + Environment.NewLine;
+
+            Clues[] colClues = [new(1, 2, 3), new(1, 1)];
+            Clues[] rowClues = [new(4, 5, 6), new(2, 2)];
+
+            Puzzle puzzle = new(colClues, rowClues, null)
+            {
+                Title = "test"
+            };
+
+            Assert.Equal(expected, PuzzleSerializer.ToJSON(puzzle));
         }
     }
 }
