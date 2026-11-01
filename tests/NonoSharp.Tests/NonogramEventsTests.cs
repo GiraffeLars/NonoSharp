@@ -65,7 +65,7 @@ namespace NonoSharp.Tests
             Clues[] a = [Clues.FromString("1")];
             Clues[] b = [Clues.FromString("1")];
 
-            Nonogram nonogram = new(1, 1, a, b);
+            Nonogram nonogram = new(a, b);
             bool eventFired = false;
             nonogram.PuzzleSolved += (s, e) => { eventFired = true; };
             nonogram.FillCell(0, 0);
@@ -78,7 +78,7 @@ namespace NonoSharp.Tests
             Clues[] a = [Clues.FromString("1")];
             Clues[] b = [Clues.FromString("1")];
 
-            Nonogram nonogram = new(1, 1, a, b, optsAutoCorrect);
+            Nonogram nonogram = new(a, b, optsAutoCorrect);
             bool eventFired = false;
             nonogram.CellCorrected += (s, e) => { eventFired = true; };
             nonogram.CrossCell(0, 0);

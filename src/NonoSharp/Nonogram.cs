@@ -126,23 +126,20 @@ namespace NonoSharp
         /// Creates a <c>Nonogram</c> with a solution based on <paramref name="columnClues"/> and <paramref name="rowClues"/>.
         /// </summary>
         /// <remarks>
-        /// The puzzle must be uniquely solvable.
+        /// The puzzle must be uniquely solvable. The width and height of the puzzle are based on the given clues.
         /// </remarks>
-        /// <param name="width">Width of the puzzle.</param>
-        /// <param name="height">Height of the puzzle.</param>
         /// <param name="columnClues">Array of <see cref="Clues"/> instances, one for each column of the puzzle.</param>
         /// <param name="rowClues">Array of <see cref="Clues"/> instances, one for each row of the puzzle.</param>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
-        /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> 
-        /// and <paramref name="rowClues"/> do not match <paramref name="width"/> 
-        /// or <paramref name="height"/> respectively.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"> Thrown when <paramref name="width"/> 
-        /// or <paramref name="height"/> are non-positive.</exception>
+        /// <returns>A new <c>Nonogram</c> instance with a solution based on the given clues.</returns>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the puzzle constructed from the clues and 
         /// dimensions is not uniquely solvable.</exception>
-        public Nonogram(int width, int height, Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
+        public Nonogram(Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
         {
-            bool solvable = Solver.IsSolvable(width, height, columnClues, rowClues, out var solution);
+            int width = columnClues.Length;
+            int height = rowClues.Length;
+
+            bool solvable = Solver.IsSolvable(columnClues, rowClues, out var solution);
             if (!solvable || solution == null)
             {
                 throw new PuzzleNotSolvableException(

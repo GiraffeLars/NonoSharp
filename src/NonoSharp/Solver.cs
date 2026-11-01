@@ -68,7 +68,7 @@ namespace NonoSharp
         /// </summary>
         /// <remarks>
         /// If the puzzle defined from the clues is not solvable, the returned solution will be incomplete.
-        /// To ensure a complete solution, use <see cref="IsSolvable(int, int, Clues[], Clues[], out HashSet{CellPosition}?)"/>.<br/>
+        /// To ensure a complete solution, use <see cref="IsSolvable(Clues[], Clues[], out HashSet{CellPosition}?)"/>.<br/>
         /// The width and height of the puzzle are automatically determined from <paramref name="columnClues"/> 
         /// and <paramref name="rowClues"/> respectively.
         /// </remarks>
@@ -229,43 +229,25 @@ namespace NonoSharp
         }
 
 
-        /// <inheritdoc cref="IsSolvable(int, int, Clues[], Clues[], out HashSet{CellPosition}?)"/>
-        public static bool IsSolvable(int width, int height, Clues[] columnClues, Clues[] rowClues)
+        /// <inheritdoc cref="IsSolvable(Clues[], Clues[], out HashSet{CellPosition}?)"/>
+        public static bool IsSolvable(Clues[] columnClues, Clues[] rowClues)
         {
-            return IsSolvable(width, height, columnClues, rowClues, out _);
+            return IsSolvable(columnClues, rowClues, out _);
         }
 
         /// <summary>
         /// Determines whether the puzzle constructed from the given dimensions and clues can be solved.
         /// </summary>
-        /// <param name="width">Width of the puzzle to solve.</param>
-        /// <param name="height">Height of the puzzle to solve.</param>
+        /// <remarks> The width and height of the puzzle are determined by the lengths of the column and row clues respectively.</remarks>
         /// <param name="columnClues">Column clues (usually shown on the top of the puzzle) for this puzzle.</param>
         /// <param name="rowClues">Row clues (usually shown on the right of the puzzle) for this puzzle.</param>
         /// <param name="solution">The solution HashSet if the puzzle is solvable.
         /// <c>null</c> if the puzzle is not solvable.</param>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
-        /// <exception cref="ArgumentException">Thrown when the lengths of <paramref name="columnClues"/> 
-        /// and <paramref name="rowClues"/> do not match <paramref name="width"/> 
-        /// or <paramref name="height"/> respectively.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"> Thrown when <paramref name="width"/> 
-        /// or <paramref name="height"/> are non-positive.</exception>
-        public static bool IsSolvable(int width, int height, Clues[] columnClues, Clues[] rowClues,
+        public static bool IsSolvable(Clues[] columnClues, Clues[] rowClues,
             out HashSet<CellPosition>? solution)
-        {
-            if (width != columnClues.Length)
-            {
-                throw new ArgumentException($"The length of {nameof(columnClues)} ({columnClues.Length}) " +
-                    $"must match ${nameof(width)} ({width})!");
-            }
-
-            if (height != rowClues.Length)
-            {
-                throw new ArgumentException($"The length of {nameof(rowClues)} ({rowClues.Length}) " +
-                    $"must match ${nameof(height)} ({height})!");
-            }
-
-            Puzzle puzzle = new(width, height, columnClues, rowClues, null);
+        { 
+            Puzzle puzzle = new(columnClues, rowClues, null);
 
             // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
             return IsSolvable(puzzle, out solution, inPlace: true);
