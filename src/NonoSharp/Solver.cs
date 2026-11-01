@@ -270,7 +270,7 @@ namespace NonoSharp
         {
             int width = columnClues.Length;
             int height = rowClues.Length;
-            Puzzle puzzle = new(width, height, columnClues, rowClues, null);
+            Puzzle puzzle = new(columnClues, rowClues, null);
 
             // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
             return await IsSolvableAsync(puzzle, true, cancellationToken);
