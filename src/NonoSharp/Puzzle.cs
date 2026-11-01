@@ -46,10 +46,9 @@ namespace NonoSharp
         /// <paramref name="solution"/> is not validated to be correct according to <paramref name="columnClues"/> and
         /// <paramref name="rowClues"/>.
         /// </remarks>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are invalid dimensions.</exception>
-        internal Puzzle(int width, int height, Clues[] columnClues, Clues[] rowClues,
+        internal Puzzle(Clues[] columnClues, Clues[] rowClues,
             IEnumerable<CellPosition>? solution) :
-            this(new(width, height), columnClues, rowClues, solution, 0)
+            this(new(columnClues.Length, rowClues.Length), columnClues, rowClues, solution, 0)
         { }
 
         internal Puzzle(PuzzleDefinition definition) : base(definition.Width, definition.Height, definition.Solution, definition.Title)

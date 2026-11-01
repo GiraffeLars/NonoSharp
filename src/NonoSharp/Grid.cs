@@ -297,23 +297,6 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Deep copies <paramref name="toClone"/>
-        /// </summary>
-        /// <param name="toClone">The clues array to clone</param>
-        /// <returns>Deep copy of <c>toClone</c></returns>
-        private Clues[] CloneClues(Clues[] toClone)
-        {
-            Clues[] clone = new Clues[toClone.Length];
-
-            for (int i = 0; i < toClone.Length; i++)
-            {
-                clone[i] = (Clues) toClone[i].Clone();
-            }
-
-            return clone;
-        }
-
-        /// <summary>
         /// Gets/sets the value of the cell at (<paramref name="x"/>, <paramref name="y"/>).
         /// The parameters are unchecked.
         /// </summary>

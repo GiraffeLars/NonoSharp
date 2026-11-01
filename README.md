@@ -133,7 +133,7 @@ Clues[] rowClues =
     new Clues(1, 1),
 ];
 
-var solvable = Solver.IsSolvable(3, 3, columnClues, rowClues, out var solution);
+var solvable = Solver.IsSolvable(columnClues, rowClues, out var solution);
 ```
 
 

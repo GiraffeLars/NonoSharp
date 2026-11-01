@@ -55,7 +55,7 @@
         {
             Clues[] rowClues = [Clues.FromString("1 1")];
             Clues[] colClues = [Clues.FromString("1"), Clues.FromString("0"), Clues.FromString("1")];
-            Puzzle p = new(3, 1, colClues, rowClues, null);
+            Puzzle p = new(colClues, rowClues, null);
 
             Assert.False(p.IsSolved());
 

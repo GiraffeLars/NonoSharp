@@ -196,7 +196,7 @@ namespace NonoSharp.Tests
         {
             Clues[] colClues = [[new(3)], [new(1), new(1)], [new(3)]];
             Clues[] rowClues = [[new(3)], [new(1), new(1)], [new(3)]];
-            Nonogram nonogram = new(3, 3, colClues, rowClues);
+            Nonogram nonogram = new(colClues, rowClues);
             HashSet<CellPosition> expected = [
                 new(0,0), new(1,0), new(2, 0),
                 new(0,1), new(2,1),

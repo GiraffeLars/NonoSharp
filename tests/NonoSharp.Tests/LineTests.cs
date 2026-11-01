@@ -22,10 +22,10 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestCluesMatching()
         {
-            var rowClues = Clues.FromString("1");
-            var columnClues = Clues.FromString("1");
+            Clues rowClues = new(1);
+            Clues columnClues = new(1);
 
-            var nonogram = new Nonogram(1, 1, [columnClues], [rowClues]);
+            var nonogram = new Nonogram([columnClues], [rowClues]);
             Assert.Same(nonogram.RowClues[0], nonogram.Rows[0].Clues);
             Assert.Same(nonogram.ColumnClues[0], nonogram.Columns[0].Clues);
         }
