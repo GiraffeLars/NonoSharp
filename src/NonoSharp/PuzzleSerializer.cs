@@ -359,17 +359,38 @@ namespace NonoSharp
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Converts a JSON string to a <c>Puzzle</c>.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns>The deserialized puzzle.</returns>
+        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
+        /// Refer to the inner-exception for more details.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
         public static Puzzle FromJSON(string json)
         {
-            JSONNonogramFormat deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(json, jsonSerializerOptions)
-                ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            JSONNonogramFormat deserialised;
+            try
+            {
+                deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(json, jsonSerializerOptions)
+                    ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            } catch (Exception e) {
+                throw new PuzzleDeserializationFailedException("Failed to deserialize JSON!", e);
+            }
             return ConvertJSONFormatToPuzzle(deserialised);
         }
 
+        /// <inheritdoc cref="FromJSON(string)"/>
         public static Puzzle FromJSON(Stream stream)
         {
-            JSONNonogramFormat deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(stream, jsonSerializerOptions)
-                ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            JSONNonogramFormat deserialised;
+            try
+            {
+                deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(stream, jsonSerializerOptions)
+                    ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            } catch (Exception e) {
+                throw new PuzzleDeserializationFailedException("Failed to deserialize JSON!", e);
+            }
             return ConvertJSONFormatToPuzzle(deserialised);
         }
 

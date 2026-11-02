@@ -668,6 +668,10 @@ namespace NonoSharp
         /// <param name="json">The JSON representation of the nonogram.</param>
         /// <param name="options">The options to apply to the nonogram, or <c>null</c> to use the default options.</param>
         /// <returns>A <c>Nonogram</c> instance created from the specified JSON representation.</returns>
+        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
+        /// Refer to the inner-exception for more details.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
+
         public static Nonogram FromJSON(string json, NonogramOptions? options = null)
         {
             var puzzle = PuzzleSerializer.FromJSON(json);
@@ -679,6 +683,10 @@ namespace NonoSharp
         /// <param name="stream">The stream containing the JSON representation of the nonogram.</param>
         /// <param name="options">The options to apply to the nonogram, or <c>null</c> to use the default options.</param>
         /// <returns>A <c>Nonogram</c> instance created from the specified JSON representation.</returns>
+        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
+        /// Refer to the inner-exception for more details.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
+
         public static Nonogram FromJSON(Stream stream, NonogramOptions? options = null)
         {
             var puzzle = PuzzleSerializer.FromJSON(stream);
