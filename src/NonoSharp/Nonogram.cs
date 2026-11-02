@@ -663,6 +663,29 @@ namespace NonoSharp
         }
 
         /// <summary>
+        /// Creates a nonogram from a JSON representation.
+        /// </summary>
+        /// <param name="json">The JSON representation of the nonogram.</param>
+        /// <param name="options">The options to apply to the nonogram, or <c>null</c> to use the default options.</param>
+        /// <returns>A <c>Nonogram</c> instance created from the specified JSON representation.</returns>
+        public static Nonogram FromJSON(string json, NonogramOptions? options = null)
+        {
+            var puzzle = PuzzleSerializer.FromJSON(json);
+            return new(puzzle, options);
+        }
+        /// <summary>
+        /// Creates a nonogram from a JSON representation.
+        /// </summary>
+        /// <param name="stream">The stream containing the JSON representation of the nonogram.</param>
+        /// <param name="options">The options to apply to the nonogram, or <c>null</c> to use the default options.</param>
+        /// <returns>A <c>Nonogram</c> instance created from the specified JSON representation.</returns>
+        public static Nonogram FromJSON(Stream stream, NonogramOptions? options = null)
+        {
+            var puzzle = PuzzleSerializer.FromJSON(stream);
+            return new(puzzle, options);
+        }
+
+        /// <summary>
         /// Converts this instance into a nice string representation of the grid. This includes all cells and
         /// their respective states and the clues at the sides.
         /// </summary>

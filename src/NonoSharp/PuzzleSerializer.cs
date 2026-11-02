@@ -363,7 +363,19 @@ namespace NonoSharp
         {
             JSONNonogramFormat deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(json, jsonSerializerOptions)
                 ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            return ConvertJSONFormatToPuzzle(deserialised);
+        }
 
+        public static Puzzle FromJSON(Stream stream)
+        {
+            JSONNonogramFormat deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(stream, jsonSerializerOptions)
+                ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            return ConvertJSONFormatToPuzzle(deserialised);
+        }
+
+
+        private static Puzzle ConvertJSONFormatToPuzzle(JSONNonogramFormat deserialised)
+        {
             Clues[] columnClues = [.. deserialised.columns.Select(nums => new Clues(nums))];
             Clues[] rowClues = [.. deserialised.rows.Select(nums => new Clues(nums))];
 
@@ -373,6 +385,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("The puzzle contained in the JSON is not solvable!");
             }
             return new(columnClues, rowClues, solution) { Title = deserialised.title };
+
         }
     }
 
