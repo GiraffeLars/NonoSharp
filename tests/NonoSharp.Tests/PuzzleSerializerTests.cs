@@ -41,7 +41,7 @@ namespace NonoSharp.Tests
         {
             byte[] serialized = PuzzleSerializer.Serialize(puzzle);
             int byteNum = 0;
-            
+
             // 4 for magic, 3 * 32 bits for version, width, height (=4*4 bytes), 1 byte for empty title and the bytes for the solution
             Assert.Equal(4 + 3 * 4 + 1 + 2, serialized.Length);
 
@@ -50,7 +50,7 @@ namespace NonoSharp.Tests
             byteNum += 4;
 
             // Version
-            Assert.Equal(PuzzleSerializer.Version, BitConverter.ToInt32(serialized.AsSpan()[byteNum.. (byteNum + 4)]));
+            Assert.Equal(PuzzleSerializer.Version, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
             byteNum += 4;
 
             // Title, should be 1 byte of 0's as the string is empty
@@ -270,13 +270,90 @@ namespace NonoSharp.Tests
             }
 
             // Check if all added cells are empty
-            for (int x = oldWidth;  x < newPuzzle.Width; x++)
+            for (int x = oldWidth; x < newPuzzle.Width; x++)
             {
                 for (int y = oldHeight; y < newPuzzle.Height; y++)
                 {
                     Assert.False(newPuzzle.GetSolutionAt(x, y));
                 }
             }
+        }
+
+        [Fact]
+        public void TestToJSON()
+        {
+            string expected = """
+                {
+                    "title": "test",
+                    "columns": [
+                        [1, 2, 3],
+                        [1, 1]
+                    ],
+                    "rows": [
+                        [4, 5, 6],
+                        [2, 2]
+                    ]
+                }
+                """ + Environment.NewLine;
+
+            Clues[] colClues = [new(1, 2, 3), new(1, 1)];
+            Clues[] rowClues = [new(4, 5, 6), new(2, 2)];
+
+            Puzzle puzzle = new(colClues, rowClues, null)
+            {
+                Title = "test"
+            };
+
+            Assert.Equal(expected, PuzzleSerializer.ToJSON(puzzle));
+        }
+
+        [Fact]
+        public void TestFromJSON()
+        {
+            string json = """
+                {
+                    "title": "test",
+                    "columns": [
+                        [1, 1],
+                        [1]
+                    ],
+                    "rows": [
+                        [1],
+                        [0],
+                        [2]
+                    ]
+                }
+                """ + Environment.NewLine;
+
+            var deserialised = PuzzleSerializer.FromJSON(json);
+            Assert.Equal("test", deserialised.Title);
+            Assert.Equal(2, deserialised.Width);
+            Assert.Equal(3, deserialised.Height);
+
+            Assert.Equal([1, 1], deserialised.ColumnClues[0].Select(c => c.Number));
+            Assert.Equal([1], deserialised.ColumnClues[1].Select(c => c.Number));
+
+            Assert.Equal([1], deserialised.RowClues[0].Select(c => c.Number));
+            Assert.Equal([0], deserialised.RowClues[1].Select(c => c.Number));
+            Assert.Equal([2], deserialised.RowClues[2].Select(c => c.Number));
+        }
+
+        [Fact]
+        public void TestFromJSONNoTitle()
+        {
+            string json = """
+                {
+                    "rows": [
+                        [1]
+                    ],
+                    "columns": [
+                        [1]
+                    ]
+                }
+                """;
+
+            var deserialised = PuzzleSerializer.FromJSON(json);
+            Assert.Null(deserialised.Title);
         }
     }
 }

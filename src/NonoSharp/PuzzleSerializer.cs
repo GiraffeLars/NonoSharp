@@ -1,5 +1,6 @@
 ﻿using NonoSharp.Exceptions;
 using System.Text;
+using System.Text.Json;
 
 namespace NonoSharp
 {
@@ -7,6 +8,9 @@ namespace NonoSharp
     {
         internal const string MAGIC = "NONO"; // To check file format, in ASCII
         public static int Version { get; } = 0;
+
+        private const int INDENTATION_SPACES = 4; // Number of spaces to use for indentation in JSON output
+        private static readonly JsonSerializerOptions jsonSerializerOptions = new() { RespectNullableAnnotations = true };
 
         /// <summary>
         /// Serializes <paramref name="puzzle"/>.
@@ -21,7 +25,8 @@ namespace NonoSharp
             try
             {
                 totalCells = checked(puzzle.Width * puzzle.Height);
-            } catch (OverflowException)
+            }
+            catch (OverflowException)
             {
                 throw new PuzzleSerializationFailedException("This puzzle is too large to serialize!");
             }
@@ -297,5 +302,120 @@ namespace NonoSharp
         {
             return (int)Math.Ceiling((double)count / 8);
         }
+
+        public static string ToJSON(Puzzle puzzle)
+        {
+            StringBuilder sb = new();
+            sb.AppendLine("{");
+
+            if (puzzle.Title != null)
+            {
+                sb.AppendLine($"    \"title\": \"{puzzle.Title}\",");
+            }
+
+            sb.Append("    \"columns\": ");
+            sb.Append(ConvertCluesToJSONLists(puzzle.ColumnClues, 1));
+            sb.Append("    \"rows\": ");
+            sb.Append(ConvertCluesToJSONLists(puzzle.RowClues, 1, trailingComma: false));
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Converts clues to an JSON array.
+        /// </summary>
+        /// <param name="clues">The clues to convert.</param>
+        /// <param name="indentation">The number of indentation levels to apply to the generated JSON. The first square bracket is not indented.</param>
+        /// <param name="trailingComma">Whether to add a trailing comma after the full clues array.</param>
+        /// <returns>A formatted JSON array containing the clues in numbers.</returns>
+        private static string ConvertCluesToJSONLists(Clues[] clues, int indentation = 0, bool trailingComma = true)
+        {
+            StringBuilder sb = new();
+            sb.AppendLine("[");
+
+            string indentationSpaces = new(' ', INDENTATION_SPACES * (indentation + 1));
+            for (int i = 0; i < clues.Length; i++)
+            {
+                Clues clue = clues[i];
+                sb.Append(indentationSpaces);
+                sb.Append('[');
+                sb.AppendJoin(", ", clues[i].Select(c => c.Number));
+                sb.Append(']');
+                if (i < clues.Length - 1)
+                {
+                    sb.Append(',');
+                }
+                sb.AppendLine();
+            }
+            sb.Append(new string(' ', INDENTATION_SPACES * indentation));
+            sb.Append(']');
+
+            if (trailingComma)
+            {
+                sb.Append(',');
+            }
+            sb.AppendLine();
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Converts a JSON string to a <c>Puzzle</c>.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns>The deserialized puzzle.</returns>
+        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
+        /// Refer to the inner-exception for more details.</exception>
+        /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
+        public static Puzzle FromJSON(string json)
+        {
+            JSONNonogramFormat deserialised;
+            try
+            {
+                deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(json, jsonSerializerOptions)
+                    ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            } catch (Exception e) {
+                throw new PuzzleDeserializationFailedException("Failed to deserialize JSON!", e);
+            }
+            return ConvertJSONFormatToPuzzle(deserialised);
+        }
+
+        /// <inheritdoc cref="FromJSON(string)"/>
+        public static Puzzle FromJSON(Stream stream)
+        {
+            JSONNonogramFormat deserialised;
+            try
+            {
+                deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(stream, jsonSerializerOptions)
+                    ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
+            } catch (Exception e) {
+                throw new PuzzleDeserializationFailedException("Failed to deserialize JSON!", e);
+            }
+            return ConvertJSONFormatToPuzzle(deserialised);
+        }
+
+
+        private static Puzzle ConvertJSONFormatToPuzzle(JSONNonogramFormat deserialised)
+        {
+            Clues[] columnClues = [.. deserialised.columns.Select(nums => new Clues(nums))];
+            Clues[] rowClues = [.. deserialised.rows.Select(nums => new Clues(nums))];
+
+
+            if (!Solver.IsSolvable(columnClues, rowClues, out var solution))
+            {
+                throw new PuzzleNotSolvableException("The puzzle contained in the JSON is not solvable!");
+            }
+            return new(columnClues, rowClues, solution) { Title = deserialised.title };
+
+        }
+    }
+
+    internal class JSONNonogramFormat
+    {
+#pragma warning disable IDE1006 // Ignore naming style for JSON serialization
+        public String? title { get; set; }
+        public required int[][] columns { get; set; }
+        public required int[][] rows { get; set; }
+#pragma warning restore IDE1006
     }
 }
