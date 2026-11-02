@@ -378,8 +378,10 @@ namespace NonoSharp
 
     internal class JSONNonogramFormat
     {
+#pragma warning disable IDE1006 // Ignore naming style for JSON serialization
         public String? title { get; set; }
         public required int[][] columns { get; set; }
         public required int[][] rows { get; set; }
+#pragma warning restore IDE1006
     }
 }

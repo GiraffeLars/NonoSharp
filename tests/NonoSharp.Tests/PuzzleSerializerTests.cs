@@ -41,7 +41,7 @@ namespace NonoSharp.Tests
         {
             byte[] serialized = PuzzleSerializer.Serialize(puzzle);
             int byteNum = 0;
-            
+
             // 4 for magic, 3 * 32 bits for version, width, height (=4*4 bytes), 1 byte for empty title and the bytes for the solution
             Assert.Equal(4 + 3 * 4 + 1 + 2, serialized.Length);
 
@@ -50,7 +50,7 @@ namespace NonoSharp.Tests
             byteNum += 4;
 
             // Version
-            Assert.Equal(PuzzleSerializer.Version, BitConverter.ToInt32(serialized.AsSpan()[byteNum.. (byteNum + 4)]));
+            Assert.Equal(PuzzleSerializer.Version, BitConverter.ToInt32(serialized.AsSpan()[byteNum..(byteNum + 4)]));
             byteNum += 4;
 
             // Title, should be 1 byte of 0's as the string is empty
@@ -314,28 +314,46 @@ namespace NonoSharp.Tests
                 {
                     "title": "test",
                     "columns": [
-                        [1, 2, 3],
-                        [1, 1]
+                        [1, 1],
+                        [1]
                     ],
                     "rows": [
-                        [4, 5, 6],
-                        [2, 2],
-                        [3, 3]
+                        [1],
+                        [0],
+                        [2]
                     ]
                 }
                 """ + Environment.NewLine;
 
             var deserialised = PuzzleSerializer.FromJSON(json);
-            Assert.Null(deserialised.Title);
+            Assert.Equal("test", deserialised.Title);
             Assert.Equal(2, deserialised.Width);
             Assert.Equal(3, deserialised.Height);
 
-            Assert.Equal([1, 2, 3], deserialised.ColumnClues[0].Select(c => c.Number));
-            Assert.Equal([1, 1], deserialised.ColumnClues[1].Select(c => c.Number));
+            Assert.Equal([1, 1], deserialised.ColumnClues[0].Select(c => c.Number));
+            Assert.Equal([1], deserialised.ColumnClues[1].Select(c => c.Number));
 
-            Assert.Equal([4, 5, 6], deserialised.RowClues[0].Select(c => c.Number));
-            Assert.Equal([2, 2], deserialised.RowClues[1].Select(c => c.Number));
-            Assert.Equal([3, 3], deserialised.RowClues[2].Select(c => c.Number));
+            Assert.Equal([1], deserialised.RowClues[0].Select(c => c.Number));
+            Assert.Equal([0], deserialised.RowClues[1].Select(c => c.Number));
+            Assert.Equal([2], deserialised.RowClues[2].Select(c => c.Number));
+        }
+
+        [Fact]
+        public void TestFromJSONNoTitle()
+        {
+            string json = """
+                {
+                    "rows": [
+                        [1]
+                    ],
+                    "columns": [
+                        [1]
+                    ]
+                }
+                """;
+
+            var deserialised = PuzzleSerializer.FromJSON(json);
+            Assert.Null(deserialised.Title);
         }
     }
 }
