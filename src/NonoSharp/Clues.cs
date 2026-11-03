@@ -43,6 +43,8 @@ namespace NonoSharp
         /// <param name="numbers">The numbers to create clues from.</param>
         public Clues(params int[] numbers)
         {
+            ArgumentNullException.ThrowIfNull(numbers, nameof(numbers));
+
             this.clues = new List<Clue>(numbers.Length);
 
             TotalCellsInClues = 0;
@@ -71,6 +73,8 @@ namespace NonoSharp
         /// <param name="clue">The clue to add.</param>
         public void Add(Clue clue)
         {
+            ArgumentNullException.ThrowIfNull(clue);
+
             clues.Add(clue);
             TotalCellsInClues += clue.Number;
 
@@ -103,6 +107,8 @@ namespace NonoSharp
         /// <exclude />
         protected internal void DoCompletion(CellType[] line)
         {
+            ArgumentNullException.ThrowIfNull(line, nameof(line));
+
             if (clues.Count == 0) return;
             Reset();
             LinkedList<CellType> linked = new();
@@ -321,6 +327,7 @@ namespace NonoSharp
         /// with other clues.</exception>
         public static Clues FromString(string str)
         {
+            ArgumentNullException.ThrowIfNull(str, nameof(str));
             string[] splitted = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             Clues clues = [];
 

@@ -103,6 +103,8 @@ namespace NonoSharp
         /// <paramref name="puzzleString"/> is non-positive.</exception>
         public static NonogramBuilder FromString(string puzzleString, string? title = null)
         {
+            ArgumentNullException.ThrowIfNull(puzzleString, nameof(puzzleString));
+
             // Ensures we can split no matter the line break type 
             puzzleString = puzzleString.ReplaceLineEndings();
             string[] rows = puzzleString.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);

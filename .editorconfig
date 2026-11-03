@@ -33,6 +33,9 @@ tab_width = 4
 #### .NET Coding Conventions ####
 [*.{cs,vb}]
 
+# Null checks for public methods
+dotnet_diagnostic.CA1062.severity = warning
+
 # Organize usings
 dotnet_separate_import_directive_groups = true
 dotnet_sort_system_directives_first = true
