@@ -9,15 +9,16 @@ namespace NonoSharp
         private readonly LinkedList<ICommand> undoStack;
         private readonly LinkedList<ICommand> redoStack;
         private readonly Lock historyLock = new();
-        
-        public bool CanUndo 
-        { 
-            get {
+
+        public bool CanUndo
+        {
+            get
+            {
                 historyLock.Enter();
-                bool allowed = undoStack.Count != 0; 
+                bool allowed = undoStack.Count != 0;
                 historyLock.Exit();
                 return allowed;
-            } 
+            }
         }
 
         public bool CanRedo
@@ -48,7 +49,8 @@ namespace NonoSharp
             {
                 undoStack.AddLast(command);
                 redoStack.Clear();
-            } finally
+            }
+            finally
             {
                 historyLock.Exit();
             }
@@ -71,7 +73,8 @@ namespace NonoSharp
                 c.Undo();
                 redoStack.AddLast(c);
                 return [.. c.GetChanges()];
-            } finally { historyLock.Exit(); }
+            }
+            finally { historyLock.Exit(); }
         }
 
         /// <summary>
@@ -90,7 +93,8 @@ namespace NonoSharp
                 c.Execute();
                 undoStack.AddLast(c);
                 return [.. c.GetChanges()];
-            } finally { historyLock.Exit(); }
+            }
+            finally { historyLock.Exit(); }
         }
 
         /// <summary>

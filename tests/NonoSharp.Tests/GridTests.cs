@@ -5,7 +5,7 @@ namespace NonoSharp.Tests
     public class GridTests
     {
         private readonly Grid grid;
-        public GridTests() 
+        public GridTests()
         {
             grid = new(5, 5);
         }

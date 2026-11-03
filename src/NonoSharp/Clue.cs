@@ -16,8 +16,7 @@ namespace NonoSharp
         /// <summary>
         /// Whether this clue is marked as complete, i.e. this clue's corresponding cell group is correct.
         /// </summary>
-        public bool Completed { get { return _completed; } }
-        internal bool _completed;
+        public bool Completed { get; internal set; }
 
         /// <summary>
         /// Creates a Clue instance, where Number is <paramref name="num"/>.
@@ -25,23 +24,18 @@ namespace NonoSharp
         /// <param name="num">The total amount of cells needing to be filled consecutively for this Clue
         /// to be consider complete.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="num"/> is negative.</exception>
-        public Clue(int num) {
+        public Clue(int num)
+        {
             ArgumentOutOfRangeException.ThrowIfNegative(num);
 
             Number = num;
-            if (Number == 0)
-            {
-                _completed = true;
-            } else
-            {
-                _completed = false;
-            }
+            Completed = Number == 0;
         }
 
         private Clue(int num, bool completed)
         {
-            this._completed = completed;
-            this.Number = num;
+            Completed = completed;
+            Number = num;
         }
 
         /// <summary>

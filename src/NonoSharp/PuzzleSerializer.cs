@@ -1,6 +1,7 @@
-﻿using NonoSharp.Exceptions;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
+
+using NonoSharp.Exceptions;
 
 namespace NonoSharp
 {
@@ -374,7 +375,9 @@ namespace NonoSharp
             {
                 deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(json, jsonSerializerOptions)
                     ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new PuzzleDeserializationFailedException("Failed to deserialize JSON!", e);
             }
             return ConvertJSONFormatToPuzzle(deserialised);
@@ -388,7 +391,9 @@ namespace NonoSharp
             {
                 deserialised = JsonSerializer.Deserialize<JSONNonogramFormat>(stream, jsonSerializerOptions)
                     ?? throw new PuzzleDeserializationFailedException("Deserialised JSON was null!");
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new PuzzleDeserializationFailedException("Failed to deserialize JSON!", e);
             }
             return ConvertJSONFormatToPuzzle(deserialised);

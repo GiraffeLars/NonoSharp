@@ -63,7 +63,7 @@ namespace NonoSharp
             TotalCellsInClues = clues.Select(clue => clue.Number).Sum();
             SetFullyCompleted();
         }
-        
+
 
         /// <summary>
         /// Adds a <see cref="Clue"/> to this Clues instance. It is appended to the end.
@@ -91,7 +91,7 @@ namespace NonoSharp
         {
             foreach (Clue clue in clues)
             {
-                clue._completed = false;
+                clue.Completed = false;
             }
         }
 
@@ -106,12 +106,10 @@ namespace NonoSharp
             if (clues.Count == 0) return;
             Reset();
             LinkedList<CellType> linked = new();
-            foreach(CellType cell in line)
+            foreach (CellType cell in line)
             {
                 linked.AddLast(cell);
             }
-
-            LinkedListNode<CellType>? node = linked.First;
 
             int leftOffAt = DoCompletionForward(linked);
             DoCompletionBackward(linked, leftOffAt);
@@ -149,7 +147,7 @@ namespace NonoSharp
                 {
                     if (cellsFound == clues[clueIndex].Number)
                     {
-                        clues[clueIndex]._completed = true;
+                        clues[clueIndex].Completed = true;
                     }
                     else if (node.Value == CellType.Cross && cellsFound == 0)
                     {
@@ -195,9 +193,9 @@ namespace NonoSharp
 
             // We can reach a situation where the clue is completed at the end of the grid (i.e. all clues are correct)
             // Then, we should do a final check whether this clue is completed
-            if (clueIndex <  clues.Count && clues[clueIndex].Number == cellsFound)
+            if (clueIndex < clues.Count && clues[clueIndex].Number == cellsFound)
             {
-                clues[clueIndex]._completed = true;
+                clues[clueIndex].Completed = true;
                 clueIndex++; // Increase clue index as this clue is completed
             }
             return clueIndex;
@@ -233,7 +231,7 @@ namespace NonoSharp
                 {
                     if (cellsFound == clues[clueIndex].Number)
                     {
-                        clues[clueIndex]._completed = true;
+                        clues[clueIndex].Completed = true;
                     }
                     else if (node.Value == CellType.Cross && cellsFound == 0)
                     {
@@ -275,7 +273,7 @@ namespace NonoSharp
             // Then, we should do a final check whether this clue is completed
             if (clueIndex >= 0 && clueIndex > forwardsFinalCheck && clues[clueIndex].Number == cellsFound)
             {
-                clues[clueIndex]._completed = true;
+                clues[clueIndex].Completed = true;
             }
         }
 
@@ -324,7 +322,7 @@ namespace NonoSharp
         public static Clues FromString(string str)
         {
             string[] splitted = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            Clues clues = new();
+            Clues clues = [];
 
             foreach (string s in splitted)
             {
@@ -352,15 +350,15 @@ namespace NonoSharp
         {
             var clueCopy = new List<Clue>();
 
-            foreach(Clue h in clues)
+            foreach (Clue h in clues)
             {
                 // Create deep copy of the clues, otherwise interference might occur with user playing
-                clueCopy.Add((Clue) h.Clone());
+                clueCopy.Add((Clue)h.Clone());
             }
 
             return new Clues(clueCopy);
         }
-        
+
         /// <summary>
         /// Gets the Enumerator over the <see cref="Clue"/> instances contained in this instance.
         /// </summary>

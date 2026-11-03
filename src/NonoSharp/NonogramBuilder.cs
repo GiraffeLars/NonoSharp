@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+
 using NonoSharp.Exceptions;
 
 namespace NonoSharp
@@ -32,14 +33,14 @@ namespace NonoSharp
         /// The solution that is being constructed with the builder. Cells contained in Solution
         /// are the cells that will have to be filled to complete the final puzzle.
         /// </summary>
-        public IReadOnlySet<CellPosition> Solution => _readOnlySolution;
-        private readonly HashSet<CellPosition> _solution;
-        private readonly ReadOnlySet<CellPosition> _readOnlySolution;
+        public IReadOnlySet<CellPosition> Solution => readOnlySolution;
+        private readonly HashSet<CellPosition> solution;
+        private readonly ReadOnlySet<CellPosition> readOnlySolution;
 
         private bool isSolvable = false;
         private bool isSolvableDirty = true;
 
-        private readonly SemaphoreSlim _solvableSemaphore = new(1, 1);
+        private readonly SemaphoreSlim solvableSemaphore = new(1, 1);
 
         /// <summary>
         /// Gets or sets the <c>CellType</c> of the cell at (<paramref name="x"/>, <paramref name="y"/>). Note that 
@@ -68,8 +69,8 @@ namespace NonoSharp
             ValidateDimensions(width, height);
             Width = width;
             Height = height;
-            _solution = [];
-            _readOnlySolution = new(_solution);
+            solution = [];
+            readOnlySolution = new(solution);
             Title = title;
         }
 
@@ -125,13 +126,7 @@ namespace NonoSharp
                 if (rows[y].Length != rows[0].Length) throw new FormatException($"The width of line {y} " +
                     $"does not match the width of the preceding lines!");
 
-                if (leftBrackets > 0)
-                {
-                    parser = new CellBlocksParser(rows[y], y);
-                } else
-                {
-                    parser = new StandaloneCellsParser(rows[y], y);
-                }
+                parser = leftBrackets > 0 ? new CellBlocksParser(rows[y], y) : new StandaloneCellsParser(rows[y], y);
 
                 ParseRowString(y, parser, builder);
             }
@@ -149,7 +144,7 @@ namespace NonoSharp
                     builder.FillCell(x, rowNum);
                 }
                 x++;
-            }   
+            }
         }
 
         /// <summary>
@@ -158,7 +153,7 @@ namespace NonoSharp
         /// <returns><c>PuzzleDefinition</c> of this instance.</returns>
         private PuzzleDefinition ToPuzzleDefinition()
         {
-            return new(Width, Height, _solution, Title);
+            return new(Width, Height, solution, Title);
         }
 
         /// <summary>
@@ -176,7 +171,7 @@ namespace NonoSharp
         /// <returns><c>true</c> if it is uniquely solvable, <c>false</c> otherwise.</returns>
         public bool IsSolvable()
         {
-            _solvableSemaphore.Wait();
+            solvableSemaphore.Wait();
             try
             {
                 if (!isSolvableDirty) return isSolvable;
@@ -184,12 +179,12 @@ namespace NonoSharp
                 bool solvable = Solver.IsSolvable(ToPuzzle());
 
                 UpdateSolvable(solvable);
-                
+
                 return solvable;
             }
-            finally 
+            finally
             {
-                _solvableSemaphore.Release(); 
+                solvableSemaphore.Release();
             }
         }
 
@@ -202,7 +197,7 @@ namespace NonoSharp
         /// via <paramref name="cancellationToken"/>.</exception>
         public async Task<bool> IsSolvableAsync(CancellationToken cancellationToken = default)
         {
-            await _solvableSemaphore.WaitAsync(cancellationToken);
+            await solvableSemaphore.WaitAsync(cancellationToken);
             try
             {
                 bool solvable = await Task.Run(() => Solver.IsSolvable(ToPuzzle()));
@@ -212,7 +207,7 @@ namespace NonoSharp
             }
             finally
             {
-                _solvableSemaphore.Release();
+                solvableSemaphore.Release();
             }
         }
 
@@ -264,7 +259,7 @@ namespace NonoSharp
                 throw new PuzzleNotSolvableException("This puzzle is not uniquely solvable!");
             }
 
-            return new(ToPuzzle());                                                                             
+            return new(ToPuzzle());
         }
 
         /// <inheritdoc cref="ToNonogramAsync"/>
@@ -316,7 +311,7 @@ namespace NonoSharp
             {
                 throw new PuzzleNotSolvableException("The built puzzle is not uniquely solvable!");
             }
-            
+
             await ToPuzzleDefinition().SavePuzzleAsync(path, cancellationToken);
         }
 
@@ -346,22 +341,23 @@ namespace NonoSharp
         {
             if (Solution == null) throw new InvalidOperationException("There is no solution for this puzzle!");
 
-            _solvableSemaphore.Wait();
+            solvableSemaphore.Wait();
             try
             {
                 CellPosition position = new(x, y);
                 if (filled)
                 {
-                    _solution.Add(position);
+                    solution.Add(position);
                 }
                 else
                 {
-                    _solution.Remove(position);
+                    solution.Remove(position);
                 }
                 isSolvableDirty = true;
-            } finally
+            }
+            finally
             {
-                _solvableSemaphore.Release();
+                solvableSemaphore.Release();
             }
         }
 
@@ -468,7 +464,7 @@ namespace NonoSharp
         public CellType GetCell(int x, int y)
         {
             ValidateCoordinates(x, y);
-            return _solution.Contains(new(x, y)) ? CellType.Filled : CellType.Empty;
+            return solution.Contains(new(x, y)) ? CellType.Filled : CellType.Empty;
         }
 
         /// <summary>
@@ -635,7 +631,8 @@ namespace NonoSharp
             if (position.HasValue)
             {
                 throw new FormatException($"Failed to parse line {lineNumber} at position {position.Value}: {message}");
-            } else
+            }
+            else
             {
                 throw new FormatException($"Failed to parse line {lineNumber}: {message}");
             }

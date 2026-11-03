@@ -17,12 +17,12 @@ namespace NonoSharp.Events
         /// <summary>
         /// The type this cell was before the correction
         /// </summary>
-        public CellType Before { get;}
+        public CellType Before { get; }
 
         /// <summary>
         /// The type this cell is now, after the correction
         /// </summary>
-        public CellType After { get;}
+        public CellType After { get; }
 
         /// <summary>
         /// Constructs a CorrectionEventArgs

@@ -29,7 +29,7 @@
 
         [Fact]
         public void TestIsSolved()
-        {         
+        {
             // Test empty solution
             Assert.False(puzzle.IsSolved());
 

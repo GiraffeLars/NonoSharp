@@ -1,6 +1,7 @@
-﻿using NonoSharp.Events;
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Text;
+
+using NonoSharp.Events;
 
 namespace NonoSharp
 {
@@ -149,7 +150,8 @@ namespace NonoSharp
                 }
 
                 return true;
-            } else
+            }
+            else
             {
                 return AreAllCluesSatisfied();
             }
@@ -220,7 +222,7 @@ namespace NonoSharp
                     if (cell != CellType.Filled)
                     {
                         // Add the new clue to the list
-                        AddClue(clues, x, count); 
+                        AddClue(clues, x, count);
                         count = 0;
                         continue;
                     }
@@ -288,12 +290,12 @@ namespace NonoSharp
                 {
                     RowClues[pos.Y].DoCompletion(Grid);
                 }
-            }   
+            }
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             String[] rowCluesStr = CreateRowCluesString();
 
             sb.Append(CreateColumnCluesString());
@@ -328,7 +330,7 @@ namespace NonoSharp
 
         private String CreateColumnCluesString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             bool newStringRow;
             int lastFilled;
@@ -354,9 +356,7 @@ namespace NonoSharp
                 if (newStringRow)
                 {
                     sb.AppendLine();
-                    newStringRow = false;
                 }
-                lastFilled = 0;
             }
             return sb.ToString();
         }
@@ -368,7 +368,7 @@ namespace NonoSharp
             for (int i = 0; i < Height; i++)
             {
                 int x;
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 Clues clues = RowClues[i];
 
                 for (x = 0; x < clues.Count; x++)
@@ -409,7 +409,7 @@ namespace NonoSharp
                 RowClues,
                 newSol,
                 paddingString
-            );            
+            );
         }
     }
 }

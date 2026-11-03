@@ -1,7 +1,8 @@
-﻿using NonoSharp.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
+using NonoSharp.Exceptions;
 
 namespace NonoSharp.Tests
 {

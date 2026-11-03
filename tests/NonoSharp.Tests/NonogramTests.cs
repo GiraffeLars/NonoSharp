@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using NonoSharp;
 
 namespace NonoSharp.Tests
@@ -248,7 +249,7 @@ namespace NonoSharp.Tests
         {
             using var cts = new CancellationTokenSource();
             cts.Cancel();
-            
+
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
             {
                 await Nonogram.LoadPuzzleAsync("totally real path", cancellationToken: cts.Token);

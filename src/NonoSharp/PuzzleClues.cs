@@ -30,7 +30,6 @@ namespace NonoSharp
             if (clues.Count == 0) return;
             Reset();
             LinkedList<CellType> line = IsColumnClues ? grid.GetColumn(Position) : grid.GetRow(Position);
-            LinkedListNode<CellType>? node = line.First;
 
             int leftOffAt = DoCompletionForward(line);
             DoCompletionBackward(line, leftOffAt);
@@ -41,7 +40,7 @@ namespace NonoSharp
         internal static PuzzleClues[] ArrayFromClues(Clues[] clues, bool isColumnClues)
         {
             return [..Enumerable.Range(0, clues.Length)
-                .Select(i => 
+                .Select(i =>
                     new PuzzleClues(
                         isColumnClues,
                         i,

@@ -1,7 +1,8 @@
-﻿using NonoSharp.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
+using NonoSharp.Events;
 
 namespace NonoSharp
 {

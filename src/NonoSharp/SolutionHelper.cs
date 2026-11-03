@@ -34,7 +34,7 @@ namespace NonoSharp
 
         /// <inheritdoc cref="GenerateRandomSolution(int, int, int?)"/>
         /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
-        internal static async Task<HashSet<CellPosition>> GenerateRandomSolutionAsync(int width, int height, 
+        internal static async Task<HashSet<CellPosition>> GenerateRandomSolutionAsync(int width, int height,
             CancellationToken cancellationToken, int? seed = null)
         {
             Random random = seed.HasValue ? new Random(seed.Value) : new Random();

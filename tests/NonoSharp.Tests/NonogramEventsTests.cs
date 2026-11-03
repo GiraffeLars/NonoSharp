@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using NonoSharp.Events;
 
 namespace NonoSharp.Tests
@@ -90,7 +91,7 @@ namespace NonoSharp.Tests
         {
             // Create simple grid with only (0, 1) filled being correct
             Puzzle p = new(1, 2, [new(0, 1)]);
-            
+
             Nonogram nonogram = new(p) { Options = optsAutoCorrect };
 
             bool eventFired = false;
@@ -173,7 +174,7 @@ namespace NonoSharp.Tests
         public void TestCorrectionEventDisabled()
         {
             // Create simple grid with only (0, 1) filled being correct
-            Puzzle p = new(1, 2, [new(0,1)]);
+            Puzzle p = new(1, 2, [new(0, 1)]);
             Nonogram nonogram = new(p) { Options = new() { EnableAutoCross = false } };
 
             bool eventFired = false;
@@ -196,8 +197,8 @@ namespace NonoSharp.Tests
             IReadOnlyList<CellPosition>? cells = null;
 
             nonogram.FillCell(0, 0);
-            nonogram.CellStateChanged += (s, e) => 
-            { 
+            nonogram.CellStateChanged += (s, e) =>
+            {
                 eventFired = true;
                 sender = s;
                 cells = e.Cells;

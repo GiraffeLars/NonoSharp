@@ -1,7 +1,8 @@
-﻿using NonoSharp.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
+using NonoSharp.Exceptions;
 
 namespace NonoSharp.Tests
 {
@@ -58,10 +59,10 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestInvalidCoordinatesException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(-1, builder.Height-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(-1, builder.Height - 1));
             Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellEmpty(0, builder.Height));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(-1, builder.Height-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(-1, builder.Height - 1));
             Assert.Throws<ArgumentOutOfRangeException>(() => builder.IsCellFilled(0, builder.Height));
         }
 

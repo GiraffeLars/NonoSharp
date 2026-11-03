@@ -106,7 +106,7 @@ namespace NonoSharp
             ArgumentOutOfRangeException.ThrowIfNegative(column);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(column, Width);
 
-            LinkedList<CellType> list = new LinkedList<CellType>();
+            LinkedList<CellType> list = new();
 
             for (int i = 0; i < Height; i++)
             {
@@ -148,7 +148,7 @@ namespace NonoSharp
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
 
-            LinkedList<CellType> list = new LinkedList<CellType>();
+            LinkedList<CellType> list = new();
 
             for (int i = 0; i < Width; i++)
             {
@@ -164,7 +164,7 @@ namespace NonoSharp
         /// <param name="row">The row of the board to get. Must be between 0 and Height</param>
         /// <returns>Array of CellType corresponding to the cells in the row</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <c>row</c> is not a valid row, i.e. out of range of the grid height.</exception>
-        internal CellType[] GetRowArray(int row) 
+        internal CellType[] GetRowArray(int row)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
@@ -190,7 +190,7 @@ namespace NonoSharp
         {
             ArgumentOutOfRangeException.ThrowIfNegative(row);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(row, Height);
-            
+
             if (newRow.Length != Width)
             {
                 throw new ArgumentException("newRow must have the match the dimension of the grid!");

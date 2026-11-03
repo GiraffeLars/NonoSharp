@@ -15,36 +15,27 @@ namespace NonoSharp
         IEnumerable<CellPosition> GetChanges();
     }
 
-    internal class CellCommand : ICommand
+    internal class CellCommand(int x, int y, Grid g, CellType newType, CellType oldType) : ICommand
     {
-        public readonly int x;
-        public readonly int y;
-        private Grid grid;
-        public readonly CellType newType;
-        public readonly CellType oldType;
-
-        public CellCommand(int x, int y, Grid g, CellType newType, CellType oldType)
-        {
-            this.x = x;
-            this.y = y;
-            this.grid = g;
-            this.newType = newType;
-            this.oldType = oldType;
-        }
+        public int X { get; } = x;
+        public int Y { get; } = y;
+        private readonly Grid grid = g;
+        public CellType NewType { get; } = newType;
+        public CellType OldType { get; } = oldType;
 
         public void Execute()
         {
-            grid.SetCell(x, y, newType);
+            grid.SetCell(X, Y, NewType);
         }
 
         public void Undo()
         {
-            grid.SetCell(x, y, oldType);
+            grid.SetCell(X, Y, OldType);
         }
 
         public IEnumerable<CellPosition> GetChanges()
         {
-            return [new CellPosition(x, y)];
+            return [new CellPosition(X, Y)];
         }
     }
 
@@ -91,7 +82,7 @@ namespace NonoSharp
         {
             List<CellPosition> changes = [];
 
-            foreach(ICommand command in commands)
+            foreach (ICommand command in commands)
             {
                 changes.AddRange(command.GetChanges());
             }
@@ -108,7 +99,7 @@ namespace NonoSharp
         /// <returns><c>CompositeCommand</c> consisting of Commands x and y, with x being the first</returns>
         public static CompositeCommand Combine(ICommand x, ICommand y)
         {
-            LinkedList<ICommand> combined = new LinkedList<ICommand>();
+            LinkedList<ICommand> combined = new();
             combined.AddLast(x);
             combined.AddLast(y);
 

@@ -1,6 +1,7 @@
-﻿using NonoSharp.Events;
+﻿using System.Collections.Frozen;
+
+using NonoSharp.Events;
 using NonoSharp.Exceptions;
-using System.Collections.Frozen;
 
 namespace NonoSharp
 {
@@ -91,7 +92,7 @@ namespace NonoSharp
             this.puzzle = puzzle;
             Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
             Columns = [.. Enumerable.Range(0, Width).Select(i => new Line(i, LineType.Column, this))];
-          
+
             moveManager = new(options, puzzle);
 
             moveManager.CellCorrected += (s, e) => OnCellCorrected(e);
@@ -151,7 +152,7 @@ namespace NonoSharp
 
             Rows = [.. Enumerable.Range(0, Height).Select(i => new Line(i, LineType.Row, this))];
             Columns = [.. Enumerable.Range(0, Width).Select(i => new Line(i, LineType.Column, this))];
-          
+
             moveManager = new(options, puzzle);
             moveManager.CellCorrected += (s, e) => OnCellCorrected(e);
             CellStateChanged += (s, a) => HandlePuzzleSolvedEvent();
@@ -205,7 +206,7 @@ namespace NonoSharp
         /// <returns>Nonogram instance as described above.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height are non-positive.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via <paramref name="cancellationToken"/>.</exception>
-        public static async Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed, 
+        public static async Task<Nonogram> CreateRandomPuzzleAsync(int width, int height, int seed,
             NonogramOptions? options = null, CancellationToken cancellationToken = default)
         {
             HashSet<CellPosition> solution = await SolutionHelper.GenerateRandomSolutionAsync(width, height, cancellationToken, seed);
@@ -331,7 +332,7 @@ namespace NonoSharp
         /// <summary>
         /// Undoes the last move (if any). Silently returns if there is no command to undo.
         /// </summary>
-        public void Undo() 
+        public void Undo()
         {
             var changedCells = History.Undo();
             if (changedCells != null)
@@ -579,7 +580,7 @@ namespace NonoSharp
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
-        public static Nonogram LoadPuzzle(string path, NonogramOptions? options = null) 
+        public static Nonogram LoadPuzzle(string path, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
@@ -608,7 +609,7 @@ namespace NonoSharp
             PuzzleDefinition puzzleDefinition = PuzzleDefinition.LoadPuzzle(stream);
 
             Puzzle puzzle = new(puzzleDefinition);
-            return new(puzzle) { Options = options ?? new()};
+            return new(puzzle) { Options = options ?? new() };
         }
 
         /// <summary>
@@ -625,7 +626,7 @@ namespace NonoSharp
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
         /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
         /// via <paramref name="cancellationToken"/>.</exception>
-        public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null, 
+        public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));

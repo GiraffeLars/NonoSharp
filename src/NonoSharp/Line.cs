@@ -47,14 +47,15 @@ namespace NonoSharp
             get
             {
                 return Type == LineType.Column ?
-                    nonogram.GetCell(Position, index) : nonogram.GetCell(index, Position); 
+                    nonogram.GetCell(Position, index) : nonogram.GetCell(index, Position);
             }
             set
             {
                 if (Type == LineType.Column)
                 {
                     nonogram.SetCell(Position, index, value);
-                } else
+                }
+                else
                 {
                     nonogram.SetCell(index, Position, value);
                 }
