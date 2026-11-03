@@ -26,6 +26,8 @@ namespace NonoSharp
         /// <inheritdoc cref="SolveAsync(Nonogram, CancellationToken)"/>
         public static HashSet<CellPosition> Solve(Nonogram nonogram)
         {
+            ArgumentNullException.ThrowIfNull(nonogram, nameof(nonogram));
+
             return Solve(nonogram.puzzle);
         }
 
@@ -42,6 +44,8 @@ namespace NonoSharp
         /// <returns>The solution in a HashSet of <see cref="CellPosition"/>s.</returns>
         public static Task<HashSet<CellPosition>> SolveAsync(Nonogram nonogram, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(nonogram, nameof(nonogram));
+
             return SolveAsync(nonogram.puzzle, cancellationToken);
         }
 
@@ -51,6 +55,9 @@ namespace NonoSharp
         /// <inheritdoc cref="SolveAsync(Clues[], Clues[], CancellationToken)"/>
         public static HashSet<CellPosition> Solve(Clues[] columnClues, Clues[] rowClues)
         {
+            ArgumentNullException.ThrowIfNull(columnClues, nameof(columnClues));
+            ArgumentNullException.ThrowIfNull(rowClues, nameof(rowClues));
+
             int width = columnClues.Length;
             int height = rowClues.Length;
 
@@ -81,6 +88,9 @@ namespace NonoSharp
         public static async Task<HashSet<CellPosition>> SolveAsync(Clues[] columnClues, Clues[] rowClues,
             CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(columnClues, nameof(columnClues));
+            ArgumentNullException.ThrowIfNull(rowClues, nameof(rowClues));
+
             int width = columnClues.Length;
             int height = rowClues.Length;
 
@@ -197,6 +207,7 @@ namespace NonoSharp
         /// <inheritdoc cref="IsSolvable(Nonogram, out HashSet{CellPosition}?)"/>
         public static bool IsSolvable(Nonogram nonogram)
         {
+            ArgumentNullException.ThrowIfNull(nonogram, nameof(nonogram));
             return IsSolvable(nonogram.puzzle);
         }
 
@@ -210,6 +221,7 @@ namespace NonoSharp
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
         public static bool IsSolvable(Nonogram nonogram, out HashSet<CellPosition>? solution)
         {
+            ArgumentNullException.ThrowIfNull(nonogram, nameof(nonogram));
             return IsSolvable(nonogram.puzzle, out solution);
         }
 
@@ -225,6 +237,7 @@ namespace NonoSharp
         public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
             Nonogram nonogram, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(nonogram, nameof(nonogram));
             return await IsSolvableAsync(nonogram.puzzle, cancellationToken: cancellationToken);
         }
 
@@ -247,6 +260,9 @@ namespace NonoSharp
         public static bool IsSolvable(Clues[] columnClues, Clues[] rowClues,
             out HashSet<CellPosition>? solution)
         {
+            ArgumentNullException.ThrowIfNull(columnClues, nameof(columnClues));
+            ArgumentNullException.ThrowIfNull(rowClues, nameof(rowClues));
+
             Puzzle puzzle = new(columnClues, rowClues, null);
 
             // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users
@@ -268,6 +284,9 @@ namespace NonoSharp
         public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
             Clues[] columnClues, Clues[] rowClues, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(columnClues, nameof(columnClues));
+            ArgumentNullException.ThrowIfNull(rowClues, nameof(rowClues));
+
             Puzzle puzzle = new(columnClues, rowClues, null);
 
             // Since we created the puzzle, we can solve the puzzle in-place, it will not affect users

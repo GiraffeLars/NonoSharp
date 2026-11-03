@@ -137,6 +137,9 @@ namespace NonoSharp
         /// dimensions is not uniquely solvable.</exception>
         public Nonogram(Clues[] columnClues, Clues[] rowClues, NonogramOptions? options = null)
         {
+            ArgumentNullException.ThrowIfNull(columnClues, nameof(columnClues));
+            ArgumentNullException.ThrowIfNull(rowClues, nameof(rowClues));
+
             int width = columnClues.Length;
             int height = rowClues.Length;
 
