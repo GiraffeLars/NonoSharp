@@ -53,6 +53,7 @@ Documentation for the API is found on this repo's GitHub pages,
 NonoSharp is designed to be easy to use. The example below shows how to create a random Nonogram puzzle, perform cell operations and check the puzzle's solved state.
 Furthermore, it shows how to access the clues for each row and column, and subscribes to one of the handy events.
 
+<!-- WHEN EDIING THIS CODE BLOCK, ALSO EDIT docs/examples/README_basic.cs -->
 ```csharp
 using NonoSharp;
 
@@ -97,6 +98,8 @@ nonogram.CellStateChanged += (s, e) => {
 ### Nonogram creation
 NonoSharp's `NonogramBuilder` class allows you to create your own Nonogram puzzles quickly and easily, while
 ensuring puzzles remain uniquely solvable.
+
+<!-- WHEN EDIING THIS CODE BLOCK, ALSO EDIT docs/examples/README_builder.cs -->
 ```csharp
 using NonoSharp;
 
@@ -117,6 +120,8 @@ if (builder.IsSolvable())
 
 ### Solving Nonograms
 As mentioned, NonoSharp comes with a custom Nonogram solver. This can be used to solve any Nonogram puzzle.
+
+<!-- WHEN EDIING THIS CODE BLOCK, ALSO EDIT docs/examples/README_solver.cs -->
 ```csharp
 using NonoSharp;
 

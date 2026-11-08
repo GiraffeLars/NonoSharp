@@ -4,8 +4,11 @@
     <BuildType Name="Release" />
     <BuildType Name="Tests" />
   </Configurations>
+  <Project Path="docs/examples/NonoSharp.ExampleValidator/NonoSharp.ExampleValidator.csproj" Id="5430789a-3d6a-4d7e-84b6-6aa802ab1529">
+    <BuildType Solution="Tests|*" Project="Debug" />
+  </Project>
+  <Project Path="src/NonoSharp/NonoSharp.csproj" />
   <Project Path="tests/NonoSharp.Tests/NonoSharp.Tests.csproj" Id="74a9d335-a696-4a68-86e8-a69356e548e2">
     <Build Solution="Release|*" Project="false" />
   </Project>
-  <Project Path="src/NonoSharp/NonoSharp.csproj" />
 </Solution>
