@@ -28,6 +28,8 @@ Documentation for the public API of the library is found on GitHub pages for the
 
 ## Example usage
 ### Nonogram playing
+
+<!-- WHEN EDIING THIS CODE BLOCK, ALSO EDIT docs/examples/README_basic.cs -->
 ```csharp
 using NonoSharp;
 
@@ -72,6 +74,8 @@ nonogram.CellStateChanged += (s, e) => {
 ### Nonogram creation
 NonoSharp's `NonogramBuilder` class allows you to create your own Nonogram puzzles quickly and easily, while
 ensuring puzzles remain uniquely solvable.
+
+<!-- WHEN EDIING THIS CODE BLOCK, ALSO EDIT docs/examples/README_builder.cs -->
 ```csharp
 using NonoSharp;
 
@@ -92,6 +96,8 @@ if (builder.IsSolvable())
 
 ### Solving Nonograms
 As mentioned, NonoSharp comes with a custom Nonogram solver. This can be used to solve any Nonogram puzzle.
+
+<!-- WHEN EDIING THIS CODE BLOCK, ALSO EDIT docs/examples/README_solver.cs -->
 ```csharp
 using NonoSharp;
 

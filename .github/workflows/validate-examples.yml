@@ -1,0 +1,27 @@
+name: Validate examples
+
+on:
+  pull_request:
+    branches: [ "main", "v*.*.*" ]
+  push:
+      branches: [ "main", "v*.*.*" ]
+
+env:
+  API_PROJECT: src/NonoSharp/NonoSharp.csproj
+  EXAMPLE_VALIDATOR: docs/examples/NonoSharp.ExampleValidator/NonoSharp.ExampleValidator.csproj
+
+jobs:
+  validate-examples:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: Build API project
+      run: dotnet build -c Release ${{ env.API_PROJECT }}
+    - name: Validate examples
+      run: dotnet run --project ./docs/examples/NonoSharp.ExampleValidator
