@@ -2,9 +2,9 @@ name: Validate examples
 
 on:
   pull_request:
-    branches: [ "main", "v*" ]
+    branches: [ "main", "v*.*.*" ]
   push:
-      branches: [ "main", "v*" ]
+      branches: [ "main", "v*.*.*" ]
 
 env:
   API_PROJECT: src/NonoSharp/NonoSharp.csproj
