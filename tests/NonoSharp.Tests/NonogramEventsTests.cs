@@ -213,5 +213,21 @@ namespace NonoSharp.Tests
             Assert.Equal(0, cells[0].X);
             Assert.Equal(0, cells[0].Y);
         }
+
+        [Fact]
+        public void TestSettingCellToSameStateDoesNotFireEvent()
+        {
+            Nonogram nonogram = new(new Puzzle(1, 1, null));
+            bool eventFired = false;
+            nonogram.CellStateChanged += (s, e) => eventFired = true;
+
+            foreach (CellType type in Enum.GetValues<CellType>())
+            {
+                nonogram.SetCell(0, 0, type);
+                eventFired = false;
+                nonogram.SetCell(0, 0, type);
+                Assert.False(eventFired);
+            }
+        }
     }
 }
