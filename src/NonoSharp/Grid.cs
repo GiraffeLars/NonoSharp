@@ -213,13 +213,16 @@ namespace NonoSharp
             List<CellPosition> changed = [];
             for (int i = 0; i < Width; i++)
             {
-                if (newRow[i] != this[i, row])
+                if (ChangeCell(i, row, newRow[i]))
                 {
-                    grid[i, row] = newRow[i];
                     changed.Add(new(i, row));
                 }
             }
-            OnCellStateChanged(new(changed));
+
+            if (changed.Count > 0)
+            {
+                OnCellStateChanged(new(changed));
+            }
         }
 
         internal void SetColumn(int column, CellType[] newColumn)
@@ -235,13 +238,16 @@ namespace NonoSharp
             List<CellPosition> changed = [];
             for (int i = 0; i < Height; i++)
             {
-                if (newColumn[i] != this[column, i])
+                if (ChangeCell(column, i, newColumn[i]))
                 {
-                    grid[column, i] = newColumn[i];
                     changed.Add(new(column, i));
                 }
             }
-            OnCellStateChanged(new(changed));
+
+            if (changed.Count > 0)
+            {
+                OnCellStateChanged(new(changed));
+            }
         }
 
         /// <summary>
