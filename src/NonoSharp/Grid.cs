@@ -49,17 +49,31 @@ namespace NonoSharp
         {
             ValidateInputCoordinates(x, y);
 
-            if (grid[x, y] != CellType.Filled && value == CellType.Filled)
+            if (ChangeCell(x, y, value))
+            {
+                OnCellStateChanged(new([new(x, y)]));
+            }
+        }
+
+        /// <summary>
+        /// Changes the cell at (x, y) to <paramref name="newType"/>.
+        /// </summary>
+        /// <returns><c>true</c> if the cell was changed, <c>false</c> otherwise.</returns>
+        private bool ChangeCell(int x, int y, CellType newType)
+        {
+            if (grid[x, y] == newType) return false;
+
+            if (grid[x, y] != CellType.Filled && newType == CellType.Filled)
             {
                 Filled++; // Keeps track of whether the same amount of cells are filled as the solution for efficiency
             }
-            else if (grid[x, y] == CellType.Filled && value != CellType.Filled)
+            else if (grid[x, y] == CellType.Filled && newType != CellType.Filled)
             {
                 Filled--;
             }
 
-            grid[x, y] = value;
-            OnCellStateChanged(new([new(x, y)]));
+            grid[x, y] = newType;
+            return true;
         }
 
         /// <summary>
@@ -199,13 +213,16 @@ namespace NonoSharp
             List<CellPosition> changed = [];
             for (int i = 0; i < Width; i++)
             {
-                if (newRow[i] != this[i, row])
+                if (ChangeCell(i, row, newRow[i]))
                 {
-                    grid[i, row] = newRow[i];
                     changed.Add(new(i, row));
                 }
             }
-            OnCellStateChanged(new(changed));
+
+            if (changed.Count > 0)
+            {
+                OnCellStateChanged(new(changed));
+            }
         }
 
         internal void SetColumn(int column, CellType[] newColumn)
@@ -221,13 +238,16 @@ namespace NonoSharp
             List<CellPosition> changed = [];
             for (int i = 0; i < Height; i++)
             {
-                if (newColumn[i] != this[column, i])
+                if (ChangeCell(column, i, newColumn[i]))
                 {
-                    grid[column, i] = newColumn[i];
                     changed.Add(new(column, i));
                 }
             }
-            OnCellStateChanged(new(changed));
+
+            if (changed.Count > 0)
+            {
+                OnCellStateChanged(new(changed));
+            }
         }
 
         /// <summary>
@@ -308,13 +328,10 @@ namespace NonoSharp
             }
             set
             {
-                if (grid[x, y] == value) return;
-                if (grid[x, y] == CellType.Filled) Filled--;
-
-                grid[x, y] = value;
-
-                if (value == CellType.Filled) Filled++;
-                OnCellStateChanged(new([new(x, y)]));
+                if (ChangeCell(x, y, value))
+                {
+                    OnCellStateChanged(new([new(x, y)]));
+                }
             }
         }
 

@@ -31,6 +31,11 @@ namespace NonoSharp
         /// <returns>List of CellPositions of the cells that were changed.</returns>
         public List<CellPosition> DoMove(int x, int y, CellType newType)
         {
+            if (puzzle.Grid.GetCell(x, y) == newType)
+            {
+                return [];
+            }
+
             newType = DoAutoCorrect(x, y, newType);
             // Check if auto-crosses are possible (i.e. a cell goes to filled or from filled)
             bool mightAutoCross = newType == CellType.Filled || puzzle.Grid.GetCell(x, y) == CellType.Filled;

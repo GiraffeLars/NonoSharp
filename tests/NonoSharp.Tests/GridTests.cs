@@ -101,5 +101,21 @@ namespace NonoSharp.Tests
             Assert.Equal(1, groups.First());
             Assert.Equal(2, groups.Last());
         }
+
+        [Fact]
+        public void TestSettingCellToSameStateDoesNotFireEvent()
+        {
+            Grid grid = new(1, 1);
+            bool eventFired = false;
+            grid.CellStateChanged += (s, e) => eventFired = true;
+
+            foreach (CellType type in Enum.GetValues<CellType>())
+            {
+                grid.SetCell(0, 0, type);
+                eventFired = false;
+                grid.SetCell(0, 0, type);
+                Assert.False(eventFired);
+            }
+        }
     }
 }
