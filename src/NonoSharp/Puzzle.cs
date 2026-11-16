@@ -345,7 +345,7 @@ namespace NonoSharp
                     if (clues.Count > y)
                     {
                         // Add spaces for all columns with no clues until this column
-                        sb.Append(new string(' ', (x - lastFilled) * 3));
+                        sb.Append(' ', (x - lastFilled) * 3);
                         sb.Append($" {clues[y].Number} ");
 
                         newStringRow = true;
@@ -376,7 +376,7 @@ namespace NonoSharp
                     sb.Append($"{clues[x].Number} ");
                 }
 
-                sb.Append(new string(' ', 2 * Math.Max(paddingString - x, 0)));
+                sb.Append(' ', 2 * Math.Max(paddingString - x, 0));
                 cluesStr[i] = sb.ToString();
             }
 

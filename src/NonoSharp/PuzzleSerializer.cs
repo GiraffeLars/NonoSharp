@@ -348,7 +348,7 @@ namespace NonoSharp
                 }
                 sb.AppendLine();
             }
-            sb.Append(new string(' ', INDENTATION_SPACES * indentation));
+            sb.Append(' ', INDENTATION_SPACES * indentation);
             sb.Append(']');
 
             if (trailingComma)

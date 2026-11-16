@@ -16,7 +16,15 @@ jobs:
               with:
                 dotnet-version: 10.0.x
             
-            - name: Check formatting
+            - name: .NET version and information
               run: |
-                dotnet format src/NonoSharp/NonoSharp.csproj --verify-no-changes --severity info
-                dotnet format tests/NonoSharp.Tests/NonoSharp.Tests.csproj --verify-no-changes
+                dotnet --version
+                dotnet --info
+
+            - name: Check formatting in project
+              run: |
+                dotnet format src/NonoSharp/NonoSharp.csproj --verify-no-changes --severity info --verbosity diagnostic
+
+            - name: Check formatting in tests
+              run: |
+                dotnet format tests/NonoSharp.Tests/NonoSharp.Tests.csproj --verify-no-changes --verbosity diagnostic
