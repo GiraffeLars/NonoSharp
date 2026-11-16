@@ -4,7 +4,7 @@ namespace NonoSharp.Collections
 {
     /// <summary>
     /// A queue where each element can only appear once in the queue. Works on a FIFO basis.
-    /// This class is based on <see cref="Queue"/> and is expected to behave similary, except for the restriction
+    /// This class is based on <see cref="Queue"/> and is expected to behave similarly, except for the restriction
     /// on uniqueness.
     /// </summary>
     /// <typeparam name="T">The type of the elements to use in the queue.</typeparam>

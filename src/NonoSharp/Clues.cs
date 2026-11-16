@@ -3,9 +3,15 @@
 namespace NonoSharp
 {
     /// <summary>
-    /// The clues of a line. Each Clue in Clues can be accessed by using the indexer.
-    /// E.g.: Clue clueAtI = (Clues) clues[i].
+    /// The clues of a line. Each <see cref="Clue"/> in the instance can be accessed by using the indexer.
     /// </summary>
+    /// <example>
+    /// The example below constructs a Clues instance of 3 numbers and retrieves the first clue using the indexer.
+    /// <code>
+    /// Clues clues = new Clues(1, 2, 3);
+    /// Clue firstClue = clues[0]; // Gets the first clue
+    /// </code>
+    /// </example>
     public class Clues : ICloneable, IEnumerable<Clue>
     {
         /// <summary> The list containing the <c>Clue</c> instances </summary>
@@ -171,7 +177,7 @@ namespace NonoSharp
 
                     if (firstGroupCompleteFollowedByBlank)
                     {
-                        // Immediatly stop checking if the first clue group was not seperated by a cross
+                        // Immediately stop checking if the first clue group was not separated by a cross
                         return clueIndex;
                     }
 
@@ -187,7 +193,7 @@ namespace NonoSharp
                 {
                     // Now, we do not know whether the player knows that these clues are correct or not,
                     // as we require crosses between cells for cells not starting at the first index
-                    // We return as we have no other garauntees on other clues
+                    // We return as we have no other guarantees on other clues
                     return clueIndex - 1;
                 }
 
@@ -208,7 +214,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Checks clue completion by starting from the back. Only checks upto (not including) <paramref name="forwardsFinalCheck"/>.
+        /// Checks clue completion by starting from the back. Only checks up to (not including) <paramref name="forwardsFinalCheck"/>.
         /// </summary>
         /// <param name="line">The row/column to check</param>
         /// <param name="forwardsFinalCheck">The last clue index which <c>DoCompletionForward</c> left off at</param>
@@ -328,17 +334,17 @@ namespace NonoSharp
         public static Clues FromString(string str)
         {
             ArgumentNullException.ThrowIfNull(str, nameof(str));
-            string[] splitted = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] splitString = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             Clues clues = [];
 
-            foreach (string s in splitted)
+            foreach (string s in splitString)
             {
                 int parsed = int.Parse(s);
                 if (parsed < 0)
                 {
                     throw new ArgumentException($"Parsed number {parsed} in {nameof(str)} must be non-negative!", nameof(str));
                 }
-                if (parsed == 0 && splitted.Length > 1)
+                if (parsed == 0 && splitString.Length > 1)
                 {
                     throw new ArgumentException("Can not have a clue with 0 filled cells if there are other clues!", nameof(str));
                 }

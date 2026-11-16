@@ -85,7 +85,7 @@ namespace NonoSharp
         {
             if (puzzle.Solution == null) throw new InvalidOperationException("There is no solution to serialize!");
 
-            // Bools take 1 bit, ints 32. Depending on the density and dimensions of the puzzle,
+            // Bools take 1 bit, (standard) integers 32. Depending on the density and dimensions of the puzzle,
             // one can be more optimal for storage space but considering that usually >50% of cells are filled,
             // storing the expected state of each cell seems to be the way to go
 

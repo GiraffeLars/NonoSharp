@@ -1,4 +1,4 @@
-# NonoSharp
+﻿# NonoSharp
 [![NuGet Version](https://img.shields.io/nuget/vpre/NonoSharp?label=NuGet)](https://www.nuget.org/packages/NonoSharp/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NonoSharp?label=NuGet%20Downloads
 )](https://www.nuget.org/packages/NonoSharp/)
@@ -23,15 +23,14 @@ NonoSharp is paired with an [example UI consumer](https://github.com/GiraffeLars
 
 Currently the library is split into the following components:
 - **Nonogram puzzle playing**: Generate, load, save and play Nonogram puzzles, just like you would for any other Nonogram game.
-- **Nonogram solving**: Solve any Nonogram puzzle you might encounter, either by using the built-in solver.
-- **Nonogram creation**: Create your own Nonogram puzzles, either by using the Nonogram builder.
+- **Nonogram solving**: Solve any Nonogram puzzle that doesn't require guessing with the built-in solver.
+- **Nonogram creation**: Create your own Nonogram puzzles using the Nonogram builder.
 
 ## Features
-- **A fully functional Nonogram game**, complete with cell operations, clue checking and solved-state checking
-- An abstracted **Nonogram API** allowing for game logic to be reused in other projects
-- A **custom solver** allowing you to solve any Nonogram puzzle
+- **A fully functional Nonogram game**, complete with clue checking and various other features
+- **Custom solver** to solve any Nonogram you might encounter that doesn't require guessing
 - **Randomly generated puzzles** guaranteed to be uniquely solvable as verified by the built-in solver
-- **Saving and loading solutions** to/from custom file format optimised for file size
+- **Custom file format** optimised for file size to load and save puzzles
 - A **Nonogram builder** allowing you to create your own Nonogram puzzles quickly and easily
 - And more!
 
@@ -144,10 +143,10 @@ var solvable = Solver.IsSolvable(columnClues, rowClues, out var solution);
 
 ## Getting Started
 ### Playing
-To play a Nonogram game built on top of NonoSharp, install the beta release for Windows in the [Releases](https://github.com/GiraffeLars/NonoSharp-Maui) tab of the [NonoSharp-Maui GitHub Repo](https://github.com/GiraffeLars/NonoSharp-Maui), or create your own!
+To play a Nonogram game built on top of NonoSharp, install the latest release for Windows in the [Releases](https://github.com/GiraffeLars/NonoSharp-Maui/releases) tab of the [NonoSharp-Maui GitHub Repo](https://github.com/GiraffeLars/NonoSharp-Maui), or create your own!
 
 ### Contributing
-To contribute, clone the project and open it in your prefered IDE, such as Visual Studio. The project makes use of [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
+To contribute, clone the project and open it in your preferred IDE, such as Visual Studio. The project makes use of [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
 ### Building the project
 After setting everything up, you can follow the regular workflow for building .NET projects:
@@ -163,12 +162,31 @@ dotnet build src/NonoSharp/NonoSharp.csproj
 
 Of course, you are also welcome to use your IDE's debugger to build the project.
 
+### Building documentation pages
+The documentation is automatically generated using [DocFX](https://dotnet.github.io/docfx/). 
+To build and locally host the documentation pages, install (or update) DocFX with
+```
+dotnet tool update -g docfx
+```
+and then run the following command:
+```
+docfx docfx.json --serve
+```
+
 ### Unit tests
 The project is paired with a test suite found in `tests/NonoSharp.Tests`. To run the tests, either use your IDE's unit testing features or run the following:
 ```
 dotnet test tests/NonoSharp.Tests/NonoSharp.Tests.csproj
 ```
 When contributing, please ensure that the unit tests all pass. These will also be checked when opening a pull request.
+
+### Verifying the code examples
+The code examples shown in the documentation are found in the `docs/examples` folder. 
+These are automatically verified to compile as part of the CI/CD pipeline. 
+When contributing, ensure these compile, or change them as required. You can verify them locally by running the following command:
+```
+dotnet run --project docs/examples/NonoSharp.ExampleValidator
+```
 
 ## Roadmap
 Features that are currently planned to be added *(in no particular order)*:

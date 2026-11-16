@@ -21,8 +21,8 @@ namespace NonoSharp
         /// <summary>
         /// Creates a Clue instance, where Number is <paramref name="num"/>.
         /// </summary>
-        /// <param name="num">The total amount of cells needing to be filled consecutively for this Clue
-        /// to be consider complete.</param>
+        /// <param name="num">The total amount of cells that needs to be filled consecutively for this Clue
+        /// to be considered as complete.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="num"/> is negative.</exception>
         public Clue(int num)
         {

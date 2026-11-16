@@ -283,7 +283,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestToJSON()
         {
-            string expected = """
+            string expected = ("""
                 {
                     "title": "test",
                     "columns": [
@@ -295,7 +295,7 @@ namespace NonoSharp.Tests
                         [2, 2]
                     ]
                 }
-                """ + Environment.NewLine;
+                """ + Environment.NewLine).ReplaceLineEndings();
 
             Clues[] colClues = [new(1, 2, 3), new(1, 1)];
             Clues[] rowClues = [new(4, 5, 6), new(2, 2)];
@@ -311,7 +311,7 @@ namespace NonoSharp.Tests
         [Fact]
         public void TestFromJSON()
         {
-            string json = """
+            string json = ("""
                 {
                     "title": "test",
                     "columns": [
@@ -324,7 +324,7 @@ namespace NonoSharp.Tests
                         [2]
                     ]
                 }
-                """ + Environment.NewLine;
+                """ + Environment.NewLine).ReplaceLineEndings();
 
             var deserialised = PuzzleSerializer.FromJSON(json);
             Assert.Equal("test", deserialised.Title);
@@ -351,7 +351,7 @@ namespace NonoSharp.Tests
                         [1]
                     ]
                 }
-                """;
+                """.ReplaceLineEndings();
 
             var deserialised = PuzzleSerializer.FromJSON(json);
             Assert.Null(deserialised.Title);

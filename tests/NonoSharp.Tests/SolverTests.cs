@@ -21,7 +21,7 @@ namespace NonoSharp.Tests
 
             Assert.True(Solver.IsSolvable(puzzle));
 
-            // Check if the puzzle is still solvable after the user mistakingly placed a cross
+            // Check if the puzzle is still solvable after the user mistakenly placed a cross
             puzzle.Grid.SetCell(0, 0, CellType.Cross);
             Assert.False(Solver.IsSolvable(puzzle));
         }
@@ -123,7 +123,7 @@ namespace NonoSharp.Tests
 
             Assert.False(Solver.IsSolvable(puzzle));
 
-            // Also test the other possibility for this ambigous grid
+            // Also test the other possibility for this ambiguous grid
             // [ ][O]
             // [O][ ]
             solution = [new CellPosition(1, 0), new CellPosition(0, 1)];

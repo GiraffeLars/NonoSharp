@@ -56,11 +56,11 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Creates a new PuzzleBuilder instance with a width of <paramref name="width"/> and a height of
+        /// Creates a new NonogramBuilder instance with a width of <paramref name="width"/> and a height of
         /// <paramref name="height"/>.
         /// </summary>
-        /// <param name="width">Width for the puzzle to create with this PuzzleBuilder.</param>
-        /// <param name="height">Height for the puzzle to create with this PuzzleBuilder.</param>
+        /// <param name="width">Width for the puzzle to create with this NonogramBuilder.</param>
+        /// <param name="height">Height for the puzzle to create with this NonogramBuilder.</param>
         /// <param name="title">Optional title to give the puzzle.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="width"/> or <paramref name="height"/>
         /// is non-positive (&lt;= 0).</exception>
@@ -195,7 +195,7 @@ namespace NonoSharp
         /// </summary>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>True if it is uniquely solvable, false otherwise.</returns>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
         public async Task<bool> IsSolvableAsync(CancellationToken cancellationToken = default)
         {
@@ -239,20 +239,12 @@ namespace NonoSharp
             return new(ToPuzzle());
         }
 
-        /// <inheritdoc cref="ToNonogram()"/>
-        [Obsolete("GetNonogramAPI() has been renamed and is deprecated. Use ToNonogram() instead. " +
-            "This method will be removed after v0.6.0")]
-        public Nonogram GetNonogramAPI()
-        {
-            return ToNonogram();
-        }
-
         /// <summary>
         /// Converts this puzzle into a playable <see cref="Nonogram"/> asynchronously.
         /// </summary>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
         public async Task<Nonogram> ToNonogramAsync(CancellationToken cancellationToken = default)
         {
@@ -262,14 +254,6 @@ namespace NonoSharp
             }
 
             return new(ToPuzzle());
-        }
-
-        /// <inheritdoc cref="ToNonogramAsync"/>
-        [Obsolete("GetNonogramAPIAsync() has been renamed and is deprecated. Use ToNonogramAsync() instead. " +
-            "This method will be removed after v0.6.0")]
-        public async Task<Nonogram> GetNonogramAPIAsync()
-        {
-            return await ToNonogramAsync();
         }
 
         /// <summary>
@@ -305,7 +289,7 @@ namespace NonoSharp
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the built puzzle is not uniquely solvable.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
         public async Task SaveAsFileAsync(string path, CancellationToken cancellationToken = default)
         {
@@ -318,7 +302,7 @@ namespace NonoSharp
         }
 
         /// <summary>
-        /// Sets the dimensions of this PuzzleBuilder. This is done by adding new empty cells to the right and bottom.
+        /// Sets the dimensions of this NonogramBuilder. This is done by adding new empty cells to the right and bottom.
         /// Cannot shrink the puzzle.
         /// </summary>
         /// <param name="newWidth">New width for the puzzle</param>

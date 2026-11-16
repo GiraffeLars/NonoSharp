@@ -193,7 +193,7 @@ namespace NonoSharp
         /// <summary>
         /// Creates a Nonogram instance with a random puzzle asynchronously by running 
         /// <see cref="Nonogram.CreateRandomPuzzle(int, int, NonogramOptions)"/> on the ThreadPool
-        /// as it is computionally expensive.
+        /// as it is computationally expensive.
         /// </summary>
         /// <remarks>
         /// Generating solvable puzzles is computationally expensive and the runtime increases drastically with
@@ -534,10 +534,11 @@ namespace NonoSharp
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails,
         /// e.g. because of an I/O Exception. See the inner exception for more details.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
         public void SaveAsFile(string path, string? title = null)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
+            ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = new(Width, Height, this.puzzle.Solution!, title);
             puzzle.SavePuzzle(path);
         }
@@ -554,12 +555,13 @@ namespace NonoSharp
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the operation was canceled 
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation was cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
         public async Task SaveAsFileAsync(string path, string? title = null, CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
+            ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = new(Width, Height, puzzle.Solution!, title);
             await puzzleDef.SavePuzzleAsync(path, cancellationToken);
         }
@@ -583,10 +585,11 @@ namespace NonoSharp
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception.
         /// See the inner exception for more details.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
         public static Nonogram LoadPuzzle(string path, NonogramOptions? options = null)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
+            ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
 
             Puzzle puzzle = new(puzzleDef);
@@ -623,17 +626,18 @@ namespace NonoSharp
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
         /// <returns>Nonogram instance of the puzzle located at the given path</returns>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
-        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="PuzzleLoadingFailedException">Thrown when loading files fails, e.g. because of an I/O Exception. 
-        /// See the inner exception for more details</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c> or empty</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// See the inner exception for more details.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled
         /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(path, nameof(path));
+            ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path, cancellationToken);
 
             Puzzle puzzle = new(puzzleDef);
@@ -652,12 +656,12 @@ namespace NonoSharp
         /// <param name="stream">Stream to read the puzzle from. 
         /// To avoid false positives on InvalidFileFormatException exceptions,
         /// the stream must consist of ONLY one valid puzzle, such as one provided by
-        /// <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
-        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options</param>
-        /// <returns>A <c>Nonogram</c> instance of the puzzle loaded from the stream</returns>
-        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported</exception>
-        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c></exception>
+        /// <see cref="SaveAsFile(string, string?)"/>.</param>
+        /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
+        /// <returns>A <c>Nonogram</c> instance of the puzzle loaded from the stream.</returns>
+        /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c>.</exception>
         public static async Task<Nonogram> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
@@ -676,12 +680,12 @@ namespace NonoSharp
         /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
         /// Refer to the inner-exception for more details.</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
-
         public static Nonogram FromJSON(string json, NonogramOptions? options = null)
         {
             var puzzle = PuzzleSerializer.FromJSON(json);
             return new(puzzle, options);
         }
+
         /// <summary>
         /// Creates a nonogram from a JSON representation.
         /// </summary>
@@ -691,7 +695,6 @@ namespace NonoSharp
         /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
         /// Refer to the inner-exception for more details.</exception>
         /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
-
         public static Nonogram FromJSON(Stream stream, NonogramOptions? options = null)
         {
             var puzzle = PuzzleSerializer.FromJSON(stream);

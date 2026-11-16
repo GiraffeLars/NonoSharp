@@ -1,4 +1,4 @@
-# Examples
+﻿# Examples
 ## Creating a random puzzle and basic cell operations
 The following example creates a new puzzle with a width of 5 and a height of 10.
 It then fills, crosses and clears the cell located at (0, 0).

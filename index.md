@@ -1,4 +1,4 @@
----
+﻿---
 _layout: landing
 ---
 
@@ -13,7 +13,7 @@ To get started, navigate to [Introduction](docs/introduction.md) or immediately 
 with installing the package by running the command below and browsing the 
 [API documentation](xref:NonoSharp).
 ```shell
-dotnet package add NonoSharp
+dotnet add package NonoSharp
 ```
 
 ## Source code

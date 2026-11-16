@@ -97,7 +97,7 @@ namespace NonoSharp
         /// <exception cref="PuzzleSerializationFailedException">Thrown when serialization fails. For example, when the given title is too long, or an I/O exception occurs.
         /// Usually, there is an inner exception giving more details.</exception>
         /// <exception cref="PuzzleSavingFailedException">Thrown when saving files fails, e.g. because of an I/O Exception. See the inner exception for more details</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the operation was canceled 
+        /// <exception cref="OperationCanceledException">Thrown when the operation was cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
         public async Task SavePuzzleAsync(string path, CancellationToken cancellationToken)
         {
@@ -105,7 +105,7 @@ namespace NonoSharp
 
             byte[] serialized = PuzzleSerializer.Serialize(this);
             // No SerializeAsync method as puzzles are usually small in terms of bytes.
-            // This is also the reason that there are no async binarywriter/readers available in .NET
+            // This is also the reason that there are no async binary writer/readers available in .NET
 
             try
             {
@@ -203,7 +203,7 @@ namespace NonoSharp
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Do not use an asynchronous deserializer as contents are expected to be small.
+            // Do not use an asynchronous deserialiser as contents are expected to be small.
             return PuzzleSerializer.Deserialize(serializedPuzzle);
         }
     }

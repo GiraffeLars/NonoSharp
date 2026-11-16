@@ -83,7 +83,7 @@ namespace NonoSharp
         /// <param name="rowClues">The clues for the rows of the nonogram puzzle.</param>
         /// <param name="cancellationToken">The token to monitor cancellation requests on.</param>
         /// <returns>A <c>HashSet</c> of <c>CellPosition</c>s with the found solution.</returns>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled 
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<HashSet<CellPosition>> SolveAsync(Clues[] columnClues, Clues[] rowClues,
             CancellationToken cancellationToken = default)
@@ -106,7 +106,7 @@ namespace NonoSharp
         /// <summary>
         /// Solves <paramref name="puzzle"/> in-place.
         /// </summary>
-        /// <param name="puzzle">Puzle to solve</param>
+        /// <param name="puzzle">Puzzle to solve</param>
         /// <returns>The solution to <paramref name="puzzle"/>.</returns>
         internal static HashSet<CellPosition> Solve(Puzzle puzzle)
         {
@@ -232,7 +232,7 @@ namespace NonoSharp
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A tuple containing a boolean, indicating whether the nonogram can be solved
         /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled
         /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
             Nonogram nonogram, CancellationToken cancellationToken = default)
@@ -253,7 +253,7 @@ namespace NonoSharp
         /// </summary>
         /// <remarks> The width and height of the puzzle are determined by the lengths of the column and row clues respectively.</remarks>
         /// <param name="columnClues">Column clues (usually shown on the top of the puzzle) for this puzzle.</param>
-        /// <param name="rowClues">Row clues (usually shown on the right of the puzzle) for this puzzle.</param>
+        /// <param name="rowClues">Row clues (usually shown on the left of the puzzle) for this puzzle.</param>
         /// <param name="solution">The solution HashSet if the puzzle is solvable.
         /// <c>null</c> if the puzzle is not solvable.</param>
         /// <returns><c>true</c> if the puzzle can be solved, <c>false</c> otherwise.</returns>
@@ -279,7 +279,7 @@ namespace NonoSharp
         /// and the solution HashSet if it can be solved, or <c>null</c> if it cannot be solved.</returns>
         /// <exception cref="ArgumentException">Thrown when the length of <paramref name="columnClues"/> 
         /// or <paramref name="rowClues"/> are 0.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled
         /// via <paramref name="cancellationToken"/>.</exception>
         public static async Task<(bool, HashSet<CellPosition>?)> IsSolvableAsync(
             Clues[] columnClues, Clues[] rowClues, CancellationToken cancellationToken = default)
@@ -455,7 +455,7 @@ namespace NonoSharp
                 for (int i = cellIdx; i < permutation.Length; i++)
                 {
                     // If there are more filled cells after the clues have been processed, there are too many
-                    // filled cells in the line. As such, this pernutation is invalid
+                    // filled cells in the line. As such, this permutation is invalid
                     if (clone[i] == CellType.Filled)
                     {
                         return;
