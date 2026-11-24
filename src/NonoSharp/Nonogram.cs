@@ -536,11 +536,21 @@ namespace NonoSharp
         /// e.g. because of an I/O Exception. See the inner exception for more details.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
+        [Obsolete("Nonogram.SaveAsFile is deprecated. Use NonogramSerializer.Serialize and save the file manually instead.")]
         public void SaveAsFile(string path, string? title = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzle = new(Width, Height, this.puzzle.Solution!, title);
-            puzzle.SavePuzzle(path);
+
+            var serialized = NonogramSerializer.Serialize(puzzle);
+            try
+            {
+                File.WriteAllBytes(path, serialized.ToArray());
+            }
+            catch (Exception e)
+            {
+                throw new PuzzleSavingFailedException("Failed to save puzzle!", e);
+            }
         }
 
         /// <summary>
@@ -559,20 +569,27 @@ namespace NonoSharp
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the operation was cancelled 
         /// via <paramref name="cancellationToken"/>.</exception>
+        [Obsolete("Nonogram.SaveAsFileAsync is deprecated. Use NonogramSerializer.Serialize and save the file manually instead. " +
+            "This method will be removed after v0.7.*")]
         public async Task SaveAsFileAsync(string path, string? title = null, CancellationToken cancellationToken = default)
         {
             ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
             PuzzleDefinition puzzleDef = new(Width, Height, puzzle.Solution!, title);
-            await puzzleDef.SavePuzzleAsync(path, cancellationToken);
-        }
 
-        /// <summary>
-        /// Converts this Nonogram's clues and title into a JSON format.
-        /// </summary>
-        /// <returns>A string representing this puzzle in a JSON format.</returns>
-        public string ToJSON()
-        {
-            return PuzzleSerializer.ToJSON(puzzle);
+            var serialized = NonogramSerializer.Serialize(puzzleDef).ToArray();
+            try
+            {
+                await File.WriteAllBytesAsync(path, serialized, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                if (e is OperationCanceledException)
+                {
+                    throw;
+                }
+
+                throw new PuzzleSavingFailedException("Failed to save puzzle!", e);
+            }
         }
 
         /// <summary>
@@ -587,13 +604,23 @@ namespace NonoSharp
         /// See the inner exception for more details.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="path"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
+        [Obsolete("Nonogram.LoadPuzzle is deprecated. Load the file manually and use NonogramSerializer.Deserialize instead. " +
+            "This method will be removed after v0.7.*")]
         public static Nonogram LoadPuzzle(string path, NonogramOptions? options = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(path);
 
-            Puzzle puzzle = new(puzzleDef);
-            return new(puzzle) { Options = options ?? new() };
+            FileStream fs;
+            try
+            {
+                fs = File.OpenRead(path);
+            }
+            catch (Exception e)
+            {
+                throw new PuzzleLoadingFailedException($"Failed to open file {path}!", e);
+            }
+
+            return NonogramSerializer.Deserialize(fs);
         }
 
         /// <summary>
@@ -604,19 +631,17 @@ namespace NonoSharp
         /// </remarks>
         /// <param name="stream">Stream to read the puzzle from.
         /// To avoid false positives on InvalidFileFormatException exceptions, the stream must consist of ONLY one valid puzzle,
-        /// such as one provided by <see cref="PuzzleDefinition.SavePuzzle(string)"/>.</param>
+        /// such as one provided by <see cref="NonogramSerializer.Serialize(Nonogram)"/>.</param>
         /// <returns>Nonogram instance of the puzzle.</returns>
         /// <param name="options">The <see cref="NonogramOptions"/> to use. Leave as <c>null</c> to use the default options.</param>
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c>.</exception>
+        [Obsolete("Nonogram.LoadPuzzle is deprecated. Use NonogramSerializer.Deserialize instead. This method will be removed after v0.7.*")]
         public static Nonogram LoadPuzzle(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-            PuzzleDefinition puzzleDefinition = PuzzleDefinition.LoadPuzzle(stream);
-
-            Puzzle puzzle = new(puzzleDefinition);
-            return new(puzzle) { Options = options ?? new() };
+            return NonogramSerializer.Deserialize(stream);
         }
 
         /// <summary>
@@ -634,14 +659,32 @@ namespace NonoSharp
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is empty.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled
         /// via <paramref name="cancellationToken"/>.</exception>
+        [Obsolete("Nonogram.LoadPuzzleAsync is deprecated. Load the file manually and use NonogramSerializer.Deserialize instead. " +
+            "This method will be removed after v0.7.*")]
         public static async Task<Nonogram> LoadPuzzleAsync(string path, NonogramOptions? options = null,
             CancellationToken cancellationToken = default)
         {
             ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
-            PuzzleDefinition puzzleDef = await PuzzleDefinition.LoadPuzzleAsync(path, cancellationToken);
 
-            Puzzle puzzle = new(puzzleDef);
-            return new(puzzle) { Options = options ?? new() };
+            byte[] serializedPuzzle;
+            try
+            {
+                serializedPuzzle = await File.ReadAllBytesAsync(path, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                if (e is OperationCanceledException)
+                {
+                    throw;
+                }
+
+                throw new PuzzleLoadingFailedException("Failed to load puzzle!", e);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Do not use an asynchronous deserialiser as contents are expected to be small.
+            return NonogramSerializer.Deserialize(serializedPuzzle);
         }
 
         /// <summary>
@@ -662,42 +705,13 @@ namespace NonoSharp
         /// <exception cref="InvalidFileFormatException">Thrown when the given file format is not supported.</exception>
         /// <exception cref="NotSupportedException">Thrown when the version of the save system is not supported.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is <c>null</c>.</exception>
+        [Obsolete("Nonogram.LoadPuzzleAsync is deprecated. Use NonogramSerializer.Deserialize instead. This method will be removed after v0.7.*")]
         public static async Task<Nonogram> LoadPuzzleAsync(Stream stream, NonogramOptions? options = null)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-            PuzzleDefinition puzzleDef = PuzzleDefinition.LoadPuzzle(stream);
+            PuzzleDefinition puzzleDef = NonogramSerializer.DeserializeToDefinition(stream);
 
             Puzzle puzzle = new(puzzleDef);
-            return new(puzzle, options);
-        }
-
-        /// <summary>
-        /// Creates a nonogram from a JSON representation.
-        /// </summary>
-        /// <param name="json">The JSON representation of the nonogram.</param>
-        /// <param name="options">The options to apply to the nonogram, or <c>null</c> to use the default options.</param>
-        /// <returns>A <c>Nonogram</c> instance created from the specified JSON representation.</returns>
-        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
-        /// Refer to the inner-exception for more details.</exception>
-        /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
-        public static Nonogram FromJSON(string json, NonogramOptions? options = null)
-        {
-            var puzzle = PuzzleSerializer.FromJSON(json);
-            return new(puzzle, options);
-        }
-
-        /// <summary>
-        /// Creates a nonogram from a JSON representation.
-        /// </summary>
-        /// <param name="stream">The stream containing the JSON representation of the nonogram.</param>
-        /// <param name="options">The options to apply to the nonogram, or <c>null</c> to use the default options.</param>
-        /// <returns>A <c>Nonogram</c> instance created from the specified JSON representation.</returns>
-        /// <exception cref="PuzzleDeserializationFailedException">Thrown when the JSON is invalid or cannot be deserialized.
-        /// Refer to the inner-exception for more details.</exception>
-        /// <exception cref="PuzzleNotSolvableException">Thrown when the deserialized puzzle is not solvable.</exception>
-        public static Nonogram FromJSON(Stream stream, NonogramOptions? options = null)
-        {
-            var puzzle = PuzzleSerializer.FromJSON(stream);
             return new(puzzle, options);
         }
 
